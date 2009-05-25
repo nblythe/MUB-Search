@@ -1,20 +1,24 @@
+{-
+  Generate table of inner products and bias values (against the unity
+  vector) for all d-dimensional vectors consisting of 12th roots of unity.
+
+  Floating point version.
+
+  File is CSV.
+-}
+
 import Data.List
 import Data.Complex
 import Data.Array
 import System.IO
+import System(getArgs)
 
 
 {-
   Dimension we're working in.
 -}
 d :: Int
-d = 6
-
-
-{-
-  Will construct vectors with elements selected from the
-  nth roots of unity.
--}
+d = 3
 n :: Int
 n = 12
 
@@ -51,12 +55,12 @@ ip xs ys = (sum $ map (int_to_comp_a !) [ x - y | (x,y) <- zip xs ys ]) + 1
   into a list for a particular vector.
 -}
 vec_stat :: HadV -> [Float]
-vec_stat x = [ abs((magnitude (ip x unity_v))),
-               abs((magnitude (ip x unity_v)) - sqrt(fromIntegral d)) ]
+vec_stat x = [ abs((magnitude (ip x unity_v) ^ 2)),
+               abs((magnitude (ip x unity_v) ^ 2) - (fromIntegral d)) ]
 
 
 {-
-  The largest Hadamard vector.
+  The largest vector.
 -}
 max_v :: HadV
 max_v = take (d - 1) (repeat (n - 1))
@@ -119,7 +123,12 @@ csv_table [] = ""
 csv_table (h : t) = csv_vec(h) ++ csv_table(t)
 
 
-main = do writeFile "temp" (csv_table vec_table)
+{-
+  ./MUB-Table-exact outfile
+-}
+main = do
+  argH : argT <- getArgs
+  writeFile argH (csv_table vec_table)
   --putStr ("Have " ++ (show $ length all_vecs) ++ " vectors.\n\n")
   --putStr ("And here they are: " ++ (show all_vecs) ++ "\n")
 
