@@ -1,0 +1,13 @@
+MUB-Search
+2009 Dr. Oscar Boykin, Nathan Blythe
+
+Search all vectors in a Hilbert space that are comprised of roots of unity for
+mutually unbiased bases.
+
+MUB-Table-* builds a table of "orthogonal to unity vector" and "unbiased to unity
+vector" information.  MUB-Table-approx builds this table using floating point
+calculations; MUB-Table-exact builds it using exact values (via an extension of
+the rational numbers).
+
+MUB-Search searches a pre-built table for mutually unbiased bases.
+

@@ -1,6 +1,8 @@
 CC = ghc
 FLAGS =
 
+all: MUB-Table-exact MUB-Table-approx
+
 MUB-Table-exact: MUB-Table-exact.hs
 	$(CC) -o MUB-Table-exact MUB-Table-exact.hs $(FLAGS)
 

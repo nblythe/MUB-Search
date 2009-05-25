@@ -2,9 +2,9 @@
   Generate table of inner products and bias values (against the unity
   vector) for all d-dimensional vectors consisting of 12th roots of unity.
 
-  Floating point version.
+  2009 Dr. Oscar Boykin, Nathan Blythe
 
-  File is CSV.
+  Floating point version.  File is CSV.
 -}
 
 import Data.List
@@ -21,6 +21,13 @@ d :: Int
 d = 3
 n :: Int
 n = 12
+
+
+{-
+  Threshold for "tiny" numbers.
+-}
+tiny :: Float
+tiny = 0.0001
 
 
 {-
@@ -54,9 +61,9 @@ ip xs ys = (sum $ map (int_to_comp_a !) [ x - y | (x,y) <- zip xs ys ]) + 1
   Combine the orthogonal-to-unity and unbiased-to-unity information
   into a list for a particular vector.
 -}
-vec_stat :: HadV -> [Float]
-vec_stat x = [ abs((magnitude (ip x unity_v) ^ 2)),
-               abs((magnitude (ip x unity_v) ^ 2) - (fromIntegral d)) ]
+vec_stat :: HadV -> [Bool]
+vec_stat x = [ abs((magnitude (ip x unity_v) ^ 2)) < tiny,
+               abs((magnitude (ip x unity_v) ^ 2) - (fromIntegral d)) < tiny ]
 
 
 {-
@@ -102,7 +109,7 @@ all_vecs = all_vecs' unity_v
 {-
   Orthogonality and unbiasedness (to unity) for all vectors.
 -}
-vec_table :: [[Float]]
+vec_table :: [[Bool]]
 vec_table = map vec_stat all_vecs
 
 
@@ -110,7 +117,7 @@ vec_table = map vec_stat all_vecs
   Convert a double into a string containing
   two comma seperated variables.
 -}
-csv_vec :: [Float] -> String
+csv_vec :: [Bool] -> String
 csv_vec [a, b] = (show(a) ++ "," ++ show(b) ++ "\n")
 
 
@@ -118,7 +125,7 @@ csv_vec [a, b] = (show(a) ++ "," ++ show(b) ++ "\n")
   Convert a table of doubles into a string containing
   a comma seperated list.
 -}
-csv_table :: [[Float]] -> String
+csv_table :: [[Bool]] -> String
 csv_table [] = ""
 csv_table (h : t) = csv_vec(h) ++ csv_table(t)
 
