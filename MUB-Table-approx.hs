@@ -18,7 +18,7 @@ import System(getArgs)
   Dimension we're working in.
 -}
 d :: Int
-d = 3
+d = 6
 n :: Int
 n = 12
 

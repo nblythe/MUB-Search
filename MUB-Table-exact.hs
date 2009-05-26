@@ -17,9 +17,9 @@ import System(getArgs)
 {-
   Dimension we're working in.
 -}
-d :: Int
-d = 3
-n :: Int
+d :: Integer
+d = 6
+n :: Integer
 n = 12
 
 
@@ -62,32 +62,42 @@ instance Eq ExtCpx where
 instance Show ExtCpx where
   showsPrec d (ExtCpx a b) r = (showsPrec d a "") ++ " + i*" ++ (showsPrec d b "") ++ r
 
+
 {-
+  12th roots of unity.
+-}
+rZero = ExtRat 0   0 -- 0
+rHalf = ExtRat 0.5 0 -- 0.5
+rSqrt = ExtRat 0   1 -- sqrt(3) / 2
+rOne  = ExtRat 1   0 -- 1
+roots = [ ExtCpx   rOne      rZero  ,
+          ExtCpx   rSqrt     rHalf  ,
+          ExtCpx   rHalf     rSqrt  ,
+          ExtCpx   rZero     rOne   ,
+          ExtCpx (-rHalf)    rSqrt  ,
+          ExtCpx (-rSqrt)    rHalf  ,
+          ExtCpx (-rOne)     rZero  ,
+          ExtCpx (-rSqrt)  (-rHalf) ,
+          ExtCpx (-rHalf)  (-rSqrt) ,
+          ExtCpx   rZero   (-rOne)  ,
+          ExtCpx   rHalf   (-rSqrt) ,
+          ExtCpx   rSqrt   (-rHalf) ]
+
+
 {-
   Type definition for vectors.
 -}
-type HadV = [Int]
-
-
-{-
-  Compute the kth nth root of unity.
-  (If n = 6, "int_to_comp 2" computes the second 6th root of unity)
--}
-int_to_comp :: Int -> Complex Float
-int_to_comp k = cis $ 2.0 * pi * (fromIntegral k) / (fromIntegral n)
-
-
-{-
-  All nth roots of unity.
--}
-int_to_comp_a = listArray (-n, n) [ int_to_comp k | k <- range (-n, n)]
+type HadV = [Integer]
 
 
 {-
   Compute the inner product of two vectors.
 -}
-ip :: HadV -> HadV -> Complex Float
-ip xs ys = (sum $ map (int_to_comp_a !) [ x - y | (x,y) <- zip xs ys ]) + 1
+ip :: HadV -> HadV -> ExtCpx
+ip [] [] = 1
+ip (xh : xt) (yh : yt) = (roots !! (fromInteger xh))
+                       * (roots !! (fromInteger yh))
+                       + (ip xt yt)
 
 
 {-
@@ -95,22 +105,22 @@ ip xs ys = (sum $ map (int_to_comp_a !) [ x - y | (x,y) <- zip xs ys ]) + 1
   into a list for a particular vector.
 -}
 vec_stat :: HadV -> [Bool]
-vec_stat x = [ abs((magnitude (ip x unity_v) ^ 2)) < tiny,
-               abs((magnitude (ip x unity_v) ^ 2) - (fromIntegral d)) < tiny ]
+vec_stat x = [ (ip x unity_v) == 0,
+               (abs (ip x unity_v)) - (fromInteger d) == 0 ]
 
 
 {-
   The largest vector.
 -}
 max_v :: HadV
-max_v = take (d - 1) (repeat (n - 1))
+max_v = take (fromInteger (d - 1)) (repeat (n - 1))
 
 
 {-
   The smallest vector, the unity vector.
 -}
 unity_v :: HadV
-unity_v = take (d - 1) (repeat 0)
+unity_v = take (fromInteger (d - 1)) (repeat 0)
 
 
 {-
@@ -171,7 +181,5 @@ main = do
   writeFile argH (csv_table vec_table)
   --putStr ("Have " ++ (show $ length all_vecs) ++ " vectors.\n\n")
   --putStr ("And here they are: " ++ (show all_vecs) ++ "\n")
--}
 
-main = do putStr("Hello, World\n")
 
