@@ -189,8 +189,6 @@ pv_eq x y = elem x (all_perm_v (d-1) y)
 {-
   Determine if two vectors are orthogonal.
 -}
---are_orth_a xs ys = let z = had_v_to_int [ mod (x-y) n | (x,y) <- zip xs ys]
---                   in orth_to_one_a ! z
 are_orth_a xs ys = (vec_table !! (fromInteger (had_v_to_int [ mod (x-y) n | (x,y) <- zip xs ys]))) !! 0
 
 
@@ -316,7 +314,7 @@ mubs_from_lines = [ constrained_add (are_unbiased_had) [h]
 {-
   Mutually unbiased bases with trivial bases removed.
 -}
-non_trivial_mubs = filter ((> 1) . length) mubs_from_lines
+non_trivial_mubs vt = filter ((> 1) . length) mubs_from_lines
 
 
 {-
@@ -334,17 +332,14 @@ bits2bools :: [String] -> [Bool]
 bits2bools x = map bit2bool x
 
 
-vec_table :: [[Bool]]
-vec_table = []
 
 {-
   Main routine: find and display all non-trivial MUBs as generated above.
 -}
 main = do
   x <- readFile "exact.txt"
-  let xs = map words (lines x)
-  let xd = map bits2bools xs
-  let vec_table = xd
+  let vec_table = map bits2bools (map words (lines x))
+  
 
 --vec_table :: [[Bool]]
 --vec_table = 
@@ -355,13 +350,13 @@ main = do
   --print "All non-trivial MUBs:"
   --print non_trivial_mubs
   --     print $ map length non_trivial_mubs
+  putStr (show $ length y)
+  --putStr ("Found " ++ (show $ length non_trivial_mubs))
+  --putStr (" sets, the largest having " ++ (show $ maximum $ map length non_trivial_mubs))
+  --putStr " mutually unbiased bases.\n\n"
 
-  putStr ("Found " ++ (show $ length non_trivial_mubs))
-  putStr (" sets, the largest having " ++ (show $ maximum $ map length non_trivial_mubs))
-  putStr " mutually unbiased bases.\n\n"
+  --putStr "All non-trivial MUBs:\n"
+  --putStr ((show non_trivial_mubs) ++ "\n\n")
 
-  putStr "All non-trivial MUBs:\n"
-  putStr ((show non_trivial_mubs) ++ "\n\n")
-
-  putStr ("Number of bases in each: " ++ (show $ map length non_trivial_mubs) ++ "\n")
+  --putStr ("Number of bases in each: " ++ (show $ map length non_trivial_mubs) ++ "\n")
 
