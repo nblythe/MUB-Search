@@ -157,20 +157,32 @@ vec_table = map vec_stat all_vecs
 
 
 {-
-  Convert a double into a string containing
-  two comma seperated variables.
+  Convert a boolean to a 0 or 1.
 -}
-csv_vec :: [Bool] -> String
-csv_vec [a, b] = (show(a) ++ "," ++ show(b) ++ "\n")
+bool2bit :: Bool -> String
+bool2bit x = case x of
+                  True -> "1"
+                  False -> "0"
 
 
 {-
-  Convert a table of doubles into a string containing
-  a comma seperated list.
+  Convert a list of booleans to a string of 0s and 1s seperated
+  by spaces.
 -}
-csv_table :: [[Bool]] -> String
-csv_table [] = ""
-csv_table (h : t) = csv_vec(h) ++ csv_table(t)
+bools2bits :: [Bool] -> String
+bools2bits []        = ""
+bools2bits (xh : []) = bool2bit xh
+bools2bits (xh : xt) = (bool2bit xh) ++ " " ++ (bools2bits xt)
+
+
+{-
+  Convert a list of boolean lists into a string containing
+  lines of 0s and 1s.
+-}
+lbools2bits :: [[Bool]] -> String
+lbools2bits []        = ""
+lbools2bits (xh : []) = bools2bits xh
+lbools2bits (xh : xt) = (bools2bits xh) ++ "\n" ++ (lbools2bits xt)
 
 
 {-
@@ -178,7 +190,7 @@ csv_table (h : t) = csv_vec(h) ++ csv_table(t)
 -}
 main = do
   argH : argT <- getArgs
-  writeFile argH (csv_table vec_table)
+  writeFile argH (lbools2bits vec_table)
   --putStr ("Have " ++ (show $ length all_vecs) ++ " vectors.\n\n")
   --putStr ("And here they are: " ++ (show all_vecs) ++ "\n")
 

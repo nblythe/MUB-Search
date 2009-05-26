@@ -131,11 +131,40 @@ csv_table (h : t) = csv_vec(h) ++ csv_table(t)
 
 
 {-
+  Convert a boolean to a 0 or 1.
+-}
+bool2bit :: Bool -> String
+bool2bit x = case x of
+                  True -> "1"
+                  False -> "0"
+
+
+{-
+  Convert a list of booleans to a string of 0s and 1s seperated
+  by spaces.
+-}
+bools2bits :: [Bool] -> String
+bools2bits []        = ""
+bools2bits (xh : []) = bool2bit xh
+bools2bits (xh : xt) = (bool2bit xh) ++ " " ++ (bools2bits xt)
+
+
+{-
+  Convert a list of boolean lists into a string containing
+  lines of 0s and 1s.
+-}
+lbools2bits :: [[Bool]] -> String
+lbools2bits []        = ""
+lbools2bits (xh : []) = bools2bits xh
+lbools2bits (xh : xt) = (bools2bits xh) ++ "\n" ++ (lbools2bits xt)
+
+
+{-
   ./MUB-Table-exact outfile
 -}
 main = do
   argH : argT <- getArgs
-  writeFile argH (csv_table vec_table)
+  writeFile argH (lbools2bits vec_table)
   --putStr ("Have " ++ (show $ length all_vecs) ++ " vectors.\n\n")
   --putStr ("And here they are: " ++ (show all_vecs) ++ "\n")
 
