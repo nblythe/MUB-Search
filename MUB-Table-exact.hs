@@ -23,16 +23,16 @@ import ExtCpx
 d :: Integer
 d = 6
 n :: Integer
-n = 12
+n = 24
 
 
 {-
   12th roots of unity.
 -}
-rZero = ExtRat 0   0 -- 0
-rHalf = ExtRat 0.5 0 -- 0.5
-rSqrt = ExtRat 0   1 -- sqrt(3) / 2
-rOne  = ExtRat 1   0 -- 1
+{-rZero = ExtRat 0   0 0 0 -- 0
+rHalf = ExtRat 0.5 0 0 0 -- 0.5
+rSqrt = ExtRat 0   0 0.5 0 -- sqrt(3) / 2
+rOne  = ExtRat 1   0 0 0 -- 1
 roots = [ ExtCpx   rOne      rZero  ,
           ExtCpx   rSqrt     rHalf  ,
           ExtCpx   rHalf     rSqrt  ,
@@ -44,7 +44,42 @@ roots = [ ExtCpx   rOne      rZero  ,
           ExtCpx (-rHalf)  (-rSqrt) ,
           ExtCpx   rZero   (-rOne)  ,
           ExtCpx   rHalf   (-rSqrt) ,
-          ExtCpx   rSqrt   (-rHalf) ]
+          ExtCpx   rSqrt   (-rHalf) ]-}
+
+{-
+  24th roots of unity.
+-}
+r0 = ExtRat 0    0       0    0    -- 0
+r1 = ExtRat 0    (-0.25) 0    0.25 -- 0.25882
+r2 = ExtRat 0.50 0       0    0    -- 0.5
+r3 = ExtRat 0    0.50    0    0    -- 0.70711
+r4 = ExtRat 0    0       0.50 0    -- 0.86603
+r5 = ExtRat 0    0.25    0    0.25 -- 0.96593
+r6 = ExtRat 1    0       0    0    -- 1
+roots = [ ExtCpx   r6        r0  ,
+          ExtCpx   r5        r1  ,
+          ExtCpx   r4        r2  ,
+          ExtCpx   r3        r3  ,
+          ExtCpx   r2        r4  ,
+          ExtCpx   r1        r5  ,
+          ExtCpx   r0        r6  ,
+          ExtCpx (-r1)       r5  ,
+          ExtCpx (-r2)       r4  ,
+          ExtCpx (-r3)       r3  ,
+          ExtCpx (-r4)       r2  ,
+          ExtCpx (-r5)       r1  ,
+          ExtCpx (-r6)       r0  ,
+          ExtCpx (-r5)     (-r1) ,
+          ExtCpx (-r4)     (-r2) ,
+          ExtCpx (-r3)     (-r3) ,
+          ExtCpx (-r2)     (-r4) ,
+          ExtCpx (-r1)     (-r5) ,
+          ExtCpx   r0      (-r6) ,
+          ExtCpx   r1      (-r5) ,
+          ExtCpx   r2      (-r4) ,
+          ExtCpx   r3      (-r3) ,
+          ExtCpx   r4      (-r2) ,
+          ExtCpx   r5      (-r1) ]
 
 
 {-
