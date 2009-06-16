@@ -4,7 +4,7 @@
 
   2009 Dr. Oscar Boykin, Nathan Blythe
 
-  Floating point version.  File is CSV.
+  Floating point version.
 -}
 
 import Data.List

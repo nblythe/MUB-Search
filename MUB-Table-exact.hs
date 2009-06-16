@@ -4,7 +4,7 @@
 
   2009 Dr. Oscar Boykin, Nathan Blythe
 
-  Exact version.  File is CSV.
+  Exact version.
 -}
 
 import Data.List
@@ -12,6 +12,9 @@ import Data.Complex
 import Data.Array
 import System.IO
 import System(getArgs)
+
+import ExtRat
+import ExtCpx
 
 
 {-
@@ -21,46 +24,6 @@ d :: Integer
 d = 6
 n :: Integer
 n = 12
-
-
-{-
-  Extended rationals.
--}
-data ExtRat = ExtRat Rational Rational
-
-instance Num ExtRat where
-  (ExtRat a1 b1) + (ExtRat a2 b2) = ExtRat (a1 + a2) (b1 + b2)
-  (ExtRat a1 b1) * (ExtRat a2 b2) = ExtRat (a1 * a2 + b1 * b2 * 3 / 4) (a1 * b2 + a2 * b1)
-  negate (ExtRat a b) = ExtRat (negate a) (negate b)
-  abs (ExtRat a b) = error "abs undefined for extended rationals"
-  signum (ExtRat a b) = error "signum undefined for extended rationals"
-  fromInteger n = ExtRat (fromInteger n) 0
-
-instance Eq ExtRat where
-  (ExtRat a1 b1) == (ExtRat a2 b2) = (a1 == a2) && (b1 == b2)
-
-instance Show ExtRat where
-  showsPrec d (ExtRat a b) r = "(" ++ (showsPrec d a "") ++ ", " ++ (showsPrec d b "") ++ ")" ++ r
-
-
-{-
-  Extended complex numbers.
--}
-data ExtCpx = ExtCpx ExtRat ExtRat
-
-instance Num ExtCpx where
-  (ExtCpx a1 b1) + (ExtCpx a2 b2) = ExtCpx (a1 + a2) (b1 + b2)
-  (ExtCpx a1 b1) * (ExtCpx a2 b2) = ExtCpx (a1 * a2 - b1 * b2) (a1 * b2 + a2 * b1)
-  negate (ExtCpx a b) = ExtCpx (negate a) (negate b)
-  abs (ExtCpx a b) = ExtCpx (a * a + b * b) 0
-  signum (ExtCpx a b) = error "signum undefined for extended complex numbers"
-  fromInteger n = ExtCpx (fromInteger n) 0
-
-instance Eq ExtCpx where
-  (ExtCpx a1 b1) == (ExtCpx a2 b2) = (a1 == a2) && (b1 == b2)
-
-instance Show ExtCpx where
-  showsPrec d (ExtCpx a b) r = (showsPrec d a "") ++ " + i*" ++ (showsPrec d b "") ++ r
 
 
 {-
