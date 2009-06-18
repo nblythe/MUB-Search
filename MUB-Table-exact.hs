@@ -8,8 +8,7 @@
 -}
 
 import Data.List
-import Data.Complex
-import Data.Array
+import Data.Binary
 import System.IO
 import System(getArgs)
 
@@ -23,7 +22,7 @@ import ExtCpx
 d :: Integer
 d = 6
 n :: Integer
-n = 24
+n = 12
 
 
 {-
@@ -188,7 +187,8 @@ lbools2bits (xh : xt) = (bools2bits xh) ++ "\n" ++ (lbools2bits xt)
 -}
 main = do
   argH : argT <- getArgs
-  writeFile argH (lbools2bits vec_table)
+--  writeFile argH (lbools2bits vec_table)
+  encodeFile argH vec_table
   --putStr ("Have " ++ (show $ length all_vecs) ++ " vectors.\n\n")
   --putStr ("And here they are: " ++ (show all_vecs) ++ "\n")
 

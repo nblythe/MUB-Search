@@ -8,7 +8,10 @@
 --module BSet where
 
 import Data.List
+import Data.Binary
 import Ix
+import System.IO
+import System(getArgs)
 
 import ExtRat
 import ExtCpx
@@ -47,11 +50,32 @@ ip (xh : xt) (yh : yt) = (roots !! (fromInteger xh))
                        + (ip xt yt)
 
 {-
-  Determine if two vectors are orthogonal.
+  Determine if two vectors are orthogonal by computing
+  their dot product.
 -}
 areOrth :: [Integer] -> [Integer] -> Bool
 areOrth x y = cZero == (ip x y)
 
+{-
+  Compute a vector's magic number.
+-}
+vec2magic :: Integer -> [Integer] -> Integer
+vec2magic n []        = 0
+vec2magic n (xh : xt) = xh * n^(length xt) + (vec2magic n xt)
+
+{-
+  Add two vectors.
+-}
+addVecs :: [Integer] -> [Integer] -> [Integer]
+addVecs a b = zipWith (\x y -> mod (x + y) (toInteger (length a))) a b
+
+{-
+  Determine if two vectors are orthogonal by referring
+  to a lookup table.
+-}
+fetchLUT n lut x y = lut !! fromInteger (vec2magic n (addVecs x y))
+--areOrthLUT n lut x y = (words (fetchLUT n lut x y)) !! 0 == "1"
+areOrthLUT n lut x y = (words (fetchLUT n lut x y)) !! 0
 
 {-
   All basis vectors.
@@ -59,9 +83,12 @@ areOrth x y = cZero == (ip x y)
 allBasisVectors :: Integer -> Integer -> [[Integer]]
 allBasisVectors d r = constructAllLists d (range(0, r - 1))
 
-
 main = do
-  print $ (length (filter (areOrth ((allBasisVectors 4 12) !! 0)) (allBasisVectors 4 12)))
+  argH : argT <- getArgs
+--  lut <- readFile argH
+  lut <- decodeFile  argH :: IO [[Bool]]
+  --print $ areOrthLUT (lines lut) ((allBasisVectors 5 12) !! 1) ((allBasisVectors 5 12) !! 2)
+  print $ (length (filter (areOrthLUT 12 lut ((allBasisVectors 6 12) !! 0)) (allBasisVectors 6 12)))
 
 
 
@@ -146,24 +173,5 @@ allUniqueOrthBases d r = collectElements (\x y -> not (permUnique x y)) [] (allO
 --allBases d r = map (nthBasisVector d r) (range(0, (r^d - 1)))
 --allUniqueBases d r = collectElements [] (allBasisVectors d r)
 
-
-
-{-
-  A set of bases.
--}
---data BSet = BSet [Basis]
-
-{-
-  Implementation of the Eq class.
-  Sets of bases are equivalent under permutations.
--}
---instance Eq BSet where
---  (BSet x) == (BSet y) = null (x \\ y)
-
-{-
-  Implementation of the Show class.
--}
---instance Show BSet where
---  showsPrec d (BSet x) r = showsPrec d x r
 
 -}
