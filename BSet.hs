@@ -13,6 +13,8 @@ import Ix
 import System.IO
 import System(getArgs)
 
+import Data.Graph.Inductive
+
 import ExtRat
 import ExtCpx
 import Perms
@@ -51,6 +53,12 @@ magic2vec x = map (magic2vec' x) (range(0, d - 2))
 addVecs :: [Int] -> [Int] -> [Int]
 addVecs a b = zipWith (\x y -> mod (x + y) (length a)) a b
 
+{-
+  Adjust a vector with an offset vector from a LUT.
+-}
+adjustVec :: [Int] -> [Int] -> [Int]
+adjustVec a b = zipWith (\x y -> mod (x - y) n) a b
+
 
 {-
   Determine if two vectors are orthogonal by referring
@@ -58,19 +66,89 @@ addVecs a b = zipWith (\x y -> mod (x + y) (length a)) a b
 -}
 --fetchLUT lut x y = lut !! fromInteger (vec2magic (addVecs x y))
 --areOrthLUT lut x y = (fetchLUT lut x y) !! 0
+--areOrth lut x y = (lut !! (mod (x + y) m)) !! 0
 
-areOrth lut x y = (lut !! (mod (x + y) m)) !! 0
+
+{-
+  All indices of orthogonal entries in a lookup table.
+-}
+allOrthIndices lut = findIndices (\x -> (x == [True, False]) || (x == [True, True])) lut
+
+{-
+  All vectors corresponding to all orthogonal entries in
+  lookup table.
+-}
+allOrthOffsets lut = map magic2vec (allOrthIndices lut)
+
+{-
+  All vectors orthogonal to a particular vector, by
+  magic numbers.
+-}
+allOrthVecs lut x = map (\y -> vec2magic (adjustVec x y)) (allOrthOffsets lut)
 
 {-
   All basis vectors.
 -}
 allBasisVectors = constructAllLists (d - 1) (range(0, n - 1))
 
+{-
+  Adjacency list for orthogonality graph.
+-}
+orthGraphAdj lut = map (allOrthVecs lut) allBasisVectors
+
+{-
+
+-}
+orthGraphNodes 0 = empty :: Gr()()
+--orthGraphNodes 1 = ([], 0, (), []::[((), Node)]) & (empty :: Gr()())
+orthGraphNodes k = ([], k - 1, (), []::[((), Node)]) & (orthGraphNodes (k - 1))
+
+{-
+
+-}
+makeLNodes x = zip x (take (length x) (repeat ()))
+makeLEdges' x l = map (\y -> (x, y, ())) l
+makeLEdgesN x = (map (\y -> makeLEdges' (fst y) (snd y))
+                                   (zip (range(0, (length x) - 1)) x))
+
+flatten []        = []
+flatten (xh : xt) = xh ++ (flatten xt)
+
+makeLEdges x = flatten (makeLEdgesN x)
+                
+
+
+
+
+
+{-
+
+-}
+orthGraph lut = mkGraph (makeLNodes (range(0, m - 1))) (makeLEdges (orthGraphAdj lut))
+
+--orthGraphEdges g x l = ( (makeNeighbors l), x, (), (makeNeighbors l) ) & g
+
+
+{-
+  A graph constructed from an adjacency list.
+-}
+
+
 main = do
   argH : argT <- getArgs
   lut <- decodeFile  argH :: IO [[Bool]]
+
+  putStr ((show $ m) ++ " nodes.\n")
+  putStr ((show $ length (allOrthIndices lut)) ++ " edges per node.\n")
+  putStr ((show $ m * (length (allOrthIndices lut))) ++ " edges total.\n")
+
+--  print  ( makeLEdges (orthGraphAdj lut))
+  print (indep ((orthGraph lut) :: Gr()()))
+--  print $ (isEmpty (empty :: Gr ()()))
+--  print $ length (orthGraphAdj lut)
+--  print $ length (allOrthVecs lut [0, 0, 0, 0, 0])
 --  print (findIndices (== [True, False]) lut)
-  print $ (length (filter (areOrth lut 0) (range(0, m - 1)) ))
+--  print $ (length (filter (areOrth lut 0) (range(0, m - 1)) ))
 
 
 
