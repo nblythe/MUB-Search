@@ -20,75 +20,57 @@ import ListGen
 
 
 {-
-  12th roots of unity.
+  Dimension we're working in.
 -}
-rZero = ExtRat 0   0 0 0 -- 0
-rHalf = ExtRat 0.5 0 0 0 -- 0.5
-rSqrt = ExtRat 0   0 1 0 -- sqrt(3) / 2
-rOne  = ExtRat 1   0 0 0 -- 1
-roots = [ ExtCpx   rOne      rZero  ,
-          ExtCpx   rSqrt     rHalf  ,
-          ExtCpx   rHalf     rSqrt  ,
-          ExtCpx   rZero     rOne   ,
-          ExtCpx (-rHalf)    rSqrt  ,
-          ExtCpx (-rSqrt)    rHalf  ,
-          ExtCpx (-rOne)     rZero  ,
-          ExtCpx (-rSqrt)  (-rHalf) ,
-          ExtCpx (-rHalf)  (-rSqrt) ,
-          ExtCpx   rZero   (-rOne)  ,
-          ExtCpx   rHalf   (-rSqrt) ,
-          ExtCpx   rSqrt   (-rHalf) ]
-cZero = ExtCpx rZero rZero
-
-{-
-  Compute the inner product of two vectors.
--}
-ip :: [Integer] -> [Integer] -> ExtCpx
-ip [] [] = 1
-ip (xh : xt) (yh : yt) = (roots !! (fromInteger xh))
-                       * (roots !! (fromInteger yh))
-                       + (ip xt yt)
-
-{-
-  Determine if two vectors are orthogonal by computing
-  their dot product.
--}
-areOrth :: [Integer] -> [Integer] -> Bool
-areOrth x y = cZero == (ip x y)
+d :: Int
+d = 6
+n :: Int
+n = 12
+m :: Int
+m = n^(d - 1)
 
 {-
   Compute a vector's magic number.
 -}
-vec2magic :: Integer -> [Integer] -> Integer
-vec2magic n []        = 0
-vec2magic n (xh : xt) = xh * n^(length xt) + (vec2magic n xt)
+vec2magic :: [Int] -> Int
+vec2magic []        = 0
+vec2magic (xh : xt) = xh * n^(d - (length xt) - 2) + (vec2magic xt)
+
+
+{-
+  Compute a magic number's vector.
+-}
+magic2vec' x y = mod (div x (n^y)) n
+magic2vec :: Int -> [Int]
+magic2vec x = map (magic2vec' x) (range(0, d - 2))
+
 
 {-
   Add two vectors.
 -}
-addVecs :: [Integer] -> [Integer] -> [Integer]
-addVecs a b = zipWith (\x y -> mod (x + y) (toInteger (length a))) a b
+addVecs :: [Int] -> [Int] -> [Int]
+addVecs a b = zipWith (\x y -> mod (x + y) (length a)) a b
+
 
 {-
   Determine if two vectors are orthogonal by referring
   to a lookup table.
 -}
-fetchLUT n lut x y = lut !! fromInteger (vec2magic n (addVecs x y))
---areOrthLUT n lut x y = (words (fetchLUT n lut x y)) !! 0 == "1"
-areOrthLUT n lut x y = (words (fetchLUT n lut x y)) !! 0
+--fetchLUT lut x y = lut !! fromInteger (vec2magic (addVecs x y))
+--areOrthLUT lut x y = (fetchLUT lut x y) !! 0
+
+areOrth lut x y = (lut !! (mod (x + y) m)) !! 0
 
 {-
   All basis vectors.
 -}
-allBasisVectors :: Integer -> Integer -> [[Integer]]
-allBasisVectors d r = constructAllLists d (range(0, r - 1))
+allBasisVectors = constructAllLists (d - 1) (range(0, n - 1))
 
 main = do
   argH : argT <- getArgs
---  lut <- readFile argH
   lut <- decodeFile  argH :: IO [[Bool]]
-  --print $ areOrthLUT (lines lut) ((allBasisVectors 5 12) !! 1) ((allBasisVectors 5 12) !! 2)
-  print $ (length (filter (areOrthLUT 12 lut ((allBasisVectors 6 12) !! 0)) (allBasisVectors 6 12)))
+--  print (findIndices (== [True, False]) lut)
+  print $ (length (filter (areOrth lut 0) (range(0, m - 1)) ))
 
 
 

@@ -28,7 +28,7 @@ n = 12
 {-
   12th roots of unity.
 -}
-{-rZero = ExtRat 0   0 0 0 -- 0
+rZero = ExtRat 0   0 0 0 -- 0
 rHalf = ExtRat 0.5 0 0 0 -- 0.5
 rSqrt = ExtRat 0   0 0.5 0 -- sqrt(3) / 2
 rOne  = ExtRat 1   0 0 0 -- 1
@@ -43,11 +43,12 @@ roots = [ ExtCpx   rOne      rZero  ,
           ExtCpx (-rHalf)  (-rSqrt) ,
           ExtCpx   rZero   (-rOne)  ,
           ExtCpx   rHalf   (-rSqrt) ,
-          ExtCpx   rSqrt   (-rHalf) ]-}
+          ExtCpx   rSqrt   (-rHalf) ]
 
 {-
   24th roots of unity.
 -}
+{-
 r0 = ExtRat 0    0       0    0    -- 0
 r1 = ExtRat 0    (-0.25) 0    0.25 -- 0.25882
 r2 = ExtRat 0.50 0       0    0    -- 0.5
@@ -79,7 +80,7 @@ roots = [ ExtCpx   r6        r0  ,
           ExtCpx   r3      (-r3) ,
           ExtCpx   r4      (-r2) ,
           ExtCpx   r5      (-r1) ]
-
+-}
 
 {-
   Type definition for vectors.
@@ -187,7 +188,7 @@ lbools2bits (xh : xt) = (bools2bits xh) ++ "\n" ++ (lbools2bits xt)
 -}
 main = do
   argH : argT <- getArgs
---  writeFile argH (lbools2bits vec_table)
+  --writeFile argH (lbools2bits vec_table)
   encodeFile argH vec_table
   --putStr ("Have " ++ (show $ length all_vecs) ++ " vectors.\n\n")
   --putStr ("And here they are: " ++ (show all_vecs) ++ "\n")

@@ -28,7 +28,6 @@ collectElements p l (v:vs) = collectElements p (collectElement p l v) vs
   Consider a list of d elements, each taking on values from
   list l.  Construct the mth such list.
 -}
-constructIndices :: Integer -> Integer -> Integer -> [Integer]
 constructIndices d n m = map (\x -> mod (div m (n^x)) n) (range (0, d - 1))
 constructList d l m = map (\x -> (l !! (fromInteger x))) (constructIndices d (toInteger (length l)) m)
 
