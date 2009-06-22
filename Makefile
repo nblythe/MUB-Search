@@ -5,6 +5,8 @@ PACKAGES = -package binary
 
 all: MUB-Table-exact MUB-Table-approx
 
+
+
 ExtRat: ExtRat.hs
 	$(CC) -c ExtRat.hs $(FLAGS) $(PACKAGES) $(PROF)
 
@@ -14,30 +16,22 @@ ExtCpx: ExtCpx.hs
 Perms: Perms.hs
 	$(CC) -c Perms.hs $(FLAGS) $(PACKAGES) $(PROF)
 
-ListGen: ListGen.hs
-	$(CC) -c ListGen.hs $(FLAGS) $(PACKAGES) $(PROF)
 
 
-BSet: BSet.hs ExtRat ExtCpx Perms ListGen
-	$(CC) -o BSet BSet.hs ExtRat.o ExtCpx.o Perms.o ListGen.o $(FLAGS) $(PACKAGES) $(PROF)
+GenVectorTable12: GenVectorTable12.hs ExtRat ExtCpx
+	$(CC) -o GenVectorTable12 GenVectorTable12.hs ExtRat.o ExtCpx.o $(FLAGS) $(PACKAGES) $(PROF)
+
+GenVectorTable24: GenVectorTable24.hs ExtRat ExtCpx
+	$(CC) -o GenVectorTable24 GenVectorTable24.hs ExtRat.o ExtCpx.o $(FLAGS) $(PACKAGES) $(PROF)
+
+GenOrthGraph: GenOrthGraph.hs
+	$(CC) -o GenOrthGraph GenOrthGraph.hs $(FLAGS) $(PACKAGES) $(PROF)
+
+FindCliques: FindCliques.hs
+	$(CC) -o FindCliques FindCliques.hs $(FLAGS) $(PACKAGES) $(PROF)
 
 
-
-MUB-Table-exact: MUB-Table-exact.hs ExtRat ExtCpx
-	$(CC) -o MUB-Table-exact MUB-Table-exact.hs ExtRat.o ExtCpx.o $(FLAGS) $(PACKAGES) $(PROF)
-
-Orth-Table: Orth-Table.hs
-	$(CC) -o Orth-Table Orth-Table.hs $(FLAGS) $(PACKAGES) $(PROF)
-
-
-
-MUB-Table-approx: MUB-Table-approx.hs
-	$(CC) -o MUB-Table-approx MUB-Table-approx.hs $(FLAGS) $(PACKAGES) $(PROF)
-
-
-
-MUB-Search: MUB-Search.hs
-	$(CC) -o MUB-Search MUB-Search.hs $(FLAGS)
 
 clean:
-	rm MUB-Table-exact MUB-Table-approx MUB-Search BSet *.hi *.o *.prof
+	rm GenVectorTable12 GenVectorTable24 GenOrthGraph FindCliques *.hi *.o *.prof
+

@@ -1,8 +1,6 @@
 {-
-  Generate a lookup table indicating which vectors are orthogonal
-  to which other vectors.  This can be thought of as the adjacency
-  matrix (in sparse form) of a graph describing orthogonality between
-  vectors.  Orthonormal bases are maximal cliques on this graph.
+  Generate the adjacency matrix for a graph where vertices represent
+  vectors and edges represent orthogonality.
 
   2009 Nathan Blythe, Dr. Oscar Boykin
 -}
@@ -82,10 +80,10 @@ orthLUT lut = map (\x -> allOrthVecs lut (magic2vec x)) (range (0, m - 1))
 
 
 {-
-  ./Orth-Table [in] [out]
+  ./GenOrthGraph [infile] [outfile]
 
-  in:  vector orthogonality, bias lookup table filename
-  out: target filename for orthogonal pairs lookup table
+  infile:  look-up table of vector orthogonality
+  out: target filename for adjacency matrix
 -}
 main = do
   arg0 : (arg1 : argT) <- getArgs
@@ -96,5 +94,4 @@ main = do
   putStr ((show $ m * (length (allOrthIndices lut))) ++ " edges total.\n")
 
   encodeFile arg1 (orthLUT lut)
-
 

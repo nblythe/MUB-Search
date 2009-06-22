@@ -45,42 +45,6 @@ roots = [ ExtCpx   rOne      rZero  ,
           ExtCpx   rHalf   (-rSqrt) ,
           ExtCpx   rSqrt   (-rHalf) ]
 
-{-
-  24th roots of unity.
--}
-{-
-r0 = ExtRat 0    0       0    0    -- 0
-r1 = ExtRat 0    (-0.25) 0    0.25 -- 0.25882
-r2 = ExtRat 0.50 0       0    0    -- 0.5
-r3 = ExtRat 0    0.50    0    0    -- 0.70711
-r4 = ExtRat 0    0       0.50 0    -- 0.86603
-r5 = ExtRat 0    0.25    0    0.25 -- 0.96593
-r6 = ExtRat 1    0       0    0    -- 1
-roots = [ ExtCpx   r6        r0  ,
-          ExtCpx   r5        r1  ,
-          ExtCpx   r4        r2  ,
-          ExtCpx   r3        r3  ,
-          ExtCpx   r2        r4  ,
-          ExtCpx   r1        r5  ,
-          ExtCpx   r0        r6  ,
-          ExtCpx (-r1)       r5  ,
-          ExtCpx (-r2)       r4  ,
-          ExtCpx (-r3)       r3  ,
-          ExtCpx (-r4)       r2  ,
-          ExtCpx (-r5)       r1  ,
-          ExtCpx (-r6)       r0  ,
-          ExtCpx (-r5)     (-r1) ,
-          ExtCpx (-r4)     (-r2) ,
-          ExtCpx (-r3)     (-r3) ,
-          ExtCpx (-r2)     (-r4) ,
-          ExtCpx (-r1)     (-r5) ,
-          ExtCpx   r0      (-r6) ,
-          ExtCpx   r1      (-r5) ,
-          ExtCpx   r2      (-r4) ,
-          ExtCpx   r3      (-r3) ,
-          ExtCpx   r4      (-r2) ,
-          ExtCpx   r5      (-r1) ]
--}
 
 {-
   Type definition for vectors.
@@ -155,42 +119,11 @@ vec_table = map vec_stat all_vecs
 
 
 {-
-  Convert a boolean to a 0 or 1.
--}
-bool2bit :: Bool -> String
-bool2bit x = case x of
-                  True -> "1"
-                  False -> "0"
+  ./GenVectorTable12 [outfile]
 
-
-{-
-  Convert a list of booleans to a string of 0s and 1s seperated
-  by spaces.
--}
-bools2bits :: [Bool] -> String
-bools2bits []        = ""
-bools2bits (xh : []) = bool2bit xh
-bools2bits (xh : xt) = (bool2bit xh) ++ " " ++ (bools2bits xt)
-
-
-{-
-  Convert a list of boolean lists into a string containing
-  lines of 0s and 1s.
--}
-lbools2bits :: [[Bool]] -> String
-lbools2bits []        = ""
-lbools2bits (xh : []) = bools2bits xh
-lbools2bits (xh : xt) = (bools2bits xh) ++ "\n" ++ (lbools2bits xt)
-
-
-{-
-  ./MUB-Table-exact outfile
+  outfile: target filename for vector table.
 -}
 main = do
   argH : argT <- getArgs
-  --writeFile argH (lbools2bits vec_table)
   encodeFile argH vec_table
-  --putStr ("Have " ++ (show $ length all_vecs) ++ " vectors.\n\n")
-  --putStr ("And here they are: " ++ (show all_vecs) ++ "\n")
-
 
