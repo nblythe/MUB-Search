@@ -1,7 +1,7 @@
 CC = ghc
 FLAGS = 
-PROF = #-prof -auto-all
-PACKAGES = -package binary -package fgl
+PROF = -prof -auto-all
+PACKAGES = -package binary
 
 all: MUB-Table-exact MUB-Table-approx
 
