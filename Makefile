@@ -22,8 +22,14 @@ BSet: BSet.hs ExtRat ExtCpx Perms ListGen
 	$(CC) -o BSet BSet.hs ExtRat.o ExtCpx.o Perms.o ListGen.o $(FLAGS) $(PACKAGES) $(PROF)
 
 
+
 MUB-Table-exact: MUB-Table-exact.hs ExtRat ExtCpx
 	$(CC) -o MUB-Table-exact MUB-Table-exact.hs ExtRat.o ExtCpx.o $(FLAGS) $(PACKAGES) $(PROF)
+
+Orth-Table: Orth-Table.hs
+	$(CC) -o Orth-Table Orth-Table.hs $(FLAGS) $(PACKAGES) $(PROF)
+
+
 
 MUB-Table-approx: MUB-Table-approx.hs
 	$(CC) -o MUB-Table-approx MUB-Table-approx.hs $(FLAGS) $(PACKAGES) $(PROF)
