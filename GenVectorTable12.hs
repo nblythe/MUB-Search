@@ -2,7 +2,7 @@
   Generate table of inner products and bias values (against the unity
   vector) for all d-dimensional vectors consisting of 12th roots of unity.
 
-  2009 Dr. Oscar Boykin, Nathan Blythe
+  2009 Nathan Blythe, Dr. Oscar Boykin
 
   Exact version.
 -}
