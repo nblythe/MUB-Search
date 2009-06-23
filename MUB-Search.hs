@@ -19,7 +19,8 @@ main = do
 --  olut <- decodeFile arg_olut :: IO [[Int]]
   let olut = orthLUT (6, 12) vlut
 
-  print (allAdjSets olut 6 0)
+  encodeFile arg_clut (allAdjSets olut 6 0)
+--  print (allAdjSets olut 6 0)
 --  print $ length (allAdjSets olut 2 0)
 
 {-

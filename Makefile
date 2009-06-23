@@ -1,9 +1,9 @@
 CC = ghc
 FLAGS = 
-PROF = -prof -auto-all
+PROF = #-prof -auto-all
 PACKAGES = -package binary
 
-all: MUB-Table-exact MUB-Table-approx
+all: MUB-Search
 
 
 
@@ -38,5 +38,5 @@ MUB-Search: MUB-Search.hs GenVectorTable12 GenVectorTable24 GenOrthGraph FindCli
 
 
 clean:
-	rm MUBSearch *.hi *.o *.prof
+	rm -f MUB-Search *.hi *.o *.prof
 
