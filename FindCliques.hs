@@ -4,6 +4,8 @@
   2009 Nathan Blythe, Dr. Oscar Boykin
 -}
 
+module FindCliques where
+
 import Data.List
 import Data.Binary
 import Ix
@@ -39,7 +41,7 @@ succAdjSets lut (lH : lT) = (succAdjSet lut lH) ++ (succAdjSets lut lT)
 
 
 {-
-  Given an vertex x, construct all sets of d adjacent vertices that each
+  Given a vertex x, construct all sets of d adjacent vertices that each
   include x.
 -}
 allAdjSets lut d x = (iterate (succAdjSets lut) [[x]]) !! (d - 1)
@@ -49,18 +51,4 @@ allAdjSets lut d x = (iterate (succAdjSets lut) [[x]]) !! (d - 1)
   All cliques of size d on the graph.
 -}
 allCliques lut d = map (allAdjSets lut d) (range(0, (length lut) - 1))
-
-
-{-
-  ./FindCliques [infile] [outfile] [size]
-
-  infile:  file containing adjacency matrix.
-  outfile: target file for cliques.
-  size:    size of the cliques to find.
--}
-main = do
-  arg0 : (arg1 : (arg2 : argT)) <- getArgs
-  lut <- decodeFile  arg0 :: IO [[Int]]
-
-  encodeFile arg1 (allCliques lut (read arg2 :: Int))
 

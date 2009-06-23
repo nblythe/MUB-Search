@@ -5,10 +5,11 @@
   2009 Nathan Blythe, Dr. Oscar Boykin
 -}
 
+module GenVectorTable24 where
+
 import Data.List
 import Data.Binary
 import System.IO
-import System(getArgs)
 
 import ExtRat
 import ExtCpx
@@ -129,14 +130,4 @@ all_vecs = all_vecs' unity_v
 -}
 vec_table :: [[Bool]]
 vec_table = map vec_stat all_vecs
-
-
-{-
-  ./GenVectorTable24 [outfile]
-
-  outfile: target filename for vector table.
--}
-main = do
-  argH : argT <- getArgs
-  encodeFile argH vec_table
 

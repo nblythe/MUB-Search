@@ -3,14 +3,13 @@
   vector) for all d-dimensional vectors consisting of 12th roots of unity.
 
   2009 Nathan Blythe, Dr. Oscar Boykin
-
-  Exact version.
 -}
+
+module GenVectorTable12 where
 
 import Data.List
 import Data.Binary
 import System.IO
-import System(getArgs)
 
 import ExtRat
 import ExtCpx
@@ -116,14 +115,4 @@ all_vecs = all_vecs' unity_v
 -}
 vec_table :: [[Bool]]
 vec_table = map vec_stat all_vecs
-
-
-{-
-  ./GenVectorTable12 [outfile]
-
-  outfile: target filename for vector table.
--}
-main = do
-  argH : argT <- getArgs
-  encodeFile argH vec_table
 

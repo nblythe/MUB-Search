@@ -5,53 +5,32 @@
   2009 Nathan Blythe, Dr. Oscar Boykin
 -}
 
+module GenOrthGraph where
 
 import Data.List
 import Data.Binary
 import Ix
 import System.IO
-import System(getArgs)
-
-
-{-
-  Dimension we're working in.
--}
-d :: Int
-d = 6
-n :: Int
-n = 12
-m :: Int
-m = n^(d - 1)
 
 
 {-
   Compute a vector's magic number.
 -}
-vec2magic :: [Int] -> Int
-vec2magic []        = 0
-vec2magic (xh : xt) = xh * n^(d - (length xt) - 2) + (vec2magic xt)
+vec2magic (d, n) []        = 0
+vec2magic (d, n) (xh : xt) = xh * n^(d - (length xt) - 2) + (vec2magic (d, n) xt)
 
 
 {-
   Compute a magic number's vector.
 -}
-magic2vec' x y = mod (div x (n^y)) n
-magic2vec :: Int -> [Int]
-magic2vec x = map (magic2vec' x) (range(0, d - 2))
-
-
-{-
-  Add two vectors.
--}
-addVecs :: [Int] -> [Int] -> [Int]
-addVecs a b = zipWith (\x y -> mod (x + y) (length a)) a b
+magic2vec' (d, n) x y = mod (div x (n^y)) n
+magic2vec  (d, n) x   = map (magic2vec' (d, n) x) (range(0, d - 2))
 
 
 {-
   Adjust a vector with an offset vector from a LUT.
 -}
-adjustVec :: [Int] -> [Int] -> [Int]
-adjustVec a b = zipWith (\x y -> mod (x - y) n) a b
+adjustVec (d, n) a b = zipWith (\x y -> mod (x - y) n) a b
 
 
 {-
@@ -64,34 +43,17 @@ allOrthIndices lut = findIndices (\x -> (x == [True, False]) || (x == [True, Tru
   All vectors corresponding to all orthogonal entries in
   lookup table.
 -}
-allOrthOffsets lut = map magic2vec (allOrthIndices lut)
+allOrthOffsets (d, n) lut = map (magic2vec (d, n)) (allOrthIndices lut)
 
 
 {-
   Magic numbers for all vectors orthogonal to a particular vector.
 -}
-allOrthVecs lut x = map (\y -> vec2magic (adjustVec x y)) (allOrthOffsets lut)
+allOrthVecs (d, n) lut x = map (\y -> vec2magic (d, n) (adjustVec (d, n) x y)) (allOrthOffsets (d, n) lut)
 
 
 {-
   Great big table of orthogonality.
 -}
-orthLUT lut = map (\x -> allOrthVecs lut (magic2vec x)) (range (0, m - 1))
-
-
-{-
-  ./GenOrthGraph [infile] [outfile]
-
-  infile:  look-up table of vector orthogonality
-  out: target filename for adjacency matrix
--}
-main = do
-  arg0 : (arg1 : argT) <- getArgs
-  lut <- decodeFile  arg0 :: IO [[Bool]]
-
-  putStr ((show $ m) ++ " nodes.\n")
-  putStr ((show $ length (allOrthIndices lut)) ++ " edges per node.\n")
-  putStr ((show $ m * (length (allOrthIndices lut))) ++ " edges total.\n")
-
-  encodeFile arg1 (orthLUT lut)
+orthLUT (d, n) lut = map (\x -> allOrthVecs (d, n) lut (magic2vec (d, n) x)) (range (0, (n^(d - 1)) - 1))
 

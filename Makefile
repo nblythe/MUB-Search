@@ -19,19 +19,24 @@ Perms: Perms.hs
 
 
 GenVectorTable12: GenVectorTable12.hs ExtRat ExtCpx
-	$(CC) -o GenVectorTable12 GenVectorTable12.hs ExtRat.o ExtCpx.o $(FLAGS) $(PACKAGES) $(PROF)
+	$(CC) -c GenVectorTable12.hs $(FLAGS) $(PACKAGES) $(PROF)
 
 GenVectorTable24: GenVectorTable24.hs ExtRat ExtCpx
-	$(CC) -o GenVectorTable24 GenVectorTable24.hs ExtRat.o ExtCpx.o $(FLAGS) $(PACKAGES) $(PROF)
+	$(CC) -c GenVectorTable24.hs $(FLAGS) $(PACKAGES) $(PROF)
 
 GenOrthGraph: GenOrthGraph.hs
-	$(CC) -o GenOrthGraph GenOrthGraph.hs $(FLAGS) $(PACKAGES) $(PROF)
+	$(CC) -c GenOrthGraph.hs $(FLAGS) $(PACKAGES) $(PROF)
 
 FindCliques: FindCliques.hs
-	$(CC) -o FindCliques FindCliques.hs $(FLAGS) $(PACKAGES) $(PROF)
+	$(CC) -c FindCliques.hs $(FLAGS) $(PACKAGES) $(PROF)
+
+
+
+MUB-Search: MUB-Search.hs GenVectorTable12 GenVectorTable24 GenOrthGraph FindCliques
+	$(CC) -o MUB-Search MUB-Search.hs GenVectorTable12.o GenVectorTable24.o GenOrthGraph.o FindCliques.o ExtRat.o ExtCpx.o $(FLAGS) $(PACKAGES) $(PROF)
 
 
 
 clean:
-	rm GenVectorTable12 GenVectorTable24 GenOrthGraph FindCliques *.hi *.o *.prof
+	rm MUBSearch *.hi *.o *.prof
 
