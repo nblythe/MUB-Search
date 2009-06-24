@@ -1,6 +1,6 @@
 CC = ghc
 FLAGS = 
-PROF = #-prof -auto-all
+PROF = -prof -auto-all
 PACKAGES = -package binary
 
 all: MUB-Search
@@ -36,6 +36,8 @@ MUB-Search: MUB-Search.hs GenVectorTable12 GenVectorTable24 GenOrthGraph FindCli
 	$(CC) -o MUB-Search MUB-Search.hs GenVectorTable12.o GenVectorTable24.o GenOrthGraph.o FindCliques.o ExtRat.o ExtCpx.o $(FLAGS) $(PACKAGES) $(PROF)
 
 
+Old-Search: Old-Search.hs
+	$(CC) -o Old-Search Old-Search.hs $(FLAGS) $(PACKAGES) $(PROF)
 
 clean:
 	rm -f MUB-Search *.hi *.o *.prof

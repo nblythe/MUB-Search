@@ -7,7 +7,7 @@
 module FindCliques where
 
 import Data.List
-import Data.Binary
+import Data.Maybe
 import Ix
 import System.IO
 import System(getArgs)
@@ -21,6 +21,36 @@ adjVerts lut (sH : sT) = if    (null sT)
                          then  z
                          else  intersect z (adjVerts lut sT)
                          where z = lut !! sH
+
+
+{-
+  The powerset of a set x.
+-}
+powerset       :: [a] -> [[a]]
+powerset []     = [[]]
+powerset (x:xs) = xss /\/ map (x:) xss
+                where xss = powerset xs
+
+(/\/)        :: [a] -> [a] -> [a]
+[]     /\/ ys = ys
+(x:xs) /\/ ys = x : (ys /\/ xs)
+
+
+
+adjVertsL' :: [[Int]] -> [Int] -> [Int]
+adjVertsL' lut []        = []
+adjVertsL' lut (xH : xT) = if   (null xT)
+                           then lut !! xH
+                           else intersect (lut !! xH) (adjVertsL lut xT)
+
+set2index lut s = fromJust (findIndex (s ==) (powerset (range (0, (length lut) - 1))))
+
+adjVertsMap :: [[Int]] -> [[Int]]
+adjVertsMap lut = map (adjVertsL' lut)
+                      (powerset (range (0, (length lut) - 1)))
+
+adjVertsL :: [[Int]] -> [Int] -> [Int]
+adjVertsL lut s = (adjVertsMap lut) !! (set2index lut s)
 
 
 {-

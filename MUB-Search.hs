@@ -11,7 +11,7 @@ import GenOrthGraph
 import FindCliques
 
 main = do
-  arg_vlut : (arg_olut : (arg_clut : arg_t)) <- getArgs
+  arg_vlut : (arg_clut : arg_t) <- getArgs
 
   vlut <- decodeFile arg_vlut :: IO [[Bool]]
 --  let vlut = GenVectorTable12.vec_table
@@ -19,7 +19,12 @@ main = do
 --  olut <- decodeFile arg_olut :: IO [[Int]]
   let olut = orthLUT (6, 12) vlut
 
-  encodeFile arg_clut (allAdjSets olut 6 0)
+--  print (subsetIndex (range (0, (length olut) - 1)) [1, 2, 3, 4, 5, 6])
+  print (adjVertsMap olut !! 1)
+--  print (set2index olut [942])
+--  print (adjVertsL olut [942])
+--  print (intersect (adjVertsL olut [0]) (adjVertsL olut [942]))
+--  encodeFile arg_clut (allAdjSets olut 6 0)
 --  print (allAdjSets olut 6 0)
 --  print $ length (allAdjSets olut 2 0)
 
