@@ -5,18 +5,26 @@ import Ix
 import System.IO
 import System(getArgs)
 
-import GenVectorTable12
---import GenVectorTable24
-import GenOrthGraph
-import FindCliques
+import OrthGraph
+import Cliques
 
 main = do
-  arg_vlut : (arg_clut : arg_t) <- getArgs
+--  arg_vlut : (arg_clut : arg_t) <- getArgs
 
-  vlut <- decodeFile arg_vlut :: IO [[Bool]]
+  orthT <- decodeFile "orth12.bin" :: IO [Int]
+  biasT <- decodeFile "unbias12.bin" :: IO [Int]
+
+--  vlut <- decodeFile arg_vlut :: IO [[Bool]]
 --  let vlut = GenVectorTable12.vec_table
 
-  print $ length (findIndices (\x -> (x == [True, True]) || (x == [False, True])) vlut)
+  let g = orthGraph (6, 12) orthT
+  let t = [[1, 2, 3], [0, 2, 3], [0, 1], [0, 1]]
+
+  print $ length (cliques g 2)
+
+--  print $ length (adjVerts g [0, 1, 2, 3])
+--  print $ length (allAdjSets g 3 0)
+--  print $ length (findIndices (\x -> (x == [True, True]) || (x == [False, True])) vlut)
 
 --  olut <- decodeFile arg_olut :: IO [[Int]]
   --let olut = orthLUT (6, 12) vlut

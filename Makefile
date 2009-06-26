@@ -79,6 +79,6 @@ Gen-VecTables: Gen-VecTables.hs VecTables
 MUB-Search: MUB-Search.hs GenVectorTable12 GenVectorTable24 GenOrthGraph FindCliques
 	$(CC) -o MUB-Search MUB-Search.hs GenVectorTable12.o GenVectorTable24.o GenOrthGraph.o FindCliques.o ExtRat.o ExtCpx.o Roots12.o Roots24.o $(FLAGS) $(PACKAGES) $(PROF)
 
-Old-Search: Old-Search.hs
-	$(CC) -o Old-Search Old-Search.hs $(FLAGS) $(PACKAGES) $(PROF)
+Old-Search: Old-Search.hs Magic
+	$(CC) -o Old-Search Old-Search.hs Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 
