@@ -13,6 +13,7 @@ import System.IO
 
 import ExtRat
 import ExtCpx
+import Roots12
 
 
 {-
@@ -22,27 +23,6 @@ d :: Integer
 d = 6
 n :: Integer
 n = 12
-
-
-{-
-  12th roots of unity.
--}
-rZero = ExtRat 0   0 0 0 -- 0
-rHalf = ExtRat 0.5 0 0 0 -- 0.5
-rSqrt = ExtRat 0   0 0.5 0 -- sqrt(3) / 2
-rOne  = ExtRat 1   0 0 0 -- 1
-roots = [ ExtCpx   rOne      rZero  ,
-          ExtCpx   rSqrt     rHalf  ,
-          ExtCpx   rHalf     rSqrt  ,
-          ExtCpx   rZero     rOne   ,
-          ExtCpx (-rHalf)    rSqrt  ,
-          ExtCpx (-rSqrt)    rHalf  ,
-          ExtCpx (-rOne)     rZero  ,
-          ExtCpx (-rSqrt)  (-rHalf) ,
-          ExtCpx (-rHalf)  (-rSqrt) ,
-          ExtCpx   rZero   (-rOne)  ,
-          ExtCpx   rHalf   (-rSqrt) ,
-          ExtCpx   rSqrt   (-rHalf) ]
 
 
 {-
