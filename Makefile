@@ -6,6 +6,7 @@ PACKAGES = -package binary
 all: MUB-Search
 
 
+
 ExtRat: ExtRat.hs
 	$(CC) -c ExtRat.hs $(FLAGS) $(PACKAGES) $(PROF)
 
@@ -18,13 +19,16 @@ Roots12: Roots12.hs ExtRat ExtCpx
 Roots24: Roots24.hs ExtRat ExtCpx
 	$(CC) -c Roots24.hs $(FLAGS) $(PACKAGES) $(PROF)
 
+SubsetSum: SubsetSum.hs
+	$(CC) -c SubsetSum.hs $(FLAGS) $(PACKAGES) $(PROF)
+
 
 
 Perms: Perms.hs
 	$(CC) -c Perms.hs $(FLAGS) $(PACKAGES) $(PROF)
 
-SubsetSum: SubsetSum.hs
-	$(CC) -c SubsetSum.hs $(FLAGS) $(PACKAGES) $(PROF)
+Analyze-Bases: Analyze-Bases.hs Perms
+	$(CC) -o Analyze-Bases Analyze-Bases.hs Perms.o $(FLAGS) $(PACKAGES) $(PROF)
 
 
 
@@ -46,9 +50,12 @@ MUB-Search: MUB-Search.hs GenVectorTable12 GenVectorTable24 GenOrthGraph FindCli
 	$(CC) -o MUB-Search MUB-Search.hs GenVectorTable12.o GenVectorTable24.o GenOrthGraph.o FindCliques.o ExtRat.o ExtCpx.o Roots12.o Roots24.o $(FLAGS) $(PACKAGES) $(PROF)
 
 
+
 Old-Search: Old-Search.hs
 	$(CC) -o Old-Search Old-Search.hs $(FLAGS) $(PACKAGES) $(PROF)
 
+
+
 clean:
-	rm -f MUB-Search *.hi *.o *.prof
+	rm -f MUB-Search Analyze-Bases Old-Search *.hi *.o *.prof
 

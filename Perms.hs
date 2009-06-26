@@ -69,11 +69,31 @@ permuteL x p = map (x !!) (rowShuffle p)
 -}
 permuteR x p = transpose (permuteL (transpose x) p)
 
+
+{-
+  All right permutations of a list of lists.
+-}
+permuteAllR x = map (permuteR x) (allPerms (length x))
+
+{-
+  All left permutations of a list of lists.
+-}
+permuteAllL x = map (permuteL x) (allPerms (length x))
+
+{-
+  All permutations of a list of lists.
+-}
+permuteAll' [] = []
+permuteAll' (xH : xT) = (permuteAllL xH) ++ (permuteAll' xT)
+permuteAll x = permuteAll' (permuteAllR x)
+
+
+
 {-
   All right and left permutations of a list of lists.
 -}
-permuteAll x = union (map (permuteL x) (allPerms (length x)))
-                     (map (permuteR x) (allPerms (length x)))
+--permuteAll x = union (map (permuteL x) (allPerms (length x)))
+--                     (map (permuteR x) (allPerms (length x)))
 
 {-
   Uniqueness of two lists of lists under some left and
