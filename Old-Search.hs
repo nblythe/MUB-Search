@@ -213,6 +213,9 @@ main = do
        --print non_trivial_mubs
        --print $ map length non_trivial_mubs
        encodeFile "all_valid_hads.bin" all_valid_hads
+       encodeFile "non_trivial_mubs.bin" non_trivial_mubs
+       encodeFile "mubs_from_lines.bin" mubs_from_lines
+       encodeFile "all_mutually_unbiased_lines" all_mutually_unbiased_lines
        --print $ filter ((> 5) . length ) all_mutually_unbiased_lines
        -- print $ length unit_ub
        -- print $ remove_equivs $ make_valid_leafs [ min_v ]
