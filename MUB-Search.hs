@@ -16,11 +16,13 @@ main = do
   vlut <- decodeFile arg_vlut :: IO [[Bool]]
 --  let vlut = GenVectorTable12.vec_table
 
+  print $ length (findIndices (\x -> (x == [True, True]) || (x == [False, True])) vlut)
+
 --  olut <- decodeFile arg_olut :: IO [[Int]]
-  let olut = orthLUT (6, 12) vlut
+  --let olut = orthLUT (6, 12) vlut
 
 --  print (subsetIndex (range (0, (length olut) - 1)) [1, 2, 3, 4, 5, 6])
-  print (adjVertsMap olut !! 1)
+--  print (adjVertsMap olut !! 1)
 --  print (set2index olut [942])
 --  print (adjVertsL olut [942])
 --  print (intersect (adjVertsL olut [0]) (adjVertsL olut [942]))
