@@ -3,7 +3,7 @@
 
   2009 Nathan Blythe, Dr. Oscar Boykin
 
-  ./VecTables <orth12> <unbias12> <orth24> <unbias24>
+  ./Gen-VecTables <orth12> <unbias12> <orth24> <unbias24>
 -}
 
 import Data.Binary

@@ -60,11 +60,11 @@ Perms: Perms.hs
 
 # Modules used to manipulate graphs.
 #
-GenOrthGraph: GenOrthGraph.hs
-	$(CC) -c GenOrthGraph.hs $(FLAGS) $(PACKAGES) $(PROF)
+OrthGraph: OrthGraph.hs
+	$(CC) -c OrthGraph.hs $(FLAGS) $(PACKAGES) $(PROF)
 
-FindCliques: FindCliques.hs
-	$(CC) -c FindCliques.hs $(FLAGS) $(PACKAGES) $(PROF)
+Cliques: Cliques.hs
+	$(CC) -c Cliques.hs $(FLAGS) $(PACKAGES) $(PROF)
 
 
 
@@ -76,8 +76,8 @@ Analyze-Bases: Analyze-Bases.hs Perms
 Gen-VecTables: Gen-VecTables.hs VecTables
 	$(CC) -o Gen-VecTables Gen-VecTables.hs VecTables.o ExtRat.o ExtCpx.o Roots12.o Roots24.o SubsetPred.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 
-MUB-Search: MUB-Search.hs GenVectorTable12 GenVectorTable24 GenOrthGraph FindCliques
-	$(CC) -o MUB-Search MUB-Search.hs GenVectorTable12.o GenVectorTable24.o GenOrthGraph.o FindCliques.o ExtRat.o ExtCpx.o Roots12.o Roots24.o $(FLAGS) $(PACKAGES) $(PROF)
+MUB-Search: MUB-Search.hs OrthGraph Cliques
+	$(CC) -o MUB-Search MUB-Search.hs OrthGraph.o Cliques.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 
 Old-Search: Old-Search.hs Magic
 	$(CC) -o Old-Search Old-Search.hs Magic.o $(FLAGS) $(PACKAGES) $(PROF)

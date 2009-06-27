@@ -20,7 +20,7 @@ main = do
   let g = orthGraph (6, 12) orthT
   let t = [[1, 2, 3], [0, 2, 3], [0, 1], [0, 1]]
 
-  print $ length (cliques g 2)
+  print (cliques g 2)
 
 --  print $ length (adjVerts g [0, 1, 2, 3])
 --  print $ length (allAdjSets g 3 0)
