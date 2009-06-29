@@ -4,9 +4,11 @@ import Data.Binary
 import Ix
 import System.IO
 import System(getArgs)
+import System.CPUTime
 
 import OrthGraph
 import Cliques
+import Magic
 
 main = do
 --  arg_vlut : (arg_clut : arg_t) <- getArgs
@@ -17,10 +19,23 @@ main = do
 --  vlut <- decodeFile arg_vlut :: IO [[Bool]]
 --  let vlut = GenVectorTable12.vec_table
 
+  let gF = orthGraphF (6, 12) orthT
   let g = orthGraph (6, 12) orthT
   let t = [[1, 2, 3], [0, 2, 3], [0, 1], [0, 1]]
 
-  print (cliques g 2)
+
+  --print $ map (magic2vec (6, 12)) (take 10000 (iterate (1 +) 0))
+  --print (cliques t (4) 4)
+  --print (cliques t 2)
+  print $ rootcliques g 2
+  --print (nextClique g (take (length g) (iterate (1 +) 0)) [[942]])
+  --print (filter (allAdj g [0]) (take (length g) (iterate (1 +) 0)))
+  --print (allAdj g [0] 78)
+  --print (areAdj g 78 0)
+  --print $ vec2magic (6, 12) (subVecs 12 (magic2vec (6, 12) 0) (magic2vec (6, 12) 78))
+  --print $ vec2magic (6, 12) (subVecs 12 (magic2vec (6, 12) 78) (magic2vec (6, 12) 0))
+  --print $ any (78 ==) (allOrthVecs (6, 12) orthT 0)
+  --print $ any (0 ==) (allOrthVecs (6, 12) orthT 78)
 
 --  print $ length (adjVerts g [0, 1, 2, 3])
 --  print $ length (allAdjSets g 3 0)

@@ -19,5 +19,5 @@ vec2magic (d, n) (xh : xt) = xh * n^(d - (length xt) - 2) + (vec2magic (d, n) xt
   Compute a magic number's vector.
 -}
 magic2vec' (d, n) x y = mod (div x (n^y)) n
-magic2vec  (d, n) x   = map (magic2vec' (d, n) x) (take (d - 2) (iterate (1 +) 0))
+magic2vec  (d, n) x   = map (magic2vec' (d, n) x) (take (d - 1) (iterate (1 +) 0))
 

@@ -11,14 +11,15 @@ dim :: Int
 dim = 6
 nth_roots :: Int
 nth_roots = 12
-tiny :: Float
-tiny = 0.0001
 
 type HadV = [Int] -- Hadamard Vector
 type HadNode = [HadV] -- Hadamard Node, or part of a Hadamard Matrix, some number of columns
 
 
-
+{-
+  Convert a sparse boolean table to a dense boolean table of length n.
+-}
+sparse2dense n tab = [not (Nothing == (find (x ==) tab)) | x <- take n (iterate (1 +) 0)]
 
 
 {-
@@ -29,76 +30,73 @@ addVec2magic a b = vec2magic (dim, nth_roots) (zipWith (\x y -> mod (x + y) nth_
 
 
 {-
-  Determine if two vectors are listed in a table.
+  Determine if two vectors are orthogonal.
 -}
-are_inTable tab a b = not (Nothing == (find ((addVec2magic a b) ==) tab))
+are_orth orthT biasT u v = orthT !! (addVec2magic u v)
 
 
+{-
+  Determine if two vectors are unbiased.
+-}
+are_unbiased orthT biasT u v = biasT !! (addVec2magic u v)
 
 
+{-
+  Determine if two matrices are unbiased.
+-}
+are_unbiased_had orthT biasT a b = and [are_unbiased orthT biasT u v | u <- a, v <- b]
 
 
-
-
-
-
-opmod :: Integral a => (a -> a -> a) -> a -> a -> a -> a
-opmod f m x y = mod ( f x y ) m 
-pmod = opmod (+)
-mmod = opmod (-)
-
-
--- Return true if these two vectors are unbiased.  We assume the first element
--- is 1, the inner product should be \sqrt{d}
-are_unbiased :: [Int] -> [Int] -> HadV -> HadV -> Bool
-are_unbiased orthT biasT xs ys = are_inTable biasT xs ys
-
--- Return true if two matrices are unbiased:
-are_unbiased_had :: [Int] -> [Int] -> HadNode -> HadNode -> Bool
-are_unbiased_had orthT biasT h1 h2 = and [ are_unbiased orthT biasT c1 c2 | c1 <- h1, c2 <- h2 ]
-
--- Treat a vector like a diagonal matrix and multiply by a Hadamard
-d_mult :: HadV -> HadNode -> HadNode
+{-
+  Treat a vector like a diagonal matrix and multiply by a Hadamard
+-}
 d_mult v h = [ [mod (vi+wi) nth_roots | (vi, wi) <- zip v w] | w <- h]
 
-{- The biggest possible vector -}
-max_v :: HadV
-max_v = take (dim-1) (repeat (nth_roots - 1))
-{- The smallest possible vector -}
-min_v :: HadV
-min_v = take (dim-1) (repeat 0)
+
+{-
+  The largest vector.
+-}
+maxVec = replicate (dim - 1) (nth_roots - 1)
+
+
+{-
+  The smallest vector.
+-}
+minVec = replicate (dim - 1) 0
+
+
+{-
+  All vectors.
+-}
+nextVec []        = [1]
+nextVec (xH : xT) = if   xH < nth_roots - 1
+                           then (xH + 1) : xT
+                           else 0 : nextVec xT
+allVecs = take (nth_roots^(dim - 1)) (iterate nextVec minVec)
+
+
+
+
+
 {- Is this the largest vector in our ordering -}
 is_max :: HadV -> Bool
-is_max = (== max_v)
-l_max = length max_v
+is_max = (== maxVec)
+l_max = length maxVec
 
 gt_e_max :: HadV -> Bool
 gt_e_max v = (is_max v) || ((length v) > l_max)
 
-{- Here's the next function 
- - This is just "little-endian" addition
- - -}
-next_v :: HadV -> HadV 
-next_v [] = [1]
-next_v (x:xs) = if x < nth_roots-1
-                then (x+1):xs
-                else 0 : next_v xs
+
 {- Convert a HadV to a integer
  -}
 had_v_to_int :: HadV -> Int
 had_v_to_int [] = 0
 had_v_to_int (x:xs) = x + nth_roots * had_v_to_int xs
 
--- A list of all vectors from the minimum to the maximum (inclusive)
-all_vecs :: [HadV]
-all_vecs = all_vecs' min_v
-           where all_vecs' v | not $ is_max v = v : all_vecs' (next_v v)
-                             | otherwise = v : []
 
 
 
 
-are_orth_a orthT biasT xs ys = are_inTable orthT xs ys
 
 {- Make all the children of a given hadamard -}
 
@@ -108,21 +106,15 @@ get_children_n next_f hn | length hn == dim = []
                 where g_c' hn acc v | gt_e_max v = (v:hn):acc
                                     | otherwise = g_c' hn ((v:hn):acc) (next_f v)
 -- Get's all the children.
-get_children = get_children_n next_v
+get_children = get_children_n nextVec
 
 {- If the most recently added vector is orthogonal to all previous, it's okay
  - since we check after adding each vector
  -}
-is_valid :: [Int] -> [Int] -> HadNode -> Bool
--- is_valid (v:vs) = and [ are_orth v z | z <- vs]
--- is_valid (v:vs) = and [ are_orth_l v z | z <- vs]
-is_valid orthT biasT (v:vs) = and [ are_orth_a orthT biasT v z | z <- vs]
+is_valid orthT biasT (v:vs) = and [ are_orth orthT biasT v z | z <- vs]
 
-make_valid_children :: [Int] -> [Int] -> HadNode -> [ HadNode ]
 make_valid_children orthT biasT h = filter (is_valid orthT biasT) $ get_children h
--- make_valid_children h = filter is_valid $ get_children_n (next_v . next_v) h
 
-make_valid_leafs :: [Int] -> [Int] -> HadNode -> [ HadNode ]
 make_valid_leafs orthT biasT h = let ch = make_valid_children orthT biasT h
                                  in if null ch
                                     then if length h == dim
@@ -166,8 +158,7 @@ all_perm_v :: Int -> HadV -> [HadV]
 all_perm_v n v = map (flip (perm_v n) v) (range (0,(fac n)-1))
 
 -- Here are all the vectors unbiased to the all unity vector:
-unit_ub :: [Int] -> [Int] -> [HadV]
-unit_ub orthT biasT = filter (are_unbiased orthT biasT min_v)  all_vecs
+unit_ub orthT biasT = filter (are_unbiased orthT biasT minVec)  allVecs
 
 pv_eq x y = elem x (all_perm_v (dim-1) y)
 
@@ -193,14 +184,11 @@ constrained_add f to (x:xs) = if and (map (f x) to) then constrained_add f (x:to
                               else constrained_add f to xs
 
 -- All sets unbiased to the all 1 vector
-all_mutually_unbiased_lines :: [Int] -> [Int] -> [[HadV]]
 all_mutually_unbiased_lines orthT biasT = [ constrained_add (are_unbiased orthT biasT) [v] (unit_ub orthT biasT)  | v <- (unit_ub orthT biasT) ]
-
-all_valid_hads orthT biasT = remove_equivs ( make_valid_leafs orthT biasT [ min_v ] )
+all_valid_hads orthT biasT = remove_equivs ( make_valid_leafs orthT biasT [ minVec ] )
 
 -- A list of sets of mutually unbiased hads made from multiplying unbiased
 -- lines with hadamard matrices
-mubs_from_lines :: [Int] -> [Int] -> [[HadNode]]
 mubs_from_lines orthT biasT = [ constrained_add (are_unbiased_had orthT biasT) [h]
                                 [ d_mult diag h2 | diag <- diags, h2 <- (all_valid_hads orthT biasT) ]
                               | diags <- (all_mutually_unbiased_lines orthT biasT),
@@ -209,8 +197,11 @@ mubs_from_lines orthT biasT = [ constrained_add (are_unbiased_had orthT biasT) [
 non_trivial_mubs orthT biasT = filter ((> 1) . length) (mubs_from_lines orthT biasT)
 
 main = do
-  orth12 <- decodeFile "orth12.bin" :: IO [Int]
-  unbias12 <- decodeFile "unbias12.bin" :: IO [Int]
+  orth12S <- decodeFile "orth12.bin" :: IO [Int]
+  unbias12S <- decodeFile "unbias12.bin" :: IO [Int]
+
+  let orth12D = sparse2dense (length allVecs) orth12S
+  let unbias12D = sparse2dense (length allVecs) unbias12S
 
        -- print $ length $ nubBy pv_eq unit_ub
        -- print $ nubBy pv_eq unit_ub
@@ -218,21 +209,5 @@ main = do
        -- print all_mutually_unbiased_lines
        -- print $ map length all_mutually_unbiased_lines
        --print non_trivial_mubs
-  print $ map length (non_trivial_mubs orth12 unbias12)
-       --encodeFile "all_valid_hads.bin" all_valid_hads
-       --encodeFile "non_trivial_mubs.bin" non_trivial_mubs
-       --encodeFile "mubs_from_lines.bin" mubs_from_lines
-       --encodeFile "all_mutually_unbiased_lines" all_mutually_unbiased_lines
-       --print $ filter ((> 5) . length ) all_mutually_unbiased_lines
-       -- print $ length unit_ub
-       -- print $ remove_equivs $ make_valid_leafs [ min_v ]
-       --print $ are_equiv (dim-1) (x!!0) (x!!1)
-       --print $ all_perm_had (dim-1) (x!!1)
-{-
-main = let x = [1,2]
-           y = [2,1]
-           in do print (are_orth x y)
-                 print (is_max [2,1])
-                 print (next_v [1,2])
-                 print (next_v [2,2])
--}
+  print $ map length (non_trivial_mubs orth12D unbias12D)
+

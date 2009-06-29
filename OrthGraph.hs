@@ -5,7 +5,8 @@
   2009 Nathan Blythe, Dr. Oscar Boykin
 -}
 
-module OrthGraph (orthGraph) where
+--module OrthGraph (orthGraph) where
+module OrthGraph where
 
 import Magic
 
@@ -62,3 +63,5 @@ allVecs (d, n) = take (n^(d - 1)) (iterate (nextVec (d, n)) (replicate d 0))
 orthGraph2 (d, n) orthT = map (allOrthVecs2 (d, n) orthV) (allVecs (d, n))
                           where orthV = map (magic2vec (d, n)) orthT
 
+
+orthGraphF (d, n) orthT = allOrthVecs (d, n) orthT
