@@ -4,6 +4,7 @@ import Data.Complex
 import Data.Array
 
 import Magic
+import VecTables
 
 
 {- what dimension are we working in -}
@@ -32,13 +33,14 @@ addVec2magic a b = vec2magic (dim, nth_roots) (zipWith (\x y -> mod (x + y) nth_
 {-
   Determine if two vectors are orthogonal.
 -}
-are_orth orthT biasT u v = orthT !! (addVec2magic u v)
+are_orth orthT biasT u v = orthT ! (addVec2magic u v)
+--are_orth orthT biasT u v = (sparse2dense (nth_roots^(dim - 1)) vecTableOrth12) !! (addVec2magic u v)
 
 
 {-
   Determine if two vectors are unbiased.
 -}
-are_unbiased orthT biasT u v = biasT !! (addVec2magic u v)
+are_unbiased orthT biasT u v = biasT ! (addVec2magic u v)
 
 
 {-
@@ -203,11 +205,14 @@ main = do
   let orth12D = sparse2dense (length allVecs) orth12S
   let unbias12D = sparse2dense (length allVecs) unbias12S
 
+  let orth12A = array (0, length orth12D) (zip (range (0, length orth12D)) orth12D)
+  let unbias12A = array (0, length unbias12D) (zip (range (0, length unbias12D)) unbias12D)
+
        -- print $ length $ nubBy pv_eq unit_ub
        -- print $ nubBy pv_eq unit_ub
        --Print all vectors which are unbiased to all ones and each other:
        -- print all_mutually_unbiased_lines
        -- print $ map length all_mutually_unbiased_lines
        --print non_trivial_mubs
-  print $ map length (non_trivial_mubs orth12D unbias12D)
+  print $ map length (non_trivial_mubs orth12A unbias12A)
 

@@ -79,6 +79,6 @@ Gen-VecTables: Gen-VecTables.hs VecTables
 MUB-Search: MUB-Search.hs OrthGraph Cliques
 	$(CC) -o MUB-Search MUB-Search.hs OrthGraph.o Cliques.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 
-Old-Search: Old-Search.hs Magic
-	$(CC) -o Old-Search Old-Search.hs Magic.o $(FLAGS) $(PACKAGES) $(PROF)
+Old-Search: Old-Search.hs Magic VecTables
+	$(CC) -o Old-Search Old-Search.hs Magic.o VecTables.o SubsetPred.o Roots12.o Roots24.o ExtRat.o ExtCpx.o $(FLAGS) $(PACKAGES) $(PROF)
 
