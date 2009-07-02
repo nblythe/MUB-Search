@@ -8,7 +8,7 @@
 module OrthGraph (orthGraph) where
 
 import Magic
-
+import Array
 
 {-
   Given two vectors a and b, compute a - b (mod n).

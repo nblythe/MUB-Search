@@ -60,7 +60,7 @@ Perms: Perms.hs
 
 # Modules used to manipulate graphs.
 #
-OrthGraph: OrthGraph.hs
+OrthGraph: OrthGraph.hs Magic
 	$(CC) -c OrthGraph.hs $(FLAGS) $(PACKAGES) $(PROF)
 
 Cliques: Cliques.hs
@@ -76,8 +76,8 @@ Analyze-Bases: Analyze-Bases.hs Perms
 Gen-VecTables: Gen-VecTables.hs VecTables
 	$(CC) -o Gen-VecTables Gen-VecTables.hs VecTables.o ExtRat.o ExtCpx.o Roots12.o Roots24.o SubsetPred.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 
-MUB-Search: MUB-Search.hs OrthGraph Cliques
-	$(CC) -o MUB-Search MUB-Search.hs OrthGraph.o Cliques.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
+MUB-Search: MUB-Search.hs OrthGraph Cliques Magic Perms
+	$(CC) -o MUB-Search MUB-Search.hs OrthGraph.o Cliques.o Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
 
 Old-Search: Old-Search.hs Magic VecTables
 	$(CC) -o Old-Search Old-Search.hs Magic.o VecTables.o SubsetPred.o Roots12.o Roots24.o ExtRat.o ExtCpx.o $(FLAGS) $(PACKAGES) $(PROF)
