@@ -17,6 +17,48 @@ type HadV = [Int] -- Hadamard Vector
 type HadNode = [HadV] -- Hadamard Node, or part of a Hadamard Matrix, some number of columns
 
 
+
+{-
+  Floating point method.
+-}
+tiny :: Float
+tiny = 0.0001
+
+{- Converts k -> exp(2\pi i k/nth_roots) -}
+int_to_comp :: Int -> Complex Float
+int_to_comp k = cis $ 2.0 * pi * (fromIntegral k) / (fromIntegral nth_roots)
+
+{-- Compute this once --}
+int_to_comp_a = listArray (-nth_roots, nth_roots) [ int_to_comp k | k <- range (-nth_roots, nth_roots)]
+
+opmod :: Integral a => (a -> a -> a) -> a -> a -> a -> a
+opmod f m x y = mod ( f x y ) m 
+pmod = opmod (+)
+mmod = opmod (-)
+
+--inner product of the two vectors
+ip :: HadV -> HadV -> Complex Float
+ip xs ys = (sum $ map (int_to_comp_a !) [ x - y | (x,y) <- zip xs ys ]) + 1
+
+{- Assuming that the HadV has i at position k meaning
+ - k is nth_roots of unity to the ith power
+ -}
+are_orth_fp orthT biasT xs ys = (magnitude (ip xs ys)) < tiny
+
+-- Return true if these two vectors are unbiased.  We assume the first element
+-- is 1, the inner product should be \sqrt{d}
+are_unbiased_fp orthT biasT xs ys = abs( (magnitude (ip xs ys)) - sqrt (fromIntegral dim) ) < tiny
+
+
+
+
+
+
+{-
+  Pre-computed table method.
+-}
+
+
 {-
   Convert a sparse boolean table to a dense boolean table of length n.
 -}
@@ -33,15 +75,25 @@ addVec2magic a b = vec2magic (dim, nth_roots) (zipWith (\x y -> mod (x + y) nth_
 {-
   Determine if two vectors are orthogonal.
 -}
-are_orth orthT biasT u v = orthT ! (addVec2magic u v)
+are_orth_pt orthT biasT u v = orthT ! (addVec2magic u v)
 --are_orth orthT biasT u v = (sparse2dense (nth_roots^(dim - 1)) vecTableOrth12) !! (addVec2magic u v)
 
 
 {-
   Determine if two vectors are unbiased.
 -}
-are_unbiased orthT biasT u v = biasT ! (addVec2magic u v)
+are_unbiased_pt orthT biasT u v = biasT ! (addVec2magic u v)
 
+
+
+
+
+
+{-
+  Method selection.
+-}
+are_orth = are_orth_fp
+are_unbiased = are_unbiased_fp
 
 {-
   Determine if two matrices are unbiased.
