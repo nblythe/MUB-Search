@@ -18,25 +18,21 @@ type Graph = [Set Vert]
 
 
 {-
-  Given a clique c and a vertex v on graph g, determine if v extends c.
-
-  A vertex extends a clique if the vertex is adjacent to all vertices
-  in the clique.
+  Compute the intersection of all sets in a list.
 -}
-extends :: Graph -> Clique -> Vert -> Bool
-extends g c v = all (\x -> member v (g !! x)) (elems c)
+intersections (xH : xT) = if   Prelude.null xT
+                          then xH
+                          else intersection xH (intersections xT)
 
 
 {-
-  Given a graph g and a clique c, find the list of all vertices in g that
-  extend c and are numerically greater than c.
+  Given a graph g and clique c, find all vertices that extend c.
+
+  A vertex that extends a clique is a vertex that is adjacent to all
+  vertices in that clique.
 -}
 extendingVerts :: Graph -> Clique -> [Vert]
-extendingVerts g c = Prelude.filter (extends g c) (take n [b..])
-                     where b = if  Data.Set.null c
-                               then 0
-                               else 1 + (findMax c)
-                           n = (length g) - b
+extendingVerts g c = elems (intersections (Prelude.map (g !!) (elems c)))
 
 
 {-

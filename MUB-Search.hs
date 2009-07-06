@@ -10,6 +10,8 @@ import Cliques
 import Magic
 import Perms
 
+import Data.Set
+
 
 main = do
 --  arg_vlut : (arg_clut : arg_t) <- getArgs
@@ -26,9 +28,13 @@ main = do
   --let g = orthGraph (6, 12) vecTableOrth12
 --  let t = [[1, 2, 3], [0, 2, 3], [0, 1], [0, 1]]
 
+  --print $ Prelude.filter (extends g (singleton 0)) (take ((12^5) - 1) [1..])
+
+
+--  print $ extendingVerts g (singleton 0)
 
 --  print (cliques t 2)
-  print $ take 10 s
+  print $ take 200 s
 --  let allcliques = rootcliquesS gS 6
 
 --  encodeFile "cliques.bin" allcliques
