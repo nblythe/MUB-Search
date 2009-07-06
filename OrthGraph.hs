@@ -1,11 +1,11 @@
 {-
-  Generate the adjacency matrix for a graph where vertices represent
+  Generate an adjacency structure for a graph where vertices represent
   vectors and edges represent orthogonality.
 
   2009 Nathan Blythe, Dr. Oscar Boykin
 -}
 
-module OrthGraph (orthGraph, orthGraphS) where
+module OrthGraph (orthGraph) where
 
 import Magic
 import Data.Set
@@ -28,7 +28,5 @@ allOrthVecs (d, n) orthT x = [ vec2magic (d, n) (subVecs n vx (magic2vec (d, n) 
 {-
   Sparse adjacency matrix for an orthogonality graph.
 -}
-orthGraph (d, n) orthT = [ allOrthVecs (d, n) orthT x | x <- take (n^(d - 1)) (iterate (1 +) 0)]
-
-orthGraphS (d, n) orthT = [ Data.Set.fromList (allOrthVecs (d, n) orthT x) | x <- take (n^(d - 1)) (iterate (1 +) 0)]
+orthGraph (d, n) orthT = [ Data.Set.fromList (allOrthVecs (d, n) orthT x) | x <- take (n^(d - 1)) [0..]]
 
