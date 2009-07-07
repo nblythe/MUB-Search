@@ -28,5 +28,6 @@ allOrthVecs (d, n) orthT x = [ vec2magic (d, n) (subVecs n vx (magic2vec (d, n) 
 {-
   Sparse adjacency matrix for an orthogonality graph.
 -}
-orthGraph (d, n) orthT = [ Data.Set.fromList (allOrthVecs (d, n) orthT x) | x <- take (n^(d - 1)) [0..]]
+--orthGraph (d, n) orthT = [ Data.Set.fromList (allOrthVecs (d, n) orthT x) | x <- take (n^(d - 1)) [0..]]
+orthGraph (d, n) orthT = [ Data.Set.filter (> x) (Data.Set.fromList (allOrthVecs (d, n) orthT x)) | x <- take (n^(d - 1)) [0..]]
 
