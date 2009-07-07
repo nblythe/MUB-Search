@@ -6,6 +6,7 @@
 module Perms where
 
 import Data.List
+import Maybe
 import Ix
 
 {-
@@ -36,7 +37,7 @@ nextPermRows n p = if   (null p)
 
 {-
   All partial n x n permutation matrices that can be constructed
-  from the partial n x n permutation matricse in l.
+  from the partial n x n permutation matrices in l.
 
   Ex. nextPerms 3 [[[1, 0, 0]], [[0, 1, 0]]]
       [[[1,0,0],[0,1,0]], [[1,0,0],[0,0,1]],
@@ -123,4 +124,38 @@ permUniqueList (xH : xT) = if   (null xT)
                            then [xH]
                            else permUniqueToList (permUniqueList xT) xH
 
+
+
+
+
+
+{-
+  Permute a list.
+-}
+permuteList x p = [x !! (fromJust j) | j <- map (findIndex (== 1)) p]
+
+
+{-
+  All permutations of a list.
+-}
+allPermsList x = map (permuteList x) (allPerms (length x))
+
+
+{-
+  Determine if two lists are equivalent under permutations.
+-}
+permEquivList x y = any (== y) (allPermsList x)
+
+
+{-
+  Remove equivalents from a list of lists.
+
+  Order is not preserved.
+-}
+removeEquivLists (uH : uT) = if   null uT
+                             then [uH]
+                             else if   any (permEquivList uH) r
+                                  then r
+                                  else uH : r
+                             where r = (removeEquivLists uT)
 

@@ -76,6 +76,9 @@ Analyze-Bases: Analyze-Bases.hs Perms
 Gen-VecTables: Gen-VecTables.hs VecTables
 	$(CC) -o Gen-VecTables Gen-VecTables.hs VecTables.o ExtRat.o ExtCpx.o Roots12.o Roots24.o SubsetPred.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 
+Validate-Bases: Validate-Bases.hs OrthGraph Magic Perms
+	$(CC) -o Validate-Bases Validate-Bases.hs OrthGraph.o Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
+
 MUB-Search: MUB-Search.hs OrthGraph Cliques Magic Perms
 	$(CC) -o MUB-Search MUB-Search.hs OrthGraph.o Cliques.o Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
 

@@ -81,10 +81,12 @@ main = do
   f <- decodeFile arg_bases :: IO [[[Int]]]
   let bset = map shrinkBasis f
 
-  let inFourierFamily = filter (\x -> (not (null (findFourierFamilyFormVs x)))) bset
-  let notFourierFamily = filter (\x -> (null (findFourierFamilyFormVs x))) bset
+  print $ bset
 
-  print $ notFourierFamily !! 0
+  --let inFourierFamily = filter (\x -> (not (null (findFourierFamilyFormVs x)))) bset
+  --let notFourierFamily = filter (\x -> (null (findFourierFamilyFormVs x))) bset
+
+  --print $ notFourierFamily !! 0
   --print $ (filter (\x -> (not (null (findFourierFamilyFormVs x)))) bset) !! 0
   --print $ (filter (\x -> (not (null (findFourierFamilyFormVs x)))) bset) !! 0
 
