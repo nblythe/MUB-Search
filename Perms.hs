@@ -1,6 +1,10 @@
 {-
-  Permutation matrices
+  Permutations
+
   2009 Nathan Blythe, Dr. Oscar Boykin
+
+  Functions for constructing permutations of lists of lists and comparing
+  lists of lists for equivalence under permutations.
 -}
 
 module Perms where
@@ -124,38 +128,4 @@ permUniqueList (xH : xT) = if   (null xT)
                            then [xH]
                            else permUniqueToList (permUniqueList xT) xH
 
-
-
-
-
-
-{-
-  Permute a list.
--}
-permuteList x p = [x !! (fromJust j) | j <- map (findIndex (== 1)) p]
-
-
-{-
-  All permutations of a list.
--}
-allPermsList x = map (permuteList x) (allPerms (length x))
-
-
-{-
-  Determine if two lists are equivalent under permutations.
--}
-permEquivList x y = any (== y) (allPermsList x)
-
-
-{-
-  Remove equivalents from a list of lists.
-
-  Order is not preserved.
--}
-removeEquivLists (uH : uT) = if   null uT
-                             then [uH]
-                             else if   any (permEquivList uH) r
-                                  then r
-                                  else uH : r
-                             where r = (removeEquivLists uT)
 

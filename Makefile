@@ -72,8 +72,8 @@ Gen-VecTables: Gen-VecTables.hs VecTables
 Validate-Bases: Validate-Bases.hs Graph Magic Perms
 	$(CC) -o Validate-Bases Validate-Bases.hs Graph.o Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
 
-MUB-Search: MUB-Search.hs Graph Cliques Magic Perms
-	$(CC) -o MUB-Search MUB-Search.hs Graph.o Cliques.o Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
+MUB-Search: MUB-Search.hs Graph Magic Perms
+	$(CC) -o MUB-Search MUB-Search.hs Graph.o Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
 
 Old-Search: Old-Search.hs Magic VecTables
 	$(CC) -o Old-Search Old-Search.hs Magic.o VecTables.o SubsetPred.o Roots12.o Roots24.o ExtRat.o ExtCpx.o $(FLAGS) $(PACKAGES) $(PROF)
