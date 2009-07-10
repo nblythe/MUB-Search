@@ -10,6 +10,7 @@
 import Data.List
 import Data.Complex
 import Data.Array
+import Data.Binary
 import System.IO
 import System(getArgs)
 
@@ -163,8 +164,14 @@ lbools2bits (xh : xt) = (bools2bits xh) ++ "\n" ++ (lbools2bits xt)
   ./MUB-Table-exact outfile
 -}
 main = do
-  argH : argT <- getArgs
-  writeFile argH (lbools2bits vec_table)
-  --putStr ("Have " ++ (show $ length all_vecs) ++ " vectors.\n\n")
-  --putStr ("And here they are: " ++ (show all_vecs) ++ "\n")
+  argH0 : (argH1 : argT) <- getArgs
+
+  let orthD = map head vec_table
+  let biasD = map (\x -> head (tail x)) vec_table
+
+  let orthT = findIndices (== True) orthD
+  let biasT = findIndices (== True) biasD
+
+  encodeFile argH0 orthT
+  encodeFile argH1 biasT
 

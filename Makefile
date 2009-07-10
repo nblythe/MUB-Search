@@ -42,7 +42,7 @@ Roots24: Roots24.hs ExtRat ExtCpx
 
 
 
-# Modules used to manipulate vectors and lists of vectors.
+# Modules used to manipulate vectors, lists of vectors, and graphs of vectors.
 #
 SubsetPred: SubsetPred.hs
 	$(CC) -c SubsetPred.hs $(FLAGS) $(PACKAGES) $(PROF)
@@ -56,15 +56,8 @@ VecTables: VecTables.hs Roots12 Roots24 SubsetPred Magic
 Perms: Perms.hs
 	$(CC) -c Perms.hs $(FLAGS) $(PACKAGES) $(PROF)
 
-
-
-# Modules used to manipulate graphs.
-#
-OrthGraph: OrthGraph.hs Magic
-	$(CC) -c OrthGraph.hs $(FLAGS) $(PACKAGES) $(PROF)
-
-Cliques: Cliques.hs
-	$(CC) -c Cliques.hs $(FLAGS) $(PACKAGES) $(PROF)
+Graph: Graph.hs Magic
+	$(CC) -c Graph.hs $(FLAGS) $(PACKAGES) $(PROF)
 
 
 
@@ -76,11 +69,11 @@ Analyze-Bases: Analyze-Bases.hs Perms
 Gen-VecTables: Gen-VecTables.hs VecTables
 	$(CC) -o Gen-VecTables Gen-VecTables.hs VecTables.o ExtRat.o ExtCpx.o Roots12.o Roots24.o SubsetPred.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 
-Validate-Bases: Validate-Bases.hs OrthGraph Magic Perms
-	$(CC) -o Validate-Bases Validate-Bases.hs OrthGraph.o Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
+Validate-Bases: Validate-Bases.hs Graph Magic Perms
+	$(CC) -o Validate-Bases Validate-Bases.hs Graph.o Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
 
-MUB-Search: MUB-Search.hs OrthGraph Cliques Magic Perms
-	$(CC) -o MUB-Search MUB-Search.hs OrthGraph.o Cliques.o Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
+MUB-Search: MUB-Search.hs Graph Cliques Magic Perms
+	$(CC) -o MUB-Search MUB-Search.hs Graph.o Cliques.o Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
 
 Old-Search: Old-Search.hs Magic VecTables
 	$(CC) -o Old-Search Old-Search.hs Magic.o VecTables.o SubsetPred.o Roots12.o Roots24.o ExtRat.o ExtCpx.o $(FLAGS) $(PACKAGES) $(PROF)
