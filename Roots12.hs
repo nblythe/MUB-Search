@@ -1,5 +1,5 @@
 {-
-  12th roots of unity.
+  12th roots of unity, as extended complex rationals.
 
   2009 Nathan Blythe, Dr. Oscar Boykin
 -}

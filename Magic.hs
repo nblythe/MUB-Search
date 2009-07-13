@@ -1,6 +1,6 @@
 {-
-  Mappings from vectors of dimension d (where each element is a value
-  0 - n) to integers, and vice versa.
+  Mappings from vectors of dimension d (where each element is an integer 0 -> n - 1)
+  integers and vice versa.
 
   2009 Nathan Blythe, Dr. Oscar Boykin
 -}

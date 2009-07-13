@@ -1,13 +1,16 @@
 MUB-Search
+
 2009 Dr. Oscar Boykin, Nathan Blythe
 
-Search all vectors in a Hilbert space that are comprised of roots of unity for
-mutually unbiased bases.
+An "integral-root Hilbert space graph" is a graph whose vertices represent vectors
+constructed from nth roots of unity in a dimension d Hilbert space.  Vertices are
+numbered with non-negative integers called "magic numbers".  Each vertex is associated
+with a unique vector; given n and d, vertices can be converted to vectors and vice versa.
 
-MUB-Table-* builds a table of "orthogonal to unity vector" and "unbiased to unity
-vector" information.  MUB-Table-approx builds this table using floating point
-calculations; MUB-Table-exact builds it using exact values (via an extension of
-the rational numbers).
+Adjacency of two vertices is determined by a binary function on the magic number of
+the point-wise difference (mod n) between the vectors they represent.  An adjacency
+function is described by a set of magic numbers for which the function is true.
 
-MUB-Search searches a pre-built table for mutually unbiased bases.
+If the adjacency relation is orthogonality, a clique on such a graph is a basis in the
+original Hilbert space.
 

@@ -23,17 +23,23 @@
 
 module SubsetPred (subsetPred) where
 
+import Data.Set
+
 
 {-
   All length n subsets of a set x, with replacement and permutations.
 -}
-subsets x 1 = [[y] | y <- x]
-subsets x n = [y : w | y <- x, w <- subsets x (n - 1)]
+--subsets x 1 = [[y] | y <- x]
+--subsets x n = [y : w | y <- x, w <- subsets x (n - 1)]
+subsets :: (Ord t) => Set t -> Int -> Set (Set t)
+subsets x 1 = Data.Set.map singleton x
+subsets x n = unions $ Prelude.map (\ y -> Data.Set.map (\ s -> insert y s) (subsets x (n - 1))) (elems x)
 
 
 {-
   All length n subsets of a set x, with replacement and permutations,
   that satisfy a predicate p.
 -}
-subsetPred x n p = filter p (subsets x n)
-
+--subsetPred x n p = filter p (subsets x n)
+subsetPred :: (Ord t) => Set t -> Int -> (Set t -> Bool) -> Set (Set t)
+subsetPred x n p = Data.Set.filter p (subsets x n)

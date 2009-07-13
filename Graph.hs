@@ -1,20 +1,7 @@
 {-
-  Integral-root Hilbert space graphs
+  Integral-root Hilbert space graphs: construction and clique-finding.
 
   2009 Nathan Blythe, Dr. Oscar Boykin
-
-
-  An "integral-root Hilbert space graph" is a graph whose vertices represent vectors
-  constructed from nth roots of unity in a dimension d Hilbert space.  Vertices are
-  numbered with non-negative integers called "magic numbers".  Each vertex is associated
-  with a unique vector; given n and d, vertices can be converted to vectors and vice versa.
-
-  Adjacency of two vertices is determined by a binary function on the magic number of
-  the point-wise difference (mod n) between the vectors they represent.  An adjacency
-  function is described by a set of magic numbers, each of which describes a pair of
-  vertices that is adjacent.
-
-  If the adjacency relation is orthogonality, a clique on such a graph is a basis.
 -}
 
 module Graph (Vert, Clique, Graph, Vec, AdjF, graph, cliques, rootcliques) where

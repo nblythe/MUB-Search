@@ -44,14 +44,11 @@ Roots24: Roots24.hs ExtRat ExtCpx
 
 # Modules used to manipulate vectors, lists of vectors, and graphs of vectors.
 #
-SubsetPred: SubsetPred.hs
-	$(CC) -c SubsetPred.hs $(FLAGS) $(PACKAGES) $(PROF)
+SublistPred: SublistPred.hs
+	$(CC) -c SublistPred.hs $(FLAGS) $(PACKAGES) $(PROF)
 
 Magic: Magic.hs
 	$(CC) -c Magic.hs $(FLAGS) $(PACKAGES) $(PROF)
-
-VecTables: VecTables.hs Roots12 Roots24 SubsetPred Magic
-	$(CC) -c VecTables.hs $(FLAGS) $(PACKAGES) $(PROF)
 
 Perms: Perms.hs
 	$(CC) -c Perms.hs $(FLAGS) $(PACKAGES) $(PROF)
@@ -66,14 +63,14 @@ Graph: Graph.hs Magic
 Analyze-Bases: Analyze-Bases.hs Perms
 	$(CC) -o Analyze-Bases Analyze-Bases.hs Perms.o $(FLAGS) $(PACKAGES) $(PROF)
 
-Gen-VecTables: Gen-VecTables.hs VecTables
-	$(CC) -o Gen-VecTables Gen-VecTables.hs VecTables.o ExtRat.o ExtCpx.o Roots12.o Roots24.o SubsetPred.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
-
-Validate-Bases: Validate-Bases.hs Graph Magic Perms
-	$(CC) -o Validate-Bases Validate-Bases.hs Graph.o Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
+Gen-AdjFunctions: Gen-AdjFunctions.hs Roots12 Roots24 SublistPred Magic
+	$(CC) -o Gen-AdjFunctions Gen-AdjFunctions.hs ExtRat.o ExtCpx.o Roots12.o Roots24.o SublistPred.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 
 MUB-Search: MUB-Search.hs Graph Magic Perms
 	$(CC) -o MUB-Search MUB-Search.hs Graph.o Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
+
+Validate-Bases: Validate-Bases.hs Graph Magic Perms
+	$(CC) -o Validate-Bases Validate-Bases.hs Graph.o Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
 
 Old-Search: Old-Search.hs Magic VecTables
 	$(CC) -o Old-Search Old-Search.hs Magic.o VecTables.o SubsetPred.o Roots12.o Roots24.o ExtRat.o ExtCpx.o $(FLAGS) $(PACKAGES) $(PROF)
