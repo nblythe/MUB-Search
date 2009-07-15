@@ -50,9 +50,6 @@ SublistPred: SublistPred.hs
 Magic: Magic.hs
 	$(CC) -c Magic.hs $(FLAGS) $(PACKAGES) $(PROF)
 
-Perms: Perms.hs
-	$(CC) -c Perms.hs $(FLAGS) $(PACKAGES) $(PROF)
-
 Graph: Graph.hs Magic
 	$(CC) -c Graph.hs $(FLAGS) $(PACKAGES) $(PROF)
 
@@ -67,12 +64,15 @@ Gen-Bases: Gen-Bases.hs Graph Magic
 	$(CC) -o Gen-Bases Gen-Bases.hs Graph.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 
 MUB-Search: MUB-Search.hs Graph Magic
-	$(CC) -o MUB-Search MUB-Search.hs Graph.o Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
+	$(CC) -o MUB-Search MUB-Search.hs Graph.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 
 
 
 # To be pruned.
 #
+Perms: Perms.hs
+	$(CC) -c Perms.hs $(FLAGS) $(PACKAGES) $(PROF)
+
 Analyze-Bases: Analyze-Bases.hs Perms
 	$(CC) -o Analyze-Bases Analyze-Bases.hs Perms.o $(FLAGS) $(PACKAGES) $(PROF)
 

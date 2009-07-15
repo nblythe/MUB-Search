@@ -111,5 +111,5 @@ main = do
   putStr ("Writing MUBs to " ++ fMUBs ++ "...\n")
   let mubs = elems $ findMUBs g bases (read m)
   encodeFile fMUBs mubs
-  putStr ("Done; found " ++ (read $ length mubs) ++ " MUBs.\n")
+  putStr ("Done; found " ++ (show $ length mubs) ++ " MUBs.\n")
 
