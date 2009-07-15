@@ -69,63 +69,46 @@ rowShuffle p = map (\x -> head (findIndices (== 1) x)) p
 
 
 {-
-  Left-permute a list of lists by a specific permutation matrix.
+  Permute a list of lists by a specific permutation matrix.
 -}
 permuteL x p = map (x !!) (rowShuffle p)
-
-
-{-
-  Right-permute a list of lists by a specific permutation matrix.
--}
 permuteR x p = transpose (permuteL (transpose x) p)
-
-
-{-
-  All right permutations of a list of lists.
--}
-permuteAllR x = map (permuteR x) (allPerms (length x))
-
-
-{-
-  All left permutations of a list of lists.
--}
-permuteAllL x = map (permuteL x) (allPerms (length x))
 
 
 {-
   All permutations of a list of lists.
 -}
-permuteAll' [] = []
-permuteAll' (xH : xT) = (permuteAllL xH) ++ (permuteAll' xT)
-permuteAll x = permuteAll' (permuteAllR x)
+permuteAllL x = map (permuteL x) (allPerms (length x))
+permuteAllR x = map (permuteR x) (allPerms (length x))
 
 
 {-
-  Uniqueness of two lists of lists under some left and
-  right permutations.
+  Uniqueness of two lists of lists under some permutation.
 -}
-permUnique x y = null (filter (== x) (permuteAll y))
+permUniqueL x y = all (/= y) (permuteAllL x)
+permUniqueR x y = all (/= y) (permuteAllR x)
 
 
 {-
-  Given a list of lists of lists l and a list of lists x, determine
-  if the list of lists x is unique to all lists of lists in the list
-  of lists of lists l (got that?).
-
-  If it is unique, return the list with the unique element prepended.
-  Otherwise just return the list.
+  Extend a list l with a list of lists x, if x is unique to all
+  lists of lists in l.
 -}
-permUniqueToList l x = if   and (map (permUnique x) l)
-                       then x : l
-                       else l
+permUniqueToListL l x = if   all (permUniqueL x) l
+                        then x : l
+                        else l
+permUniqueToListR l x = if   all (permUniqueR x) l
+                        then x : l
+                        else l
 
 
 {-
   Give a list of lists of lists, build a similar list with all
-  equivalencies (under left and right permutations) removed.
+  equivalencies removed.
 -}
-permUniqueList (xH : xT) = if   (null xT)
-                           then [xH]
-                           else permUniqueToList (permUniqueList xT) xH
-
+permUniqueListL (xH : xT) = if   (null xT)
+                            then [xH]
+                            else permUniqueToListL (permUniqueListL xT) xH
+permUniqueListR (xH : xT) = if   (null xT)
+                            then [xH]
+                            else permUniqueToListR (permUniqueListR xT) xH
 

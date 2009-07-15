@@ -19,10 +19,10 @@ PACKAGES = -package binary
 
 # Operations.
 #
-all: Analyze-Bases Gen-VecTables MUB-Search Old-Search
+all: Gen-AdjFunctions Gen-Bases MUB-Search
 
 clean:
-	rm -f Analyze-Bases Gen-VecTables MUB-Search Old-Search *.hi *.o *.prof
+	rm -f Gen-AdjFunctions Gen-Bases MUB-Search *.hi *.o *.prof
 
 
 
@@ -60,14 +60,21 @@ Graph: Graph.hs Magic
 
 # Top-level modules that produce executables.
 #
-Analyze-Bases: Analyze-Bases.hs Perms
-	$(CC) -o Analyze-Bases Analyze-Bases.hs Perms.o $(FLAGS) $(PACKAGES) $(PROF)
-
 Gen-AdjFunctions: Gen-AdjFunctions.hs Roots12 Roots24 SublistPred Magic
 	$(CC) -o Gen-AdjFunctions Gen-AdjFunctions.hs ExtRat.o ExtCpx.o Roots12.o Roots24.o SublistPred.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 
-MUB-Search: MUB-Search.hs Graph Magic Perms
+Gen-Bases: Gen-Bases.hs Graph Magic
+	$(CC) -o Gen-Bases Gen-Bases.hs Graph.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
+
+MUB-Search: MUB-Search.hs Graph Magic
 	$(CC) -o MUB-Search MUB-Search.hs Graph.o Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
+
+
+
+# To be pruned.
+#
+Analyze-Bases: Analyze-Bases.hs Perms
+	$(CC) -o Analyze-Bases Analyze-Bases.hs Perms.o $(FLAGS) $(PACKAGES) $(PROF)
 
 Validate-Bases: Validate-Bases.hs Graph Magic Perms
 	$(CC) -o Validate-Bases Validate-Bases.hs Graph.o Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)

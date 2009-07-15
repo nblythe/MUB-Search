@@ -1,3 +1,10 @@
+{-
+  Find sets of MUBs amongst provided bases.
+
+  2009 Nathan Blythe, Dr. Oscar Boykin
+
+  ./MUB-Search <d> <n> <fAdj> <fBases> <m> <fMUBs>
+-}
 
 
 import System(getArgs)
@@ -7,31 +14,10 @@ import Data.Set
 import Graph
 import Magic
 
-fixupBasis b = Data.Set.map (0 :) b
 
-inverseVector v = Prelude.map (\x -> mod (12 - x) 12) v
-productVector x y = zipWith (\x y -> mod (x + y) 12) x y
-
-hasIdentity b = member (replicate 6 0) b
-hasInverses b = all (\x -> member (inverseVector x) b) (elems b)
-hasClosure  b = all (\x -> all (\y -> member (productVector x y) b) (elems b)) (elems b)
-
-
-isSubGroup  b = (hasIdentity b) && (hasInverses b) && (hasClosure b)
-isMonoid    b = (hasIdentity b) && (hasClosure b)
-isSemigroup b = (hasClosure b)
-
-identify    b = if   isSubGroup b
-                then "subgroup"
-                else if   isMonoid b
-                     then "monoid"
-                     else if   isSemigroup b
-                          then "semigroup"
-                          else "nothing"
-
-
-
-type AdjFunc = Set Int
+{-
+  Type definitions.
+-}
 type Basis = Set Int
 
 
@@ -48,8 +34,8 @@ shiftBasis b v = Data.Set.map (\z -> vec2magic (6, 12) $ addVecs vAsVec z) bAsVe
 {-
   Given a basis b, construct the set of all coset bases to b.
 -}
-cosetBases :: AdjFunc -> Basis -> Set Basis
-cosetBases adjBias b = Data.Set.map (shiftBasis b) adjBias
+cosetBases :: Graph -> Basis -> Set Basis
+cosetBases g b = Data.Set.map (shiftBasis b) (g !! 0)
 
 
 {-
@@ -57,7 +43,7 @@ cosetBases adjBias b = Data.Set.map (shiftBasis b) adjBias
 -}
 areMUB :: Graph -> Basis -> Basis -> Bool
 areMUB g b c = all areMUB' (elems b)
-               where areMUB' v = all (\ u -> member u (g !! v)) $ elems c
+               where areMUB' v = all (\ u -> member (max u v) (g !! (min u v))) $ elems c
 
 
 {-
@@ -83,47 +69,47 @@ biggerMUBsMany g r x = unions $ Prelude.map (biggerMUBs g r) (elems x)
 
 
 {-
-  Given a basis b and set of bases r, construct all sets of n MUBs that include b.
+  Given a basis b and set of bases r, construct all sets of n MUBs from r that include b.
 -}
 childMUBs :: Graph -> Basis -> Set Basis -> Int -> Set (Set Basis)
 childMUBs g b r 0 = empty
 childMUBs g b r n = iterate (biggerMUBsMany g r) (singleton (singleton b)) !! (n - 1)
 
 
+{-
+  Find all sets of n MUBs from bases in a list l.
+-}
+findMUBs :: Graph -> [Basis] -> Int -> Set (Set Basis)
+findMUBs g l n = unions $ Prelude.map findMUBs' l
+                 where findMUBs' c = childMUBs g c (cosetBases g c) n
+
+
+{-
+  Entry point.
+-}
 main = do
---  arg_vlut : (arg_clut : arg_t) <- getArgs
+  d : (n : (fAdj : (fBases : (m : (fMUBs : argsT))))) <- getArgs
 
   {-
-    Read adjacency functions.
+    Read adjacency function and generate unbiased graph.
   -}
-  adjOrth <- decodeFile "adjOrth12.bin" :: IO (Set Int)
-  adjBias <- decodeFile "adjBias12.bin" :: IO (Set Int)
-
-
-  {-
-    Orthogonality graph and cliques.
-  -}
-  let gOrth = graph (6, 12) adjOrth
-  let cOrth = rootcliques gOrth 6
-  --print cOrth
+  putStr ("Reading unbiasedness relations from " ++ fAdj ++ ".\n")
+  adjBias <- decodeFile fAdj :: IO (Set Int)
+  let g = graph (read d, read n) adjBias
 
 
   {-
-    Unbiasedness graph and cliques.
+    Read bases.
   -}
-  let gBias = graph (6, 12) adjBias
-  let cBias = rootcliques gBias 6
-  --print cBias
-
-  let c = cOrth !! 0
-  print $ childMUBs gBias c (cosetBases adjBias c) 2
+  putStr ("Reading bases from " ++ fBases ++ ".\n")
+  bases <- decodeFile fBases :: IO [Basis]
 
 
-  --dOrth <- decodeFile "cliques.bin" :: IO [Set Int]
-
-  --let bOrth = Prelude.map (\b -> fixupBasis (Data.Set.map (magic2vec (6, 12)) b)) dOrth
-  --let subgroups = (Prelude.filter (\x -> (identify x) == "subgroup") bOrth)
-  --print $ take 3 subgroups
-  --encodeFile "cliques.bin" $ s
-  --print $ take 1 t
+  {-
+    Find MUBs and store to disk.
+  -}
+  putStr ("Writing MUBs to " ++ fMUBs ++ "...\n")
+  let mubs = elems $ findMUBs g bases (read m)
+  encodeFile fMUBs mubs
+  putStr ("Done; found " ++ (read $ length mubs) ++ " MUBs.\n")
 
