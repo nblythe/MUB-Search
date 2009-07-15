@@ -4,7 +4,7 @@
   2009 Nathan Blythe, Dr. Oscar Boykin
 -}
 
-module Graph (Vert, Clique, Graph, Vec, AdjF, graph, cliques, rootcliques) where
+module Graph (Vert, Clique, Graph, Vec, AdjF, graph, graphU, cliques, rootcliques) where
 
 import Magic
 import Data.Set
@@ -44,6 +44,8 @@ neighbors (d, n) f v = Data.Set.map (\u -> vec2magic (d, n) (pointDiff n x (magi
 graph :: (Int, Int) -> AdjF -> [Set Vert]
 graph (d, n) f = [ Data.Set.filter (> v) (neighbors (d, n) f v) | v <- [0 .. (n^d) - 1] ]
 
+graphU :: (Int, Int) -> AdjF -> [Set Vert]
+graphU (d, n) f = [ neighbors (d, n) f v | v <- [0 .. (n^d) - 1] ]
 
 {-
   Compute the intersection of all sets in a set.
