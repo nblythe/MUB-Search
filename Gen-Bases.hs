@@ -3,7 +3,7 @@
 
   2009 Nathan Blythe, Dr. Oscar Boykin
 
-  ./Gen-Bases <d> <n> <fAdj> <fBases>
+  ./Gen-Bases <d> <n> <m> <fAdj> <fBases>
 -}
 
 import System(getArgs)
@@ -24,10 +24,8 @@ type Basis = Set Int
   Inflate a basis from a set of vertices to a matrix of roots.
 -}
 inflateBasis :: Basis -> [[Int]]
-inflateBasis b = Prelude.map (0 :) b''
-                 where b'  = (insert 0 b)
-                       b'' = elems $ magics2vecs (6, 12) b'
-
+inflateBasis b = Prelude.map (0 :) b'
+                 where b'  = elems $ magics2vecs (6, 12) b
 
 {-
   Transpose a matrix.
@@ -55,6 +53,7 @@ isBasisUniqueToList l b = all (/= b') l'
   Produce a list of unique bases from a list of bases.
 -}
 uniqueBases :: [Basis] -> [Basis]
+uniqueBases []        = []
 uniqueBases (lH : lT) = if   Prelude.null lT
                         then [lH]
                         else if   isBasisUniqueToList r lH
@@ -67,7 +66,7 @@ uniqueBases (lH : lT) = if   Prelude.null lT
   Entry point.
 -}
 main = do
-  d : (n : (fAdj : (fBases : argsT))) <- getArgs
+  d : (n : (m : (fAdj : (fBases : argsT)))) <- getArgs
 
   {-
     Read adjacency function.
@@ -80,13 +79,13 @@ main = do
     Generate the orthogonality graph and find root cliques (standardized bases).
   -}
   let g = graph (read d, read n) adjOrth
-  let c = rootcliques g (read d)
-
+  let c = rootcliques g (read m)
 
   {-
     Eliminate equivalents under row-permutations.
   -}
   let c' = uniqueBases c
+  print $ c'
 
 
   {-
@@ -94,5 +93,6 @@ main = do
   -}
   putStr ("Writing bases to " ++ fBases ++ "...\n")
   encodeFile fBases c'
+  putStr ("There are " ++ (show $ length c') ++ " unique bases.\n")
   putStr ("Done.\n")
 

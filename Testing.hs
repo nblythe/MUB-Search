@@ -18,9 +18,23 @@ type Basis = Set Int
   Inflate a basis from a set of vertices to a matrix of roots.
 -}
 inflateBasis :: Basis -> [[Int]]
-inflateBasis b = Prelude.map (0 :) b''
-                 where b'  = (insert 0 b)
-                       b'' = elems $ magics2vecs (6, 12) b'
+inflateBasis b = Prelude.map (0 :) b'
+                 where b'  = elems $ magics2vecs (6, 12) b
+
+
+{-
+  Deflate a basis from a matrix of roots to a set of vertices.
+-}
+deflateBasis :: [[Int]] -> Basis
+deflateBasis b'' = vecs2magics (6, 12) $ fromList b'
+                    where b' = Prelude.map tail b''
+
+
+
+
+
+
+
 
 
 {-
@@ -136,23 +150,91 @@ cosetBases g b = Data.Set.map (shiftBasis b) (g !! 0)
 
 
 
+
+
+
+
+
+{-
+  Find the row-standardizing list (diagonal of the operator) for a given matrix.
+-}
+rowStandardizer :: [[Int]] -> [Int]
+rowStandardizer x = [ 12 - (x !! 0 !! i) | i <- [0 .. (length x) - 1]]
+
+
+{-
+  Find the column-standardizing list (diagonal of the operator) for a given matrix.
+-}
+colStandardizer :: [[Int]] -> [Int]
+colStandardizer x = [ 12 - (x !! i !! 0) | i <- [0 .. (length x) - 1]]
+
+
+{-
+  Act on a matrix from the left with a diagonal operator.
+-}
+leftAct :: [[Int]] -> [Int] -> [[Int]]
+leftAct x d = [ [ mod ((d !! j) + (x !! i !! j)) 12 | j <- [0 .. (length x - 1)] ] | i <- [0 .. (length x - 1)] ]
+
+
+{-
+  Act on a matrix from the right with a diagonal operator.
+-}
+rightAct :: [[Int]] -> [Int] -> [[Int]]
+rightAct x d =  [ [ mod ((d !! i) + (x !! i !! j)) 12 | j <- [0 .. (length x - 1)] ] | i <- [0 .. (length x - 1)] ]
+
+
+{-
+  Standardize a set of bases such that the nth basis is row and column standardized
+  and the others are column standardized (and mutual unbiasedness is preserved).
+-}
+standardizeMUBs :: Set [[Int]] -> Int -> Set [[Int]]
+standardizeMUBs s n = Data.Set.map (\ b -> rightAct b (colStandardizer b)) s'
+                      where s' = Data.Set.map (\ b -> leftAct b (rowStandardizer $ (elems s) !! n)) s
+
+
+{-
+  Given a set s of MUBs, determine if there is a standardization of s such that
+  one of the MUBs is a subgroup.
+-}
+canBeSubgroup :: Set Basis -> Bool
+canBeSubgroup s = or $ Prelude.map (\ n -> any isSubgroup $ f n) [0 .. (size s) - 1]
+                  where s' = Data.Set.map inflateBasis s
+                        f n = elems $ Data.Set.map deflateBasis $ standardizeMUBs s' n
+
+
+
 main = do
   adjBias <- decodeFile "adjBias12.bin" :: IO (Set Int)
   let g = graphU (6, 12) adjBias
 
-
+  {-
+    All standardized bases.
+  -}
   bases <- decodeFile "newbases.bin" :: IO [Basis]
-  let subgroups = Prelude.filter isSubgroup bases
-  let neighbors = Prelude.map (\ h -> elems $ mutualNeighbors g h) subgroups
- 
-  --print $ Prelude.map (\ (x, s) -> isCoAdjacent g x s) $ zip subgroups neighbors
-  
+  putStr $ ("There are " ++ (show $ length bases) ++ " standardized bases unique under permutations.\n")
 
-  let h = subgroups !! 0
-  let v = neighbors !! 0 !! 0
-  let h' = shiftBasis h v
-  print h
-  print $ Prelude.map (shiftBasis h) (neighbors !! 0)
+
+  {-
+    All standardizes bases that are group-like.
+  -}
+  let subgroups = Prelude.filter isSubgroup bases
+  putStr $ ((show $ length subgroups) ++ " of these bases are group-like.\n")
+
+
+  {-
+    All sets of 2 MUBs, one of which is standardized.
+  -}
+  mubs2 <- decodeFile "mubs2.bin" :: IO (Set (Set Basis))
+  putStr $ ("There are " ++ (show $ size mubs2) ++ " unique sets of 2 MUBs.\n")
+
+
+  {-
+    All sets of 2 MUBs that can't be standardized such that one of the MUBs in the set is group-like.
+  -}
+  let ns_mubs2 = Data.Set.filter (not . canBeSubgroup) mubs2
+  putStr $ ((show $ size ns_mubs2) ++ " of these cannot be standarized such that one basis is group-like.\n")
+
+
 
   --print $ inflateBasis $ subgroups !! 0
 --  print $ neighbors !! 6

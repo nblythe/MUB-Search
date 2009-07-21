@@ -108,8 +108,8 @@ main = do
   {-
     Find MUBs and store to disk.
   -}
-  putStr ("Writing MUBs to " ++ fMUBs ++ "...\n")
+  putStr ("Writing sets of : " ++ m ++ " MUBs to " ++ fMUBs ++ "...\n")
   let mubs = elems $ findMUBs g bases (read m)
   encodeFile fMUBs mubs
-  putStr ("Done; found " ++ (show $ length mubs) ++ " MUBs.\n")
+  putStr ("Done; found " ++ (show $ length mubs) ++ " sets of " ++ m ++ " MUBs.\n")
 
