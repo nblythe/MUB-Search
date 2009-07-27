@@ -12,7 +12,7 @@
 #
 CC = ghc
 FLAGS = 
-PROF = -prof -auto-all
+PROF = #-prof -auto-all
 PACKAGES = -package binary
 
 
@@ -28,16 +28,13 @@ clean:
 
 # Modules used to construct and manipulate roots of unity.
 #
-ExtRat: ExtRat.hs
-	$(CC) -c ExtRat.hs $(FLAGS) $(PACKAGES) $(PROF)
+Cyclotomic24: Cyclotomic24.hs
+	$(CC) -c Cyclotomic24.hs $(FLAGS) $(PACKAGES) $(PROF)
 
-ExtCpx: ExtCpx.hs
-	$(CC) -c ExtCpx.hs $(FLAGS) $(PACKAGES) $(PROF)
-
-Roots12: Roots12.hs ExtRat ExtCpx
+Roots12: Roots12.hs Cyclotomic24
 	$(CC) -c Roots12.hs $(FLAGS) $(PACKAGES) $(PROF)
 
-Roots24: Roots24.hs ExtRat ExtCpx
+Roots24: Roots24.hs Cyclotomic24
 	$(CC) -c Roots24.hs $(FLAGS) $(PACKAGES) $(PROF)
 
 
@@ -57,8 +54,8 @@ Graph: Graph.hs Magic
 
 # Top-level modules that produce executables.
 #
-Gen-AdjFunctions: Gen-AdjFunctions.hs Roots12 Roots24 SublistPred Magic
-	$(CC) -o Gen-AdjFunctions Gen-AdjFunctions.hs ExtRat.o ExtCpx.o Roots12.o Roots24.o SublistPred.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
+Gen-AdjFunctions: Gen-AdjFunctions.hs Cyclotomic24 Roots12 Roots24 SublistPred Magic
+	$(CC) -o Gen-AdjFunctions Gen-AdjFunctions.hs Cyclotomic24.o Roots12.o Roots24.o SublistPred.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 
 Gen-Bases: Gen-Bases.hs Graph Magic
 	$(CC) -o Gen-Bases Gen-Bases.hs Graph.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
@@ -78,7 +75,4 @@ Analyze-Bases: Analyze-Bases.hs Perms
 
 Validate-Bases: Validate-Bases.hs Graph Magic Perms
 	$(CC) -o Validate-Bases Validate-Bases.hs Graph.o Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
-
-Old-Search: Old-Search.hs Magic VecTables
-	$(CC) -o Old-Search Old-Search.hs Magic.o VecTables.o SubsetPred.o Roots12.o Roots24.o ExtRat.o ExtCpx.o $(FLAGS) $(PACKAGES) $(PROF)
 

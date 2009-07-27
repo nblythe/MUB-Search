@@ -22,20 +22,20 @@ type Basis = Set Int
 
 
 {-
-  Add (mod 12) a vector to each vector in a basis.
+  Add (mod n) a vector to each vector in a basis.
 -}
-shiftBasis :: Basis -> Int -> Basis
-shiftBasis b v = Data.Set.map (\z -> vec2magic (6, 12) $ addVecs vAsVec z) bAsVecs
-                 where vAsVec = magic2vec (6, 12) v
-                       bAsVecs = Data.Set.map (magic2vec (6, 12)) b
-                       addVecs = Prelude.zipWith (\ x y -> mod (x + y) 12)
+shiftBasis :: (Int, Int) -> Basis -> Int -> Basis
+shiftBasis (d, n) b v = Data.Set.map (\z -> vec2magic (d, n) $ addVecs vAsVec z) bAsVecs
+                        where vAsVec = magic2vec (d, n) v
+                              bAsVecs = Data.Set.map (magic2vec (d, n)) b
+                              addVecs = Prelude.zipWith (\ x y -> mod (x + y) n)
 
 
 {-
   Given a basis b, construct the set of all coset bases to b.
 -}
-cosetBases :: Graph -> Basis -> Set Basis
-cosetBases g b = Data.Set.map (shiftBasis b) (g !! 0)
+cosetBases :: (Int, Int) -> Graph -> Basis -> Set Basis
+cosetBases (d, n) g b = Data.Set.map (shiftBasis (d, n) b) (g !! 0)
 
 
 {-
@@ -77,11 +77,11 @@ childMUBs g b r n = iterate (biggerMUBsMany g r) (singleton (singleton b)) !! (n
 
 
 {-
-  Find all sets of n MUBs from bases in a list l.
+  Find all sets of k MUBs from bases in a list l.
 -}
-findMUBs :: Graph -> [Basis] -> Int -> Set (Set Basis)
-findMUBs g l n = unions $ Prelude.map findMUBs' l
-                 where findMUBs' c = childMUBs g c (cosetBases g c) n
+findMUBs :: (Int, Int) -> Graph -> [Basis] -> Int -> Set (Set Basis)
+findMUBs (d, n) g l k = unions $ Prelude.map findMUBs' l
+                        where findMUBs' c = childMUBs g c (cosetBases (d, n) g c) k
 
 
 {-
@@ -108,8 +108,8 @@ main = do
   {-
     Find MUBs and store to disk.
   -}
-  putStr ("Writing sets of : " ++ m ++ " MUBs to " ++ fMUBs ++ "...\n")
-  let mubs = elems $ findMUBs g bases (read m)
+  putStr ("Writing sets of " ++ m ++ " MUBs to " ++ fMUBs ++ "...\n")
+  let mubs = elems $ findMUBs (read d, read n) g bases (read m)
   encodeFile fMUBs mubs
   putStr ("Done; found " ++ (show $ length mubs) ++ " sets of " ++ m ++ " MUBs.\n")
 
