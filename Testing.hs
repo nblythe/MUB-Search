@@ -202,15 +202,26 @@ canBeSubgroup s = or $ Prelude.map (\ n -> any isSubgroup $ f n) [0 .. (size s) 
                         f n = elems $ Data.Set.map deflateBasis $ standardizeMUBs s' n
 
 
+{-
+  Given a set s of MUBs, determine if there is a standardization of s such that
+  one of the MUBs is equivalent under some left and right permutation to another
+  basis b.
+-}
+canBeEquivalent :: Set Basis -> Basis -> Bool
+canBeEquivalent s b = or $ Prelude.map f s''
+                      where s' = Data.Set.map inflateBasis s
+                            b' = inflateBasis b
+                            s'' = Prelude.map (standardizeMUBs s') [0 .. (size s) - 1]
+                            f t = or $ elems $ Data.Set.map (\ x -> (not $ permUniqueL b' x) || (not $ permUniqueR b' x)) t
 
 main = do
-  adjBias <- decodeFile "adjBias12.bin" :: IO (Set Int)
+  adjBias <- decodeFile "r12_adjBias.bin" :: IO (Set Int)
   let g = graphU (6, 12) adjBias
 
   {-
     All standardized bases.
   -}
-  bases <- decodeFile "newbases.bin" :: IO [Basis]
+  bases <- decodeFile "r12_bases.bin" :: IO [Basis]
   putStr $ ("There are " ++ (show $ length bases) ++ " standardized bases unique under permutations.\n")
 
 
@@ -224,7 +235,7 @@ main = do
   {-
     All sets of 2 MUBs, one of which is standardized.
   -}
-  mubs2 <- decodeFile "mubs2.bin" :: IO (Set (Set Basis))
+  mubs2 <- decodeFile "r12_mubs2.bin" :: IO (Set (Set Basis))
   putStr $ ("There are " ++ (show $ size mubs2) ++ " unique sets of 2 MUBs.\n")
 
 
@@ -232,9 +243,21 @@ main = do
     All sets of 2 MUBs that can't be standardized such that one of the MUBs in the set is group-like.
   -}
   let ns_mubs2 = Data.Set.filter (not . canBeSubgroup) mubs2
-  putStr $ ((show $ size ns_mubs2) ++ " of these cannot be standarized such that one basis is group-like.\n")
+  putStr $ ((show $ size ns_mubs2) ++ " of these cannot be standardized such that one basis is group-like.\n")
 
 
+  {-
+    All sets of 2 MUBs that can't be standardized such that one of the MUBs in the set is the 2 x 3 group-like basis.
+  -}
+  let basis23 = [[0, 0, 0, 0, 0, 0],
+                 [0, 8, 4, 0, 8, 4],
+                 [0, 4, 8, 0, 4, 8],
+                 [0, 0, 0, 6, 6, 6],
+                 [0, 8, 4, 6, 2, 10],
+                 [0, 4, 8, 6, 10, 2]]
+  let n23_mubs2 = Data.Set.filter (\ s -> canBeEquivalent s $ deflateBasis basis23) mubs2
+  print $ Data.Set.map (Data.Set.map inflateBasis) n23_mubs2
+  putStr $ ((show $ size n23_mubs2) ++ " of these can be standardized such that one basis is equivalent to the 2 x 3 group-like basis.\n")
 
   --print $ inflateBasis $ subgroups !! 0
 --  print $ neighbors !! 6

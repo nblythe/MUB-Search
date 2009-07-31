@@ -52,7 +52,8 @@ main = do
            else ("no.\n")
 
 
-  let c0 = elems (c !! 0)
-  print $ Prelude.map (magic2vec (6, 12)) c0
+  --let c0 = elems (c !! 0)
+  --print $ Prelude.map (magic2vec (6, 12)) c0
 
+  print $ Prelude.map (\x -> Prelude.map (magic2vec (6, 12)) $ elems x) $ c
 
