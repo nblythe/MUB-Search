@@ -235,7 +235,7 @@ main = do
   {-
     All sets of 2 MUBs, one of which is standardized.
   -}
-  mubs2 <- decodeFile "r12_mubs2.bin" :: IO (Set (Set Basis))
+  mubs2 <- decodeFile "r12_mubs2NEW.bin" :: IO (Set (Set Basis))
   putStr $ ("There are " ++ (show $ size mubs2) ++ " unique sets of 2 MUBs.\n")
 
 

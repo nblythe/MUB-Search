@@ -81,7 +81,10 @@ childMUBs g b r n = iterate (biggerMUBsMany g r) (singleton (singleton b)) !! (n
 -}
 findMUBs :: (Int, Int) -> Graph -> [Basis] -> Int -> Set (Set Basis)
 findMUBs (d, n) g l k = unions $ Prelude.map findMUBs' l
-                        where findMUBs' c = childMUBs g c (cosetBases (d, n) g c) k
+                        --findMUBs' (l !! 0)
+                        where findMUBs' c = childMUBs g c allBases k
+                              allBases = unions $ Prelude.map (cosetBases (d, n) g) l
+                              --allBases = cosetBases (d, n) g (l !! 1)
 
 
 {-
@@ -112,4 +115,5 @@ main = do
   let mubs = elems $ findMUBs (read d, read n) g bases (read m)
   encodeFile fMUBs mubs
   putStr ("Done; found " ++ (show $ length mubs) ++ " sets of " ++ m ++ " MUBs.\n")
+  print $ Prelude.map (Data.Set.map (\ x -> magics2vecs (6, 12) x)) mubs
 
