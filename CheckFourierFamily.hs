@@ -57,8 +57,9 @@ main = do
   -}
   f <- decodeFile arg_bases :: IO (Set (Set Int))
   let bset = Data.Set.map deleteMin f
-  let bset' = Data.Set.map (\ x -> elems $ magics2vecs ((read arg_n), (read arg_d)) x) bset
+  let bset' = Data.Set.map (\ x -> elems $ magics2vecs ((read arg_d), (read arg_n)) x) bset
 
+  print bset'
 
   {-
     Find all bases that can't possibly be in the Fourier family.
