@@ -1,10 +1,8 @@
 {-
-  Generate orthogonal and unbiased adjacency functions on integral-root Hilbert
-  space graphs of d = 6, n = 12 and n = 24.
+  Generate the set of vectors orthogonal to the fundamental vector, and the set of vectors
+  unbiased to the fundamental vector.
 
-  2009 Nathan Blythe, Dr. Oscar Boykin
-
-  ./Gen-AdjFunctions <fOrth12> <fBias12> <fOrth24> <fBias24>
+  2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)
 -}
 
 import System(getArgs)
@@ -70,7 +68,7 @@ adjBias24 = Data.Set.map (vec2magic (6, 24)) (fromList lAsInts)
 
 
 {-
-  Entry point.
+  FundamentalNeighbors <fOrth12> <fBias12> <fOrth24> <fBias24>
 -}
 main = do
   fOrth12 : (fBias12 : (fOrth24 : (fBias24 : argsT))) <- getArgs

@@ -1,14 +1,16 @@
 {-
-  Cyclotomic field Q(Zeta_24)
-  2009 Nathan Blythe, Dr. Oscar Boykin
+  A type defining the cyclotomic field Q(Zeta_24).
+  This type implements the Num class and so can be used for typical mathematics.
+  It is exact; no rounding is used.
+
+  2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)
 -}
 
 module Cyclotomic24 (Cyclotomic24 (Cyclotomic24)) where
 
+
 {-
   Type definition.
-
-  Example here.
 -}
 data Cyclotomic24 = Cyclotomic24 Rational Rational Rational Rational Rational Rational Rational Rational
 

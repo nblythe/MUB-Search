@@ -1,7 +1,7 @@
 {-
   Permutations
 
-  2009 Nathan Blythe, Dr. Oscar Boykin
+  2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)
 
   Functions for constructing permutations of lists of lists and comparing
   lists of lists for equivalence under permutations.
@@ -12,6 +12,7 @@ module Perms where
 import Data.List
 import Maybe
 import Ix
+
 
 {-
   Construct rows of an n x n permutation matrix with 1s
@@ -80,6 +81,7 @@ permuteR x p = transpose (permuteL (transpose x) p)
 -}
 permuteAllL x = map (permuteL x) (allPerms (length x))
 permuteAllR x = map (permuteR x) (allPerms (length x))
+permuteAll x = concat $ Prelude.map permuteAllR (permuteAllL x)
 
 
 {-
@@ -87,6 +89,7 @@ permuteAllR x = map (permuteR x) (allPerms (length x))
 -}
 permUniqueL x y = all (/= y) (permuteAllL x)
 permUniqueR x y = all (/= y) (permuteAllR x)
+permUnique x y = all (/= y) (permuteAll x)
 
 
 {-
@@ -99,6 +102,9 @@ permUniqueToListL l x = if   all (permUniqueL x) l
 permUniqueToListR l x = if   all (permUniqueR x) l
                         then x : l
                         else l
+permUniqueToList l x = if   all (permUnique x) l
+                       then x : l
+                       else l
 
 
 {-
@@ -111,4 +117,7 @@ permUniqueListL (xH : xT) = if   (null xT)
 permUniqueListR (xH : xT) = if   (null xT)
                             then [xH]
                             else permUniqueToListR (permUniqueListR xT) xH
+permUniqueList (xH : xT) = if   (null xT)
+                           then [xH]
+                           else permUniqueToList (permUniqueList xT) xH
 

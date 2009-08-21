@@ -1,6 +1,6 @@
 # MUB-Search
 #
-# 2009 Nathan Blythe, Dr. Oscar Boykin
+# 2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)
 
 
 # Flags.
@@ -19,10 +19,10 @@ PACKAGES = -package binary
 
 # Operations.
 #
-all: Gen-AdjFunctions Gen-Bases MUB-Search
+all: FundamentalNeighbors Bases CheckFourierFamily MUBs2LaTeX MUB-Search
 
 clean:
-	rm -f Gen-AdjFunctions Gen-Bases MUB-Search *.hi *.o *.prof
+	rm -f FundamentalNeighbors Bases CheckFourierFamily MUBs2LaTeX MUB-Search *.hi *.o *.prof
 
 
 
@@ -39,8 +39,11 @@ Roots24: Roots24.hs Cyclotomic24
 
 
 
-# Modules used to manipulate vectors, lists of vectors, and graphs of vectors.
+# Modules used to manipulate vectors, matrices, and graphs.
 #
+Perms: Perms.hs
+	$(CC) -c Perms.hs $(FLAGS) $(PACKAGES) $(PROF)
+
 SublistPred: SublistPred.hs
 	$(CC) -c SublistPred.hs $(FLAGS) $(PACKAGES) $(PROF)
 
@@ -54,25 +57,18 @@ Graph: Graph.hs Magic
 
 # Top-level modules that produce executables.
 #
-Gen-AdjFunctions: Gen-AdjFunctions.hs Cyclotomic24 Roots12 Roots24 SublistPred Magic
-	$(CC) -o Gen-AdjFunctions Gen-AdjFunctions.hs Cyclotomic24.o Roots12.o Roots24.o SublistPred.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
+FundamentalNeighbors: FundamentalNeighbors.hs Cyclotomic24 Roots12 Roots24 SublistPred Magic
+	$(CC) -o FundamentalNeighbors FundamentalNeighbors.hs Cyclotomic24.o Roots12.o Roots24.o SublistPred.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 
-Gen-Bases: Gen-Bases.hs Graph Magic
-	$(CC) -o Gen-Bases Gen-Bases.hs Graph.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
+Bases: Bases.hs Graph Magic
+	$(CC) -o Bases Bases.hs Graph.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
+
+CheckFourierFamily: CheckFourierFamily.hs Magic Perms
+	$(CC) -o CheckFourierFamily CheckFourierFamily.hs Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
+
+MUBs2LaTeX: MUBs2LaTeX.hs Magic
+	$(CC) -o MUBs2LaTeX MUBs2LaTeX.hs Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 
 MUB-Search: MUB-Search.hs Graph Magic
 	$(CC) -o MUB-Search MUB-Search.hs Graph.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
-
-
-
-# To be pruned.
-#
-Perms: Perms.hs
-	$(CC) -c Perms.hs $(FLAGS) $(PACKAGES) $(PROF)
-
-Analyze-Bases: Analyze-Bases.hs Perms
-	$(CC) -o Analyze-Bases Analyze-Bases.hs Perms.o $(FLAGS) $(PACKAGES) $(PROF)
-
-Validate-Bases: Validate-Bases.hs Graph Magic Perms
-	$(CC) -o Validate-Bases Validate-Bases.hs Graph.o Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
 

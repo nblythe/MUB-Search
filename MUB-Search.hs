@@ -1,9 +1,7 @@
 {-
   Find sets of MUBs amongst provided bases.
 
-  2009 Nathan Blythe, Dr. Oscar Boykin
-
-  ./MUB-Search <d> <n> <fAdj> <fBases> <m> <fMUBs>
+  2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)
 -}
 
 
@@ -84,11 +82,10 @@ findMUBs (d, n) g l k = unions $ Prelude.map findMUBs' l
                         --findMUBs' (l !! 0)
                         where findMUBs' c = childMUBs g c allBases k
                               allBases = unions $ Prelude.map (cosetBases (d, n) g) l
-                              --allBases = cosetBases (d, n) g (l !! 1)
 
 
 {-
-  Entry point.
+  MUB-Search <d> <n> <fAdj> <fBases> <m> <fMUBs>
 -}
 main = do
   d : (n : (fAdj : (fBases : (m : (fMUBs : argsT))))) <- getArgs

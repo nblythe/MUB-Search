@@ -1,9 +1,8 @@
 {-
-  Generate a list of unique standardized bases from an orthogonality adjacency function.
+  Generate a list of unique standardized bases from the set of fundamental neighbors on the
+  orthogonality graph.
 
-  2009 Nathan Blythe, Dr. Oscar Boykin
-
-  ./Gen-Bases <d> <n> <m> <fAdj> <fBases>
+  2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)
 -}
 
 import System(getArgs)
@@ -63,16 +62,16 @@ uniqueBases (lH : lT) = if   Prelude.null lT
 
 
 {-
-  Entry point.
+  Bases <d> <n> <m> <fNeighbors> <fBases>
 -}
 main = do
-  d : (n : (m : (fAdj : (fBases : argsT)))) <- getArgs
+  d : (n : (m : (fNeighbors : (fBases : argsT)))) <- getArgs
 
   {-
     Read adjacency function.
   -}
-  putStr ("Reading orthogonality relations from " ++ fAdj ++ ".\n")
-  adjOrth <- decodeFile fAdj :: IO (Set Int)
+  putStr ("Reading orthogonality fundamental neighbors from " ++ fNeighbors ++ ".\n")
+  adjOrth <- decodeFile fNeighbors :: IO (Set Int)
 
 
   {-

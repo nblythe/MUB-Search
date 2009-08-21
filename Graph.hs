@@ -1,5 +1,5 @@
 {-
-  Integral-root Hilbert space graphs: construction and clique-finding.
+  Butson graphs: construction and clique-finding.
 
   2009 Nathan Blythe, Dr. Oscar Boykin
 -}
@@ -46,6 +46,7 @@ graph (d, n) f = [ Data.Set.filter (> v) (neighbors (d, n) f v) | v <- [0 .. (n^
 
 graphU :: (Int, Int) -> AdjF -> [Set Vert]
 graphU (d, n) f = [ neighbors (d, n) f v | v <- [0 .. (n^d) - 1] ]
+
 
 {-
   Compute the intersection of all sets in a set.
