@@ -72,6 +72,7 @@ main = do
   -}
   putStr ("Reading orthogonality fundamental neighbors from " ++ fNeighbors ++ ".\n")
   adjOrth <- decodeFile fNeighbors :: IO (Set Int)
+  putStr ("Found " ++ (show $ size adjOrth))
 
 
   {-

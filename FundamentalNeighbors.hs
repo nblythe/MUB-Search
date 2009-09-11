@@ -8,23 +8,34 @@
 import System(getArgs)
 import Data.Set
 import Data.Binary
+import Ratio
+import Complex
 
 import Roots12
 import Roots24
 import Magic
 import SublistPred
+import Cyclotomic24
 
 
 {-
   Predicate that determines if a vector is orthogonal to the unity vector.
 -}
-pOrth x = 0 == 1 + (sum x)
+--pOrth x = 0 == 1 + (sum x)
+pOrth e x = (compRationalRealCyclotomic24 r d) == 1
+            where c = abs (1 + (sum x))
+                  r = e
+                  d = absRealCyclotomic24 c
 
 
 {-
   Predicate that determines if a vector is unbiased to the unity vector.
 -}
-pBias x = 6 == abs (1 + (sum x))
+--pBias x = 6 == abs (1 + (sum x))
+pBias e x = (compRationalRealCyclotomic24 r d) == 1
+            where c = abs (1 + (sum x))
+                  r = e
+                  d = absRealCyclotomic24 (c - 6)
 
 
 {-
@@ -32,9 +43,9 @@ pBias x = 6 == abs (1 + (sum x))
   are orthogonal to the unity vector (stored as magic numbers).  First element
   is assumed to be 1.
 -}
-adjOrth12 = Data.Set.map (vec2magic (6, 12)) (fromList lAsInts)
-            where lAsInts = Prelude.map Roots12.toInts lAsRoots
-                  lAsRoots = sublistPred Roots12.roots 5 pOrth
+adjOrth12 e = Data.Set.map (vec2magic (6, 12)) (fromList lAsInts)
+              where lAsInts = Prelude.map Roots12.toInts lAsRoots
+                    lAsRoots = sublistPred Roots12.roots 5 (pOrth e)
 
 
 {-
@@ -42,9 +53,9 @@ adjOrth12 = Data.Set.map (vec2magic (6, 12)) (fromList lAsInts)
   are unbiased to the unity vector (stored as magic numbers).  First element
   is assumed to be 1.
 -}
-adjBias12 = Data.Set.map (vec2magic (6, 12)) (fromList lAsInts)
-            where lAsInts = Prelude.map Roots12.toInts lAsRoots
-                  lAsRoots = sublistPred Roots12.roots 5 pBias
+adjBias12 e = Data.Set.map (vec2magic (6, 12)) (fromList lAsInts)
+              where lAsInts = Prelude.map Roots12.toInts lAsRoots
+                    lAsRoots = sublistPred Roots12.roots 5 (pBias e)
 
 
 {-
@@ -52,9 +63,9 @@ adjBias12 = Data.Set.map (vec2magic (6, 12)) (fromList lAsInts)
   are orthogonal to the unity vector (stored as magic numbers).  First element
   is assumed to be 1.
 -}
-adjOrth24 = Data.Set.map (vec2magic (6, 24)) (fromList lAsInts)
-            where lAsInts = Prelude.map Roots24.toInts lAsRoots
-                  lAsRoots = sublistPred Roots24.roots 5 pOrth
+adjOrth24 e = Data.Set.map (vec2magic (6, 24)) (fromList lAsInts)
+              where lAsInts = Prelude.map Roots24.toInts lAsRoots
+                    lAsRoots = sublistPred Roots24.roots 5 (pOrth e)
 
 
 {-
@@ -62,28 +73,33 @@ adjOrth24 = Data.Set.map (vec2magic (6, 24)) (fromList lAsInts)
   are unbiased to the unity vector (stored as magic numbers).  First element
   is assumed to be 1.
 -}
-adjBias24 = Data.Set.map (vec2magic (6, 24)) (fromList lAsInts)
-            where lAsInts = Prelude.map Roots24.toInts lAsRoots
-                  lAsRoots = sublistPred Roots24.roots 5 pBias
+adjBias24 e = Data.Set.map (vec2magic (6, 24)) (fromList lAsInts)
+              where lAsInts = Prelude.map Roots24.toInts lAsRoots
+                    lAsRoots = sublistPred Roots24.roots 5 (pBias e)
 
 
 {-
-  FundamentalNeighbors <fOrth12> <fBias12> <fOrth24> <fBias24>
+  FundamentalNeighbors d n e <fOrth> <fBias>
 -}
 main = do
-  fOrth12 : (fBias12 : (fOrth24 : (fBias24 : argsT))) <- getArgs
+  d : (n : (e : (fOrth : (fBias : argsT)))) <- getArgs
 
-  putStr ("Writing " ++ fOrth12 ++ "...\n")
-  encodeFile fOrth12 adjOrth12
+  putStr ("Working in dimension " ++ d ++ ", " ++ n ++ "th roots of unity.\n")
+  putStr ("Epsilon = " ++ e ++ ".\n")
 
-  putStr ("Writing " ++ fBias12 ++ "...\n")
-  encodeFile fBias12 adjBias12
+  let adjOrth = if   12 == (read n)
+                then adjOrth12 (read e)
+                else adjOrth24 (read e)
 
-  putStr ("Writing " ++ fOrth24 ++ "...\n")
-  encodeFile fOrth24 adjOrth24
+  let adjBias = if   12 == (read n)
+                then adjBias12 (read e)
+                else adjBias24 (read e)
 
-  putStr ("Writing " ++ fBias12 ++ "...\n")
-  encodeFile fBias24 adjBias24
+  putStr ("Writing orthogonality adjacency relations to " ++ fOrth ++ ".\n")
+  encodeFile fOrth adjOrth
+
+  putStr ("Writing unbiasedness adjacency relations to " ++ fBias ++ ".\n")
+  encodeFile fBias adjBias
 
   putStr ("Done.\n")
 

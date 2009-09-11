@@ -1,5 +1,5 @@
 {-
-  This file is development file not intended for end-user use and not referenced in any other
+  This file is a development file not intended for end-user use and not referenced in any other
   files.
 
   2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)

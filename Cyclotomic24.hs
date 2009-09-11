@@ -6,8 +6,9 @@
   2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)
 -}
 
-module Cyclotomic24 (Cyclotomic24 (Cyclotomic24)) where
+module Cyclotomic24 (Cyclotomic24 (Cyclotomic24), realRational, fromCyclotomic24, compRationalRealCyclotomic24, absRealCyclotomic24) where
 
+import Complex
 
 {-
   Type definition.
@@ -61,7 +62,7 @@ instance Num Cyclotomic24 where
 
 
 {-
-  Absolute value.  Computes Euclidean distance from 0.
+  Absolute value.  Computes square of the Euclidean distance from 0.
 -}
   abs (Cyclotomic24 x0 x1 x2 x3 x4 x5 x6 x7)                                       =       ((y * y) + (z * z))
                                                                                      where y = Cyclotomic24 x0 x1 x2 x3 0 0 0 0
@@ -116,4 +117,79 @@ instance Show Cyclotomic24 where
                                                                                          ++ (showsPrec v x5 "") ++ ", "
                                                                                          ++ (showsPrec v x6 "") ++ ", "
                                                                                          ++ (showsPrec v x7 "") ++ ")" ++ r
+
+
+
+
+
+{-
+  Extract the real rational part of a cyclotomic tuple.
+-}
+realRational (Cyclotomic24 x0 x1 x2 x3 x4 x5 x6 x7) = x0
+
+{-
+  Convert a cyclotomic tuple to a complex number.
+-}
+fromCyclotomic24 (Cyclotomic24 x0 x1 x2 x3 x4 x5 x6 x7) = (  (fromRational x0)
+                                                           + ((fromRational x1) * sqrt(2))
+                                                           + ((fromRational x2) * sqrt(3))
+                                                           + ((fromRational x3) * sqrt(6)) )
+                                                          :+
+                                                          (  (fromRational x4)
+                                                           + ((fromRational x5) * sqrt(2))
+                                                           + ((fromRational x6) * sqrt(3))
+                                                           + ((fromRational x7) * sqrt(6)) )
+
+
+
+{-
+  Find the kth iteration of converging upper and lower bounds on the sqrt(x).
+-}
+boundSqrt :: Rational -> Integer -> (Rational, Rational)
+boundSqrt x 0 = (head s, head g)
+                where s = Prelude.filter ((< x) . (^2)) [x, (x-1)..]
+                      g = Prelude.filter ((> x) . (^2)) [1..]
+boundSqrt x k = if   (c^2) < x
+                then (c, u)
+                else (l, c)
+                where p = boundSqrt x (k - 1)
+                      l = fst p
+                      u = snd p
+                      c = (l + u) / 2
+
+
+{-
+  Find the kth iteration of converging upper and lower bounds on the real part of
+  a cyclotomic tuple.
+-}
+boundRealCyclotomic24 (Cyclotomic24 x0 x1 x2 x3 x4 x5 x6 x7) k = ( x0 + x1 * l2 + x2 * l3 + x3 * l6, x0 + x1 * u2 + x2 * u3 + x3 * u6)
+                                                                 where (l2, u2) = boundSqrt 2 k
+                                                                       (l3, u3) = boundSqrt 3 k
+                                                                       (l6, u6) = boundSqrt 6 k
+
+
+{-
+  Determine if a rational is greater than or less than the real part of a cyclotomic tuple.
+-}
+compRationalRealCyclotomic24 :: Rational -> Cyclotomic24 -> Integer
+compRationalRealCyclotomic24 x z = if (Cyclotomic24 x 0 0 0 0 0 0 0) == z
+                                   then 0
+                                   else if   x < bL
+                                        then -1
+                                        else 1
+                                        where allBounds         = [boundRealCyclotomic24 z k | k <- [0..]]
+                                              excludes y (l, h) = (y < l) || (y > h)
+                                              (bL, bH)          = head $ Prelude.filter (excludes x) allBounds
+
+
+{-
+  Compute the absolute value of the real part of a cyclotomic tuple.
+-}
+absRealCyclotomic24 :: Cyclotomic24 -> Cyclotomic24
+absRealCyclotomic24 x = if   c == 0
+                        then x
+                        else if   c == -1
+                             then x
+                             else (-x)
+                        where c = compRationalRealCyclotomic24 0 x
 
