@@ -62,11 +62,25 @@ uniqueBases (lH : lT) = if   Prelude.null lT
 
 
 {-
+  All ways to choose k elements from a set s.
+-}
+extendOnce e s = Data.Set.filter (\ x -> size x > size s) nf
+                 where nf = Data.Set.map (\ x -> insert x s) d
+                       d = difference e s
+extendOnceP e p = unions $ Prelude.map (\ s -> extendOnce e s) (elems p)
+allChoices k s = elems (allCombs !! k)
+                 where allCombs = iterate (extendOnceP s) (fromList [Data.Set.empty])
+
+
+{-
   Decode a job ID j into group selections, where there are c groups and
   m groups per job.
 -}
-decodeJob' c (g, j) = (mod j c, div j c)
-decodeJob c m j = Prelude.map fst $ take m $ tail $ iterate (decodeJob' c) (0, j)
+decodeJob c m j = elems $ (allChoices m (fromList [0 .. c - 1])) !! j
+
+
+
+
 
 
 {-
@@ -83,6 +97,7 @@ decodeJob c m j = Prelude.map fst $ take m $ tail $ iterate (decodeJob' c) (0, j
 main = do
   d : (n : (m : (k : (j : (fNeighbors : (fBases : argsT)))))) <- getArgs
 
+
   {-
     Read adjacency relations.
   -}
@@ -90,45 +105,53 @@ main = do
   adjOrth <- decodeFile fNeighbors :: IO (Set Int)
   putStr ("Read " ++ (show $ size adjOrth) ++ " fundamental neighbors.\n")
 
+
   {-
     Job details.
+
+    c:        number of groups of fundamental neighbors.
+    jSel:     the groups selected by this job.
+    jGroups': the indices of fundamental neighbors in a particular group
+    jGroups:  the indices of fundamental neighbors in each group selected by this job.
+    jAdjOrth: the subset of adjOrth corresponding to this job.
   -}
   let c = (div (size adjOrth) (read k))
           + if   rem (size adjOrth) (read k) == 0
             then 0
             else 1
+  putStr ("There are " ++ (show c) ++ " groups of fundamental neighbors.\n")
+
   let jSel = decodeJob c ((read m) - 1) (read j)
-  let jGroups' g = fromList [(elems adjOrth) !! i | i <- [iStart g .. iEnd g]]
+  putStr ("This job selects groups " ++ (show jSel) ++ ".\n")
+
+  let jGroups' g = [iStart g .. iEnd g]
                    where iStart g = (jSel !! g) * (read k)
                          iEnd g   = if   iEnd' > (size adjOrth) - 1
                                     then (size adjOrth) - 1
                                     else iEnd'
                                     where iEnd' = ((jSel !! g) + 1) * (read k) - 1
   let jGroups = Prelude.map jGroups' [0 .. (read m) - 2]
-  let jAdjOrth = unions jGroups
+  putStr ("Those groups have sizes " ++ (show $ Prelude.map length jGroups) ++ ", respectively.\n")
 
-  putStr ("Job ID " ++ j ++ " selects groups " ++ (show jSel) ++ " (each from " ++ (show c) ++ ").\n")
-  putStr ("Selected group sizes: " ++ (show $ Prelude.map size jGroups) ++ ".\n")
-  putStr ("Total fundamental neighbors selected: " ++ (show $ size jAdjOrth) ++ ".\n")
+  putStr ("Building the set of fundamental neighbors specific to this job.\n")
+  let jAdjOrth = fromList $ Prelude.map (elems adjOrth !!) (concat jGroups)
+  putStr ("It has size " ++ (show $ size jAdjOrth) ++ ".\n")
+
 
   {-
-    Generate the orthogonality graph and find root cliques (standardized bases).
+    Generate the orthogonality graph and find fundamental cliques (standardized bases).
   -}
+  putStr ("Searching for bases.\n")
   let g = graph (read d, read n) jAdjOrth
   let c = rootcliques g (read m)
-
-  {-
-    Eliminate equivalents under row-permutations.
-  -}
   let c' = uniqueBases c
-  print $ c'
+  putStr ("Found " ++ (show $ length c') ++ ".\n")
 
 
   {-
     Store to disk.
   -}
-  putStr ("Writing bases to " ++ fBases ++ "...\n")
+  putStr ("Writing bases to " ++ fBases ++ ".\n")
   encodeFile fBases c'
-  putStr ("There are " ++ (show $ length c') ++ " unique bases.\n")
   putStr ("Done.\n")
 
