@@ -24,6 +24,8 @@ all: FundamentalNeighbors Bases CheckFourierFamily MUBs2LaTeX MUB-Search
 clean:
 	rm -f FundamentalNeighbors Bases CheckFourierFamily MUBs2LaTeX MUB-Search *.hi *.o *.prof
 
+push:
+	git push git@github.com:nblythe/MUB-Search.git master
 
 
 # Modules used to construct and manipulate roots of unity.
