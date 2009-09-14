@@ -85,7 +85,7 @@ main = do
   d : (n : (e : (fOrth : (fBias : argsT)))) <- getArgs
 
   putStr ("Working in dimension " ++ d ++ ", " ++ n ++ "th roots of unity.\n")
-  putStr ("Epsilon = " ++ e ++ ".\n")
+  putStr ("Epsilon = " ++ (show $ fromRational (read e)) ++ ".\n")
 
   let adjOrth = if   12 == (read n)
                 then adjOrth12 (read e)

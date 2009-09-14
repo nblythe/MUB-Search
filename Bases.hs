@@ -62,23 +62,59 @@ uniqueBases (lH : lT) = if   Prelude.null lT
 
 
 {-
-  Bases <d> <n> <m> <fNeighbors> <fBases>
+  Decode a job ID j into group selections, where there are c groups and
+  m groups per job.
+-}
+decodeJob' c (g, j) = (mod j c, div j c)
+decodeJob c m j = Prelude.map fst $ take m $ tail $ iterate (decodeJob' c) (0, j)
+
+
+{-
+  Bases <d> <n> <m> <k> <j> <fNeighbors> <fBases>
+
+  Dimension d.
+  nth roots of unity.
+  Bases contain m orthogonal vectors.
+  Neighbor relations are split into groups of k.
+  Job ID j.
+  Neighbor relations read from fNeighbors.
+  Bases written to fBases.
 -}
 main = do
-  d : (n : (m : (fNeighbors : (fBases : argsT)))) <- getArgs
+  d : (n : (m : (k : (j : (fNeighbors : (fBases : argsT)))))) <- getArgs
 
   {-
-    Read adjacency function.
+    Read adjacency relations.
   -}
   putStr ("Reading orthogonality fundamental neighbors from " ++ fNeighbors ++ ".\n")
   adjOrth <- decodeFile fNeighbors :: IO (Set Int)
-  putStr ("Found " ++ (show $ size adjOrth))
+  putStr ("Read " ++ (show $ size adjOrth) ++ " fundamental neighbors.\n")
 
+  {-
+    Job details.
+  -}
+  let c = (div (size adjOrth) (read k))
+          + if   rem (size adjOrth) (read k) == 0
+            then 0
+            else 1
+  let jSel = decodeJob c ((read m) - 1) (read j)
+  let jGroups' g = fromList [(elems adjOrth) !! i | i <- [iStart g .. iEnd g]]
+                   where iStart g = (jSel !! g) * (read k)
+                         iEnd g   = if   iEnd' > (size adjOrth) - 1
+                                    then (size adjOrth) - 1
+                                    else iEnd'
+                                    where iEnd' = ((jSel !! g) + 1) * (read k) - 1
+  let jGroups = Prelude.map jGroups' [0 .. (read m) - 2]
+  let jAdjOrth = unions jGroups
+
+  putStr ("Job ID " ++ j ++ " selects groups " ++ (show jSel) ++ " (each from " ++ (show c) ++ ").\n")
+  putStr ("Selected group sizes: " ++ (show $ Prelude.map size jGroups) ++ ".\n")
+  putStr ("Total fundamental neighbors selected: " ++ (show $ size jAdjOrth) ++ ".\n")
 
   {-
     Generate the orthogonality graph and find root cliques (standardized bases).
   -}
-  let g = graph (read d, read n) adjOrth
+  let g = graph (read d, read n) jAdjOrth
   let c = rootcliques g (read m)
 
   {-
