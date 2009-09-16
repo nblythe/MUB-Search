@@ -4,7 +4,7 @@
   2009 Nathan Blythe, Dr. Oscar Boykin
 -}
 
-module Graph (Vert, Clique, Graph, Vec, AdjF, graph, graphU, cliques, rootcliques) where
+module Graph (Vert, Clique, Graph, Vec, AdjF, graph, cliques, rootcliques, growcliques) where
 
 import Magic
 import Data.Set
@@ -28,11 +28,20 @@ pointDiff n a b = zipWith (\x y -> mod (x - y) n) a b
 
 
 {-
+  Given adjacency relation a, find the corresponding vertex adjacent to a vertex v.
+-}
+neighbor :: (Int, Int) -> Int -> Vert -> Vert
+neighbor (d, n) a v = vec2magic (d, n) (pointDiff n x y)
+                      where x = magic2vec (d, n) v
+                            y = magic2vec (d, n) a
+
+{-
   Given adjacency function adjF, find the set of all vertices adjacent to a vertex v.
 -}
 neighbors :: (Int, Int) -> AdjF -> Vert -> Set Vert
-neighbors (d, n) f v = Data.Set.map (\u -> vec2magic (d, n) (pointDiff n x (magic2vec (d, n) u))) f
-                       where x = magic2vec (d, n) v
+--neighbors (d, n) f v = Data.Set.map (\u -> vec2magic (d, n) (pointDiff n x (magic2vec (d, n) u))) f
+--                       where x = magic2vec (d, n) v
+neighbors (d, n) f v = Data.Set.map (\u -> neighbor (d, n) u v) f
 
 
 {-
@@ -90,4 +99,14 @@ cliques g n  = (iterate (biggerCliques g) [empty]) !! n
 rootcliques :: Graph -> Int -> [Clique]
 rootcliques g 0 = [empty]
 rootcliques g n = (iterate (biggerCliques g) [singleton 0]) !! (n - 1)
+
+
+{-
+  Given a graph g and a clique q, find all cliques of size n
+  that include clique q.
+-}
+growcliques :: Graph -> Clique -> Int -> [Clique]
+growcliques g q n = if   n == size q
+                    then [q]
+                    else (iterate (biggerCliques g) [q]) !! (n - size q)
 
