@@ -11,7 +11,7 @@
 # PACKAGES is for compiling against packages that need explicit reference.
 #
 CC = ghc
-FLAGS = #-static -optl-static -optl-pthread
+FLAGS = -static -optl-static -optl-pthread
 PROF = #-prof -auto-all
 PACKAGES = -package binary
 
@@ -19,10 +19,10 @@ PACKAGES = -package binary
 
 # Operations.
 #
-all: FundamentalNeighbors Bases CheckFourierFamily MUBs2LaTeX MUB-Search
+all: FundamentalNeighbors Bases CombBases CheckFourierFamily MUBs2LaTeX MUB-Search
 
 clean:
-	rm -f FundamentalNeighbors Bases CheckFourierFamily MUBs2LaTeX MUB-Search *.hi *.o *.prof
+	rm -f FundamentalNeighbors Bases CombBases CheckFourierFamily MUBs2LaTeX MUB-Search *.hi *.o *.prof
 
 push:
 	git push git@github.com:nblythe/MUB-Search.git master
@@ -64,6 +64,9 @@ FundamentalNeighbors: FundamentalNeighbors.hs Cyclotomic24 Roots12 Roots24 Subli
 
 Bases: Bases.hs Graph Magic
 	$(CC) -o Bases Bases.hs Graph.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
+
+CombBases: CombBases.hs Magic
+	$(CC) -o CombBases CombBases.hs Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 
 CheckFourierFamily: CheckFourierFamily.hs Magic Perms
 	$(CC) -o CheckFourierFamily CheckFourierFamily.hs Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
