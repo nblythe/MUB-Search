@@ -81,12 +81,14 @@ main = do
     Combine into a single list and remove equivalences.
   -}
   let uBases = uniqueBases $ concat aBases
-  putStr ("Found " ++ (show . length $ uBases) ++ " unique bases.\n")
+  let cBases = elems . fromList $ uBases
+  putStr ("Found " ++ (show . length $ cBases) ++ " unique bases.\n")
+  sequence $ Prelude.map print cBases
 
   {-
     Store to disk.
   -}
   putStr ("Writing unique bases to " ++ fOut ++ ".\n")
-  encodeFile fOut uBases
+  encodeFile fOut cBases
   putStr ("Done.\n")
 

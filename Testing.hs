@@ -233,7 +233,7 @@ main = do
 
 
   {-
-    All standardizes bases that are group-like.
+    All standardized bases that are group-like.
   -}
   let subgroups = Prelude.filter isSubgroup bases
   putStr $ ((show $ length subgroups) ++ " of these bases are group-like.\n")

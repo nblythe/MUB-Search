@@ -89,8 +89,8 @@ decodeJob c m j = elems $ (allChoices m (fromList [0 .. c - 1])) !! j
   Dimension d.
   nth roots of unity.
   Bases contain m orthogonal vectors.
-  Neighbor relations are split into groups of k.
-  Job ID j.
+  Neighbor relations are split into groups of k (must have at least m - 1 groups).
+  Job ID j (if -1, do the entire search).
   Neighbor relations read from fNeighbors.
   Bases written to fBases.
 -}
@@ -105,7 +105,6 @@ main = do
   adjOrth <- decodeFile fNeighbors :: IO (Set Int)
   putStr ("Read " ++ (show $ size adjOrth) ++ " fundamental neighbors.\n")
 
-
   {-
     Job details.
 
@@ -119,10 +118,8 @@ main = do
           + if   rem (size adjOrth) (read k) == 0
             then 0
             else 1
-  putStr ("There are " ++ (show c) ++ " groups of fundamental neighbors.\n")
 
   let jSel = decodeJob c ((read m) - 1) (read j)
-  putStr ("This job selects groups " ++ (show jSel) ++ ".\n")
 
   let jGroups' g = [iStart g .. iEnd g]
                    where iStart g = (jSel !! g) * (read k)
@@ -131,10 +128,11 @@ main = do
                                     else iEnd'
                                     where iEnd' = ((jSel !! g) + 1) * (read k) - 1
   let jGroups = Prelude.map jGroups' [0 .. (read m) - 2]
-  putStr ("Those groups have sizes " ++ (show $ Prelude.map length jGroups) ++ ", respectively.\n")
 
   putStr ("Building the set of fundamental neighbors specific to this job.\n")
-  let jAdjOrth = fromList $ Prelude.map (elems adjOrth !!) (concat jGroups)
+  let jAdjOrth = if   (read j) == (-1)
+                 then adjOrth
+                 else fromList $ Prelude.map (elems adjOrth !!) (concat jGroups)
   putStr ("It has size " ++ (show $ size jAdjOrth) ++ ".\n")
 
 
