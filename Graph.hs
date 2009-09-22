@@ -48,8 +48,13 @@ neighbors (d, n) f v = Data.Set.map (\u -> neighbor (d, n) u v) f
   Index k in the list is a set containing all vertices adjacent to vertex k
   that are numbered greater than k.
 -}
-graph :: (Int, Int) -> AdjF -> [Set Vert]
-graph (d, n) f = [ Data.Set.filter (> v) (neighbors (d, n) f v) | v <- [0 .. (n^d) - 1] ]
+--graph :: (Int, Int) -> AdjF -> [Set Vert]
+--graph (d, n) f = [ Data.Set.filter (> v) (neighbors (d, n) f v) | v <- [0 .. (n^d) - 1] ]
+--graph (d, n) f = Prelude.map (\ v -> Data.Set.filter (> v) (neighbors (d, n) f v))  [0 .. (n^d) - 1]
+
+graph :: (Int, Int) -> AdjF -> Int -> Set Vert
+graph (d, n) f v = Data.Set.filter (> v) (neighbors (d, n) f v)
+
 
 graphU :: (Int, Int) -> AdjF -> [Set Vert]
 graphU (d, n) f = [ neighbors (d, n) f v | v <- [0 .. (n^d) - 1] ]
@@ -70,22 +75,23 @@ intersections s = if   1 == (Data.Set.size s)
   A vertex that extends a clique is a vertex that is adjacent to all
   vertices in that clique.
 -}
-extendingVerts :: Graph -> Clique -> Set Vert
-extendingVerts g c = intersections (Data.Set.map (g !!) c)
+--extendingVerts :: Graph -> Clique -> Set Vert
+--extendingVerts g c = intersections (Data.Set.map (g !!) c)
+extendingVerts g c = intersections (Data.Set.map g c)
 
 
 {-
   Given a graph g and a list of cliques s, find all cliques in g that
   contain a clique from s and one additional vertex.
 -}
-biggerCliques :: Graph -> [Clique] -> [Clique]
+--biggerCliques :: Graph -> [Clique] -> [Clique]
 biggerCliques g s = [insert w y | y <- s, w <- elems (extendingVerts g y)]
 
 
 {-
   Given a graph g, find all cliques of size n.
 -}
-cliques :: Graph -> Int -> [Clique]
+--cliques :: Graph -> Int -> [Clique]
 cliques g 0  = [empty]
 cliques g n  = (iterate (biggerCliques g) [empty]) !! n
 
@@ -94,7 +100,7 @@ cliques g n  = (iterate (biggerCliques g) [empty]) !! n
   Given a graph g, find all cliques of size n that
   include vertex 0.
 -}
-rootcliques :: Graph -> Int -> [Clique]
+--rootcliques :: Graph -> Int -> [Clique]
 rootcliques g 0 = [empty]
 rootcliques g n = (iterate (biggerCliques g) [singleton 0]) !! (n - 1)
 
@@ -103,7 +109,7 @@ rootcliques g n = (iterate (biggerCliques g) [singleton 0]) !! (n - 1)
   Given a graph g and a clique q, find all cliques of size n
   that include q.
 -}
-growclique :: Graph -> Clique -> Int -> [Clique]
+--growclique :: Graph -> Clique -> Int -> [Clique]
 growclique g q n = if   n == size q
                    then [q]
                    else (iterate (biggerCliques g) [q]) !! (n - size q)
@@ -114,6 +120,6 @@ growclique g q n = if   n == size q
   Given a graph g and a list of cliques l, find all cliques of size n
   that include cliques from l.
 -}
-growcliques :: Graph -> [Clique] -> Int -> [Clique]
+--growcliques :: Graph -> [Clique] -> Int -> [Clique]
 growcliques g l n = concat $ Prelude.map (\ q -> growclique g q n) l
 

@@ -11,8 +11,8 @@
 # PACKAGES is for compiling against packages that need explicit reference.
 #
 CC = ghc
-FLAGS = #-static -optl-static -optl-pthread
-PROF = -prof -auto-all
+FLAGS = -static -optl-static -optl-pthread
+PROF = #-prof -auto-all
 PACKAGES = -package binary
 
 

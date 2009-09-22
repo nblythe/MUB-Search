@@ -119,8 +119,6 @@ main = do
 --  encodeFile fBases c'
 --  putStr ("Done.\n")
 
-
-  putStr ("Writing bases to " ++ fBases ++ " - experimental.\n")
   fp <- openFile fBases WriteMode
   let lbs = Prelude.map encode c'
   let fc = Prelude.map (Data.ByteString.Lazy.hPut fp) lbs
