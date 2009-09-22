@@ -26,8 +26,9 @@ vecs2magics (d, n) s = Data.Set.map (vec2magic (d, n)) s
 {-
   Compute a magic number's vector.
 -}
-magic2vec' (d, n) x y = mod (div x (n^y)) n
-magic2vec  (d, n) x   = Prelude.map (magic2vec' (d, n) x) (take (d - 1) (iterate (1 +) 0))
+magic2vec (d, n) x = take (d - 1) $ Prelude.map (\y -> mod y n) allDivs
+                     where allDivs = (iterate (\y -> div y n) x)
+
 
 
 {-

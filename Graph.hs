@@ -39,8 +39,6 @@ neighbor (d, n) a v = vec2magic (d, n) (pointDiff n x y)
   Given adjacency function adjF, find the set of all vertices adjacent to a vertex v.
 -}
 neighbors :: (Int, Int) -> AdjF -> Vert -> Set Vert
---neighbors (d, n) f v = Data.Set.map (\u -> vec2magic (d, n) (pointDiff n x (magic2vec (d, n) u))) f
---                       where x = magic2vec (d, n) v
 neighbors (d, n) f v = Data.Set.map (\u -> neighbor (d, n) u v) f
 
 
@@ -103,10 +101,19 @@ rootcliques g n = (iterate (biggerCliques g) [singleton 0]) !! (n - 1)
 
 {-
   Given a graph g and a clique q, find all cliques of size n
-  that include clique q.
+  that include q.
 -}
-growcliques :: Graph -> Clique -> Int -> [Clique]
-growcliques g q n = if   n == size q
-                    then [q]
-                    else (iterate (biggerCliques g) [q]) !! (n - size q)
+growclique :: Graph -> Clique -> Int -> [Clique]
+growclique g q n = if   n == size q
+                   then [q]
+                   else (iterate (biggerCliques g) [q]) !! (n - size q)
+
+
+
+{-
+  Given a graph g and a list of cliques l, find all cliques of size n
+  that include cliques from l.
+-}
+growcliques :: Graph -> [Clique] -> Int -> [Clique]
+growcliques g l n = concat $ Prelude.map (\ q -> growclique g q n) l
 

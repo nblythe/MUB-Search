@@ -7,6 +7,7 @@
 import System(getArgs)
 import Data.Binary
 import Data.Set
+import System.Posix.Resource
 
 import Magic
 
@@ -68,6 +69,14 @@ uniqueBases (lH : lT) = if   Prelude.null lT
 -}
 main = do
   fPrefix : (i : (j : (fOut : argsT))) <- getArgs
+
+
+  {-
+    Adjust the soft and hard limit on open files to the number of files we're going to open.
+  -}
+  let fcount = (read j - read i) + 4
+  setResourceLimit ResourceOpenFiles (ResourceLimits (ResourceLimit fcount) (ResourceLimit fcount))
+  
 
   {-
     Read the bases.

@@ -11,15 +11,15 @@
 # PACKAGES is for compiling against packages that need explicit reference.
 #
 CC = ghc
-FLAGS = -static -optl-static -optl-pthread
-PROF = #-prof -auto-all
+FLAGS = #-static -optl-static -optl-pthread
+PROF = -prof -auto-all
 PACKAGES = -package binary
 
 
 
 # Operations.
 #
-all: FundamentalNeighbors Bases CombBases CheckFourierFamily MUBs2LaTeX MUB-Search
+all: FundamentalNeighbors Bases CombBases CheckFourierFamily MUBs2LaTeX MUB-Search MakeMagic
 
 clean:
 	rm -f FundamentalNeighbors Bases CombBases CheckFourierFamily MUBs2LaTeX MUB-Search *.hi *.o *.prof
@@ -76,4 +76,7 @@ MUBs2LaTeX: MUBs2LaTeX.hs Magic
 
 MUB-Search: MUB-Search.hs Graph Magic
 	$(CC) -o MUB-Search MUB-Search.hs Graph.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
+
+MakeMagic: MakeMagic.hs Magic
+	$(CC) -o MakeMagic MakeMagic.hs Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 

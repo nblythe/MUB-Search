@@ -23,9 +23,8 @@ type Basis = Set Int
   Add (mod n) a vector to each vector in a basis.
 -}
 shiftBasis :: (Int, Int) -> Basis -> Int -> Basis
-shiftBasis (d, n) b v = Data.Set.map (\z -> vec2magic (d, n) $ addVecs vAsVec z) bAsVecs
+shiftBasis (d, n) b v = Data.Set.map (\z -> vec2magic (d, n) $ addVecs vAsVec z) $ Data.Set.map (magic2vec (d, n)) b
                         where vAsVec = magic2vec (d, n) v
-                              bAsVecs = Data.Set.map (magic2vec (d, n)) b
                               addVecs = Prelude.zipWith (\ x y -> mod (x + y) n)
 
 
@@ -79,9 +78,9 @@ childMUBs g b r n = iterate (biggerMUBsMany g r) (singleton (singleton b)) !! (n
 -}
 findMUBs :: (Int, Int) -> Graph -> [Basis] -> Int -> Set (Set Basis)
 findMUBs (d, n) g l k = unions $ Prelude.map findMUBs' l
-                        --findMUBs' (l !! 0)
-                        where findMUBs' c = childMUBs g c allBases k
-                              allBases = unions $ Prelude.map (cosetBases (d, n) g) l
+                        where findMUBs' c = childMUBs g c (allBases c) k
+                              allBases = cosetBases (d, n) g
+                              --allBases = unions $ Prelude.map (cosetBases (d, n) g) l
 
 
 {-

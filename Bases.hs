@@ -6,7 +6,9 @@
 -}
 
 import System(getArgs)
+import System.IO
 import Data.Binary
+import Data.ByteString.Lazy(hPut)
 import Data.Set
 
 import Graph
@@ -44,8 +46,8 @@ transpose x    = if   Prelude.null (head yT)
 -}
 isBasisUniqueToList :: [Basis] -> Basis -> Bool
 isBasisUniqueToList l b = all (/= b') l'
-                          where l' = Prelude.map (fromList . transpose . inflateBasis) l
-                                b' = (fromList . transpose . inflateBasis) b
+                          where l' = Prelude.map (fromList . Main.transpose . inflateBasis) l
+                                b' = (fromList . Main.transpose . inflateBasis) b
 
 
 {-
@@ -62,17 +64,17 @@ uniqueBases (lH : lT) = if   Prelude.null lT
 
 
 {-
-  Bases <d> <n> <m> <fNeighbors> <j> <fBases>
+  Bases <d> <n> <m> <fNeighbors> <j> <js> <fBases>
 
   Dimension d.
   nth roots of unity.
   Bases contain m orthogonal vectors.
   Neighbor relations read from fNeighbors.
-  Job ID is j.  If -1, the entire search is performed.
+  Job ID is j.  Job workload scaled by js.  If j == -1, the entire search is performed.
   Bases written to fBases.
 -}
 main = do
-  d : (n : (m : (fNeighbors : (j : (fBases : argsT))))) <- getArgs
+  d : (n : (m : (fNeighbors : (j : (js : (fBases : argsT)))))) <- getArgs
 
 
   {-
@@ -86,9 +88,18 @@ main = do
   {-
     Specify the job.
   -}
+  let jobs = [is .. ie]
+           where is = (read j) * (read js)
+                 im = (read j + 1) * (read js) - 1
+                 ie = if   im < size adjOrth
+                      then im
+                      else (size adjOrth) - 1
   let q = if  read j == -1
-         then singleton 0
-         else fromList [0, elems adjOrth !! (read j)]
+          then [Data.Set.singleton 0]
+          else [ fromList [0, elems adjOrth !! i] | i <- jobs ]
+  putStr $ if read j == -1
+                     then ("Will perform entire search.\n")
+                     else ("Will perform job(s) " ++ (show jobs) ++ " of " ++ (show $ size adjOrth) ++ ".\n")
 
 
   {-
@@ -98,13 +109,22 @@ main = do
   let g = graph (read d, read n) adjOrth
   let c = growcliques g q (read m)
   let c' = uniqueBases c
-  putStr ("Found " ++ (show $ length c') ++ ".\n")
+  putStr ("Found " ++ (show $ Prelude.length c') ++ ".\n")
 
 
   {-
     Store to disk.
   -}
-  putStr ("Writing bases to " ++ fBases ++ ".\n")
-  encodeFile fBases c'
+--  putStr ("Writing bases to " ++ fBases ++ ".\n")
+--  encodeFile fBases c'
+--  putStr ("Done.\n")
+
+
+  putStr ("Writing bases to " ++ fBases ++ " - experimental.\n")
+  fp <- openFile fBases WriteMode
+  let lbs = Prelude.map encode c'
+  let fc = Prelude.map (Data.ByteString.Lazy.hPut fp) lbs
+  sequence fc
+  hClose fp
   putStr ("Done.\n")
 
