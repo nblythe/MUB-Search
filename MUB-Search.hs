@@ -32,7 +32,7 @@ shiftBasis (d, n) b v = Data.Set.map (\z -> vec2magic (d, n) $ addVecs vAsVec z)
   Given a basis b, construct the set of all coset bases to b.
 -}
 cosetBases :: (Int, Int) -> Graph -> Basis -> Set Basis
-cosetBases (d, n) g b = Data.Set.map (shiftBasis (d, n) b) (g !! 0)
+cosetBases (d, n) g b = Data.Set.map (shiftBasis (d, n) b) (g 0)
 
 
 {-
@@ -40,7 +40,7 @@ cosetBases (d, n) g b = Data.Set.map (shiftBasis (d, n) b) (g !! 0)
 -}
 areMUB :: Graph -> Basis -> Basis -> Bool
 areMUB g b c = all areMUB' (elems b)
-               where areMUB' v = all (\ u -> member (max u v) (g !! (min u v))) $ elems c
+               where areMUB' v = all (\ u -> member (max u v) (g (min u v))) $ elems c
 
 
 {-

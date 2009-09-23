@@ -70,7 +70,8 @@ uniqueBases (lH : lT) = if   Prelude.null lT
   nth roots of unity.
   Bases contain m orthogonal vectors.
   Neighbor relations read from fNeighbors.
-  Job ID is j.  Job workload scaled by js.  If j == -1, the entire search is performed.
+  Process performs jobs j * js through (j + 1) * js - 1.
+  If j == -1, the entire search is performed.
   Bases written to fBases.
 -}
 main = do
