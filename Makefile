@@ -30,6 +30,9 @@ push:
 
 # Modules used to construct and manipulate roots of unity.
 #
+Cyclotomic: Cyclotomic.hs
+	$(CC) -c Cyclotomic.hs $(FLAGS) $(PACKAGES) $(PROF)
+
 Cyclotomic24: Cyclotomic24.hs
 	$(CC) -c Cyclotomic24.hs $(FLAGS) $(PACKAGES) $(PROF)
 
@@ -59,8 +62,8 @@ Graph: Graph.hs Magic
 
 # Top-level modules that produce executables.
 #
-FundamentalNeighbors: FundamentalNeighbors.hs Cyclotomic24 Roots12 Roots24 SublistPred Magic
-	$(CC) -o FundamentalNeighbors FundamentalNeighbors.hs Cyclotomic24.o Roots12.o Roots24.o SublistPred.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
+FundamentalNeighbors: FundamentalNeighbors.hs Cyclotomic SublistPred Magic
+	$(CC) -o FundamentalNeighbors FundamentalNeighbors.hs Cyclotomic.o SublistPred.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 
 Bases: Bases.hs Graph Magic
 	$(CC) -o Bases Bases.hs Graph.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)

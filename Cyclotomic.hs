@@ -1,4 +1,7 @@
 
+
+module Cyclotomic (Cyclotome, conj, inv, approx, boundMag2, cycloGamma, cycloZero, cycloOne, rootsOfUnity) where
+
 import Ratio
 import Complex(Complex)
 
@@ -111,11 +114,14 @@ allArgChoices (h : t) n = if  null t
 -}
 instance Num Cyclotome where
   (CycloRat x0) + (CycloRat x1) = CycloRat (x0 + x1)
+  (CycloRat x0) + (CycloVal x1 gamma1 y1) = error "Extension degree mismatch"
   (CycloVal x0 gamma0 y0) + (CycloVal x1 gamma1 y1) = if   gamma0 == gamma1
                                                       then CycloVal (x0 + x1) gamma0 (y0 + y1)
                                                       else error "Gamma mismatch"
 
   (CycloRat x0) - (CycloRat x1) = CycloRat (x0 - x1)
+  (CycloRat x0) - (CycloVal x1 gamma1 y1) = error "Extension degree mismatch"
+  (CycloVal x1 gamma1 y1) - (CycloRat x0) = error "Extension degree mismatch"
   (CycloVal x0 gamma0 y0) - (CycloVal x1 gamma1 y1) = if   gamma0 == gamma1
                                                       then CycloVal (x0 - x1) gamma0 (y0 - y1)
                                                       else error "Gamma mismatch"
