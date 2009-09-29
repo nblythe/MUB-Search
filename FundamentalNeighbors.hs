@@ -42,7 +42,7 @@ rsum (h : t) = if   Prelude.null t
 pOrth :: Integer -> Rational -> [Cyclotome] -> Bool
 pOrth p e x = (snd $ head t) <= e
               where s = (cycloOne p) + (rsum x)
-                    a = [boundMag2 (3 * k) s | k <- [1 ..]]
+                    a = [boundMag2 (2 * k) s | k <- [1 ..]]
                     t = Prelude.filter (\ b -> ((fst b) > e) || ((snd b) <= e)) a
 
 
@@ -126,6 +126,9 @@ main = do
                        lookup = Prelude.map (\ x -> fromJust (findIndex (x ==) roots))
 
   let adjOrth = Data.Set.map (vec2magic (fromInteger d, fromInteger n)) (fromList vecsOrth)
+
+
+  print vecsOrth
 
   putStr ("Writing orthogonality adjacency relations to " ++ fOrth ++ ".\n")
   encodeFile fOrth adjOrth
