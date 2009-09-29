@@ -18,6 +18,7 @@ import Data.Maybe
 import Magic
 import SublistPred
 import Cyclotomic
+import Perms
 
 
 {-
@@ -116,7 +117,7 @@ main = do
   let e = read sE :: Rational
   let n = 2^p
 
-  putStr ("Working in dimension " ++ sD ++ ", 2^" ++ sP ++ "th roots of unity.\n")
+  putStr ("Working in dimension " ++ sD ++ ", " ++ (show n) ++ "th roots of unity.\n")
   putStr ("Epsilon = " ++ (show $ fromRational e) ++ ".\n")
 
   let roots = rootsOfUnity p
@@ -124,8 +125,9 @@ main = do
   let vecsOrth = Prelude.map lookup rootsOrth
                  where rootsOrth = sublistPred roots (d - 1) (pOrth p e)
                        lookup = Prelude.map (\ x -> fromJust (findIndex (x ==) roots))
+  let allVecsOrth = fromList . concat $ Prelude.map permuteAllL vecsOrth
 
-  let adjOrth = Data.Set.map (vec2magic (fromInteger d, fromInteger n)) (fromList vecsOrth)
+  let adjOrth = Data.Set.map (vec2magic (fromInteger d, fromInteger n)) allVecsOrth
 
 
   print vecsOrth
