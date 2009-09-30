@@ -129,11 +129,9 @@ main = do
 
   let adjOrth = Data.Set.map (vec2magic (fromInteger d, fromInteger n)) allVecsOrth
 
-
-  print vecsOrth
-
   putStr ("Writing orthogonality adjacency relations to " ++ fOrth ++ ".\n")
   encodeFile fOrth adjOrth
+  putStr ("Found " ++ (show $ size adjOrth) ++ ".\n")
 
   {-
   let adjOrth = if   12 == (read n)

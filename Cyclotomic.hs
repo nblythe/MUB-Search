@@ -7,7 +7,7 @@
   fields with n = 2^m (where m is any natural number) are supported.
 -}
 
-module Cyclotomic (Cyclotome, conj, inv, mag2, approx, boundMag2, cycloGamma, cycloZero, cycloOne, rootsOfUnity) where
+module Cyclotomic (Cyclotome, approx, boundMag2, cycloGamma, cycloZero, cycloOne, rootsOfUnity) where
 
 import Ratio
 import Complex(Complex)
@@ -68,23 +68,23 @@ instance Show Cyclotome where
 {-
   Conjugate.
 -}
-conj (CycloRat x) = CycloRat x
-conj (CycloVal (CycloRat x) (CycloRat gamma) (CycloRat y)) = CycloVal (CycloRat x) (CycloRat gamma) (CycloRat (-y))
-conj (CycloVal x gamma y) = CycloVal (conj x) gamma (conj y)
+--conj (CycloRat x) = CycloRat x
+--conj (CycloVal (CycloRat x) (CycloRat gamma) (CycloRat y)) = CycloVal (CycloRat x) (CycloRat gamma) (CycloRat (-y))
+--conj (CycloVal x gamma y) = CycloVal (conj x) gamma (conj y)
 
 
 {-
   Multiplicative inverse.
 -}
-inv (CycloRat x) = CycloRat (1 / x)
-inv (CycloVal x gamma y) = CycloVal (x * (inv (x*x - y*y*gamma))) gamma ((-y) * (inv (x*x - y*y*gamma)))
+--inv (CycloRat x) = CycloRat (1 / x)
+--inv (CycloVal x gamma y) = CycloVal (x * (inv (x*x - y*y*gamma))) gamma ((-y) * (inv (x*x - y*y*gamma)))
 
 
 {-
   Magnitude squared.
 -}
-mag2 (CycloRat x) = CycloRat ((abs x)^2)
-mag2 (CycloVal x gamma y) = CycloVal ((mag2 x) + (mag2 y) + (y * x)) gamma (x * y * (inv gamma))
+--mag2 (CycloRat x) = CycloRat ((abs x)^2)
+--mag2 (CycloVal x gamma y) = CycloVal ((mag2 x) + (mag2 y) + (y * x)) gamma (x * y * (inv gamma))
 
 
 {-

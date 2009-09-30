@@ -11,8 +11,8 @@
 # PACKAGES is for compiling against packages that need explicit reference.
 #
 CC = ghc
-FLAGS = -static -optl-static -optl-pthread
-PROF = #-prof -auto-all
+FLAGS = #-static -optl-static -optl-pthread
+PROF = -prof -auto-all
 PACKAGES = -package binary
 
 
@@ -62,8 +62,8 @@ Graph: Graph.hs Magic
 
 # Top-level modules that produce executables.
 #
-FundamentalNeighbors: FundamentalNeighbors.hs Cyclotomic SublistPred Magic
-	$(CC) -o FundamentalNeighbors FundamentalNeighbors.hs Cyclotomic.o SublistPred.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
+FundamentalNeighbors: FundamentalNeighbors.hs Cyclotomic SublistPred Magic Perms
+	$(CC) -o FundamentalNeighbors FundamentalNeighbors.hs Cyclotomic.o SublistPred.o Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
 
 Bases: Bases.hs Graph Magic
 	$(CC) -o Bases Bases.hs Graph.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
