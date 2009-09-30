@@ -22,30 +22,18 @@ PACKAGES = -package binary
 all: FundamentalNeighbors Bases CombBases CheckFourierFamily MUBs2LaTeX MUB-Search MakeMagic
 
 clean:
-	rm -f FundamentalNeighbors Bases CombBases CheckFourierFamily MUBs2LaTeX MUB-Search *.hi *.o *.prof
+	rm -f FundamentalNeighbors Bases CombBases CheckFourierFamily MUBs2LaTeX MUB-Search MakeMagic *.hi *.o *.prof *.aux *.hp *.ps
 
 push:
 	git push git@github.com:nblythe/MUB-Search.git master
 
 
-# Modules used to construct and manipulate roots of unity.
+
+# Modules that provide specific encapsulated functionalities.
 #
 Cyclotomic: Cyclotomic.hs
 	$(CC) -c Cyclotomic.hs $(FLAGS) $(PACKAGES) $(PROF)
 
-Cyclotomic24: Cyclotomic24.hs
-	$(CC) -c Cyclotomic24.hs $(FLAGS) $(PACKAGES) $(PROF)
-
-Roots12: Roots12.hs Cyclotomic24
-	$(CC) -c Roots12.hs $(FLAGS) $(PACKAGES) $(PROF)
-
-Roots24: Roots24.hs Cyclotomic24
-	$(CC) -c Roots24.hs $(FLAGS) $(PACKAGES) $(PROF)
-
-
-
-# Modules used to manipulate vectors, matrices, and graphs.
-#
 Perms: Perms.hs
 	$(CC) -c Perms.hs $(FLAGS) $(PACKAGES) $(PROF)
 
@@ -55,7 +43,7 @@ SublistPred: SublistPred.hs
 Magic: Magic.hs
 	$(CC) -c Magic.hs $(FLAGS) $(PACKAGES) $(PROF)
 
-Graph: Graph.hs Magic
+Graph: Graph.hs
 	$(CC) -c Graph.hs $(FLAGS) $(PACKAGES) $(PROF)
 
 

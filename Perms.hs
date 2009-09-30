@@ -1,10 +1,7 @@
 {-
-  Permutations
+  Functions for dealing with permutations of lists and lists of lists.
 
   2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)
-
-  Functions for constructing permutations of lists of lists and comparing
-  lists of lists for equivalence under permutations.
 -}
 
 module Perms where
