@@ -7,6 +7,9 @@
 
 import System(getArgs)
 
+import Data.List
+import Data.Maybe
+
 import Polynomial
 
 
@@ -47,6 +50,40 @@ mubPolys = mubPolys1 ++ mubPolys2
 {-
   The MUB problem linear system.
 -}
-hnssR = monomialGen mubVariables 4
-hnss = concat [[[polynomialCoef p (monomialMatch q m) | q <- hnssR] | m <- polynomialMonomials p] | p <- mubPolys]
+hnssR = allMonomials 6
+hnssC = allMonomials 2
+
+
+buildCol :: Polynomial -> Monomial -> [(Int, Float)]
+buildCol (Polynomial c p) m' = (lookup m', c) : Data.List.map (\ (k, m) -> (lookup (monomialMultiply m m'), k)) p
+                               where lookup x = monomial2Int 6 x --fromJust $ findIndex (== x) hnssR
+
+buildTbl = concat $ Data.List.map (\ m -> Data.List.map (\ p -> buildCol p m) mubPolys) hnssC
+
+
+groupRow' (Polynomial c []) m' = [(m', c)]
+groupRow' (Polynomial c ((k, m) : mT)) m' = (monomialMatch m' m, k) : groupRow' (Polynomial c mT) m'
+
+buildRow :: [(Monomial, Float)] -> [(Int, Float)]
+buildRow [] = []
+buildRow r  = if   i == Nothing
+              then rest
+              else  (fromJust i, snd $ head r) : rest
+              where i    = findIndex (== (fst $ head r)) hnssC
+                    rest = buildRow (tail r)
+
+
+groupRow p m = buildRow $ groupRow' p m
+
+
+--hnss = concat [[[polynomialCoef p (monomialMatch q m) | q <- hnssR] | m <- polynomialMonomials p] | p <- mubPolys]
+--hnss = concat $ Data.List.map hnss' mubPolys
+--       where hnss'' p m = Data.List.map (\ q -> polynomialCoef p (monomialMatch q m)) $ monomialGen mubVariables 4
+--             hnss' p = Data.List.map (hnss'' p) $ polynomialMonomials p
+
+hnss = [[[polynomialCoef p (monomialMatch q m) | q <- hnssR] | m <- hnssC] | p <- mubPolys]
+
+
+--main = do
+--  print $ filter (/= 0) $ concat hnss
 

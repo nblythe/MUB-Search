@@ -19,10 +19,10 @@ PACKAGES = -package binary
 
 # Operations.
 #
-all: FundamentalNeighbors Bases CombBases CheckFourierFamily MUBs2LaTeX MUB-Search MakeMagic
+all: FundamentalNeighbors Bases CombBases CheckFourierFamily MUBs2LaTeX MUB-Search MakeMagic HNSS
 
 clean:
-	rm -f FundamentalNeighbors Bases CombBases CheckFourierFamily MUBs2LaTeX MUB-Search MakeMagic *.hi *.o *.prof *.aux *.hp *.ps
+	rm -f FundamentalNeighbors Bases CombBases CheckFourierFamily MUBs2LaTeX MUB-Search MakeMagic HNSS *.hi *.o *.prof *.aux *.hp *.ps
 
 push:
 	git push git@github.com:nblythe/MUB-Search.git master
@@ -46,6 +46,8 @@ Magic: Magic.hs
 Graph: Graph.hs
 	$(CC) -c Graph.hs $(FLAGS) $(PACKAGES) $(PROF)
 
+Polynomial: Polynomial.hs
+	$(CC) -c Polynomial.hs $(FLAGS) $(PACKAGES) $(PROF)
 
 
 # Top-level modules that produce executables.
@@ -70,4 +72,8 @@ MUB-Search: MUB-Search.hs Graph Magic
 
 MakeMagic: MakeMagic.hs Magic
 	$(CC) -o MakeMagic MakeMagic.hs Magic.o $(FLAGS) $(PACKAGES) $(PROF)
+
+HNSS: HNSS.hs Polynomial
+	$(CC) -o HNSS HNSS.hs Polynomial.o $(FLAGS) $(PACKAGES) $(PROF)
+
 

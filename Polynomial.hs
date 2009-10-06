@@ -4,13 +4,20 @@
 -}
 
 module Polynomial (RoI(Real, Imag), Variable(Variable), Sonomial(Sonomial), Monomial(Monomial), Polynomial(Polynomial),
-                   sonomialMultiply, sonomialInverse,
-                   monomialMultiply, monomialInverse, monomialGen, monomialMatch,
-                   polynomialAdd, polynomialMultiply, polynomialMonomials, polynomialCoef) where
+                   sonomialMultiply, sonomialInverse, allSonomials,
+                   monomialMultiply, monomialInverse, monomialMatch, allMonomials, monomial2Int,
+                   polynomialAdd, polynomialMultiply, polynomialMonomials, polynomialCoef, polynomialStrip) where
 
 
-import System(getArgs)
 import Data.List
+
+
+{-
+  Some parameters that configure the types.
+-}
+vectorLength = 6;
+basisWidth = 6;
+numBases = 4;
 
 
 {-
@@ -27,6 +34,8 @@ instance Ord RoI where
   compare Real Imag = LT
   compare Imag Real = GT
   compare Imag Imag = EQ
+
+
 
 
 {-
@@ -54,16 +63,16 @@ instance Ord Variable where
   Variable instantiates Enum for easy generation of Variables.
 -}
 instance Enum Variable where
-  fromEnum (Variable roi i j k) = nroi + i * 2 + j * 2 * 6 + k * 2 * 6 * 6
+  fromEnum (Variable roi i j k) = nroi + i * 2 + j * 2 * vectorLength + k * 2 * vectorLength * basisWidth
                                   where nroi | roi == Real = 0
                                              | roi == Imag = 1
 
   toEnum x = Variable roi i j k
              where roi | mod x 2 == 0 = Real
                        | mod x 2 == 1 = Imag
-                   i = mod (div x 2) 6
-                   j = mod (div x (2 * 6)) 6
-                   k = div x (2 * 6 * 6)
+                   i = mod (div x 2) vectorLength
+                   j = mod (div x (2 * vectorLength)) basisWidth
+                   k = div x (2 * vectorLength * basisWidth)
 
 
 {-
@@ -73,11 +82,29 @@ instance Show Variable where
   showsPrec v x r = "(x" ++ (show $ fromEnum x) ++ ")" ++ r
 
 
+{-
+  All variables.
+-}
+allVariables = [Variable Real 0 0 0 .. Variable Imag (vectorLength - 1) (basisWidth - 1) (numBases - 1)]
+
+
+
 
 {-
   A Sonomial is a Variable raised to an integral exponent.
 -}
-data Sonomial = Sonomial Variable Integer deriving (Eq)
+data Sonomial = Sonomial Variable Int deriving (Eq)
+
+
+{-
+  Sonomial instantiates Enum for easy generation.
+-}
+instance Enum Sonomial where
+  fromEnum (Sonomial v n) = (n - 1) * (length allVariables) + (fromEnum v)
+
+  toEnum x = Sonomial v n
+             where n = 1 + (div x (length allVariables))
+                   v = toEnum $ mod x (length allVariables)
 
 
 {-
@@ -100,11 +127,34 @@ sonomialMultiply (Sonomial s0 n0) (Sonomial s1 n1) | s0 == s1  = (Sonomial s0 (n
 sonomialInverse  (Sonomial s n) = Sonomial s (-n)
 
 
+{-
+  All sonomials with degree less than or equal to d.
+-}
+allSonomials :: Int -> [Sonomial]
+allSonomials d = [Sonomial (head allVariables) 1 .. Sonomial (last allVariables) d]
+
+
+
 
 {-
   A Monomial is a product of Sonomials.
 -}
 data Monomial = Monomial [Sonomial]
+
+
+{-
+  Integer <-> Monomial conversion
+-}
+monomial2Int' :: Int -> [Sonomial] -> Int
+monomial2Int' d ((Sonomial v n) : sT) = if   Data.List.null sT
+                            then h
+                            else h + (length $ allSonomials d) * (monomial2Int' d sT)
+                            where h = if   n == 0
+                                      then 0
+                                      else 1 + fromEnum (Sonomial v n)
+
+monomial2Int :: Int -> Monomial -> Int
+monomial2Int d (Monomial s) = (monomial2Int' d $ s ++ (replicate (d - (length s)) (Sonomial (toEnum 0) 0))) - 1
 
 
 {-
@@ -153,25 +203,13 @@ monomialInverse (Monomial m) = Monomial $ Data.List.map sonomialInverse m
 
 
 {-
-  Given a list l of variables, generate all monomials of degree d or less.
--}
-monomialGen' :: [Variable] -> Int -> Int -> [Monomial]
-monomialGen' l v 0 = [Monomial [Sonomial (l !! v) 1]]
-monomialGen' l v d = [ monomialMultiply' m (Sonomial (l !! v) 1) | m <- nm ]
-                     where nm = concat [monomialGen' l w (d - 1) | w <- [v .. (length l) - 1]]
-
-monomialGen :: [Variable] -> Int -> [Monomial]
-monomialGen l d = concat $ Data.List.map (\ v -> monomialGen' l v d) [0 .. (length l) - 1]
-
-
-{-
   Given a monomial m and a sonomial s, find a sonomial t such that m contains (s t).
 -}
 monomialMatch' :: Monomial -> Sonomial -> Sonomial
 monomialMatch' (Monomial m) (Sonomial v n) = if   Data.List.null r
                                              then sonomialInverse (Sonomial v n)
                                              else Sonomial v (n' - n)
-                                             where r = Data.List.filter (== Sonomial v n) m
+                                             where r = Data.List.filter (\ (Sonomial w l) -> w == v) m
                                                    Sonomial v' n' = head r
 
 
@@ -180,6 +218,30 @@ monomialMatch' (Monomial m) (Sonomial v n) = if   Data.List.null r
 -}
 monomialMatch :: Monomial -> Monomial -> Monomial
 monomialMatch (Monomial x) (Monomial y) = Monomial [monomialMatch' (Monomial x) s | s <- y]
+
+
+{-
+  Generate all monomials of degree d or less.
+-}
+allMonomials'' :: Int -> Int -> [Monomial]
+allMonomials'' v 0 = [Monomial [Sonomial (allVariables !! v) 1]]
+allMonomials'' v d = [ monomialMultiply' m (Sonomial (allVariables !! v) 1) | m <- nm ]
+                     where nm = concat [allMonomials'' w (d - 1) | w <- [v .. (length allVariables) - 1]]
+
+allMonomials' :: Int -> [Monomial]
+allMonomials' d = concat $ Data.List.map (\ v -> allMonomials'' v (d - 1)) [0 .. (length allVariables) - 1]
+
+allMonomials :: Int -> [Monomial]
+allMonomials d = concat $ Data.List.map allMonomials' [1 .. d]
+
+
+{-
+  Convert a Monomial to a unique integer.
+-}
+--monomial2Int :: Monomial -> Int
+--monomial2Int (
+
+
 
 
 
@@ -281,4 +343,10 @@ polynomialCoef (Polynomial c p) m' = if   Data.List.null r
                                      then 0
                                      else fst (head r)
                                      where r = Data.List.filter (\ (k, m) -> m == m') p
+
+{-
+  Remove terms from a polynomial that have coefficient zero.
+-}
+polynomialStrip :: Polynomial -> Polynomial
+polynomialStrip (Polynomial c p) = Polynomial c $ Data.List.filter (\ (k, m) -> k /= 0) p
 
