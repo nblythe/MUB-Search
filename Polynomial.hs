@@ -5,7 +5,7 @@
 
 module Polynomial (RoI(Real, Imag), Variable(Variable), Sonomial(Sonomial), Monomial(Monomial), Polynomial(Polynomial),
                    sonomialMultiply, sonomialInverse, allSonomials,
-                   monomialMultiply, monomialInverse, monomialMatch, allMonomials, monomial2Int,
+                   monomialDegree, monomialMultiply, monomialInverse, monomialMatch, allMonomials, monomial2Int, numMonomials,
                    polynomialAdd, polynomialMultiply, polynomialMonomials, polynomialCoef, polynomialStrip) where
 
 
@@ -143,18 +143,46 @@ data Monomial = Monomial [Sonomial]
 
 
 {-
+  Degree of a Monomial.
+-}
+monomialDegree (Monomial []) = 0
+monomialDegree (Monomial ((Sonomial v n) : sT)) = n + (monomialDegree (Monomial sT))
+
+
+{-
+  Number of monomials with a degree less than or equal to d.
+-}
+facs = scanl (*) 1 [1..]
+
+fac :: Int -> Integer
+fac n = facs !! n
+
+numMonomials :: Int -> Integer
+numMonomials d = sum f
+                 where n = length allVariables
+                       f = Data.List.map (\k -> div (fac (n + k - 1)) ((fac (n - 1)) * (fac k))) [1 .. d]
+
+
+{-
   Integer <-> Monomial conversion
 -}
-monomial2Int' :: Int -> [Sonomial] -> Int
-monomial2Int' d ((Sonomial v n) : sT) = if   Data.List.null sT
-                            then h
-                            else h + (length $ allSonomials d) * (monomial2Int' d sT)
-                            where h = if   n == 0
-                                      then 0
-                                      else 1 + fromEnum (Sonomial v n)
+monomialExpand' :: Monomial -> [Variable]
+monomialExpand' (Monomial ((Sonomial v n) : sT)) = if   Data.List.null sT
+                                                   then replicate n v
+                                                   else (replicate n v) ++ (monomialExpand' (Monomial sT))
 
-monomial2Int :: Int -> Monomial -> Int
-monomial2Int d (Monomial s) = (monomial2Int' d $ s ++ (replicate (d - (length s)) (Sonomial (toEnum 0) 0))) - 1
+monomialExpand :: Monomial -> [Variable]
+monomialExpand m = reverse $ sort $ monomialExpand' m
+
+
+monomial2Int' :: [Variable] -> Integer
+monomial2Int' (vH : vT) = if   Data.List.null vT
+                          then (toInteger $ fromEnum vH)
+                          else (toInteger $ fromEnum vH) + (toInteger $ length allVariables) * (monomial2Int' vT)
+
+monomial2Int :: Int -> Monomial -> Integer
+monomial2Int d m = s + (monomial2Int' (monomialExpand m))
+                   where s = sum $ Data.List.map numMonomials [1 .. d - 1]
 
 
 {-

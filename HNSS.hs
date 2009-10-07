@@ -52,38 +52,29 @@ mubPolys = mubPolys1 ++ mubPolys2
 -}
 hnssR = allMonomials 6
 hnssC = allMonomials 2
+nColumns = 1 + (length hnssC)
+nGroups = length mubPolys
+nMonomials = [length $ polynomialMonomials p | p <- mubPolys]
 
 
-buildCol :: Polynomial -> Monomial -> [(Int, Float)]
-buildCol (Polynomial c p) m' = (lookup m', c) : Data.List.map (\ (k, m) -> (lookup (monomialMultiply m m'), k)) p
-                               where lookup x = monomial2Int 6 x --fromJust $ findIndex (== x) hnssR
+tblCell :: Int -> Int -> Int -> (Integer, Int, Float)
+tblCell p m c | c == 0 && m == 0 = (-1, p * nColumns, k)
+              | c == 0 && m /= 0 = (monomial2Int 6 monomial, p * nColumns, coef)
+              | c /= 0 && m == 0 = (monomial2Int 6 monomial', p * nColumns + c, k)
+              | c /= 0 && m /= 0 = (r, p * nColumns + c, coef)
+                where polynomial = mubPolys !! p
+                      (Polynomial k _) = polynomial
+                      monomial = polynomialMonomials polynomial !! (m - 1)
+                      coef = polynomialCoef polynomial monomial
+                      monomial' = hnssC !! (c - 1)
+                      r = monomial2Int 6 $ monomialMultiply monomial monomial'
 
-buildTbl = concat $ Data.List.map (\ m -> Data.List.map (\ p -> buildCol p m) mubPolys) hnssC
+tbl = concat $ Data.List.map tblGrp [0 .. nGroups - 1]
+      where tblGrpCol p c = Data.List.map (\ m -> tblCell p m c) [0 .. (nMonomials !! p) - 1]
+            tblGrp p      = concat $ Data.List.map (tblGrpCol p) [0 .. nColumns - 1]
 
+tblPretty = Data.List.map (\ (r, c, f) -> (show r) ++ "," ++ (show c) ++ "," ++ (show f)) tbl
 
-groupRow' (Polynomial c []) m' = [(m', c)]
-groupRow' (Polynomial c ((k, m) : mT)) m' = (monomialMatch m' m, k) : groupRow' (Polynomial c mT) m'
-
-buildRow :: [(Monomial, Float)] -> [(Int, Float)]
-buildRow [] = []
-buildRow r  = if   i == Nothing
-              then rest
-              else  (fromJust i, snd $ head r) : rest
-              where i    = findIndex (== (fst $ head r)) hnssC
-                    rest = buildRow (tail r)
-
-
-groupRow p m = buildRow $ groupRow' p m
-
-
---hnss = concat [[[polynomialCoef p (monomialMatch q m) | q <- hnssR] | m <- polynomialMonomials p] | p <- mubPolys]
---hnss = concat $ Data.List.map hnss' mubPolys
---       where hnss'' p m = Data.List.map (\ q -> polynomialCoef p (monomialMatch q m)) $ monomialGen mubVariables 4
---             hnss' p = Data.List.map (hnss'' p) $ polynomialMonomials p
-
-hnss = [[[polynomialCoef p (monomialMatch q m) | q <- hnssR] | m <- hnssC] | p <- mubPolys]
-
-
---main = do
---  print $ filter (/= 0) $ concat hnss
+main = do
+  sequence $ Data.List.map putStrLn tblPretty
 
