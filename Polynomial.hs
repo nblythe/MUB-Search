@@ -194,23 +194,6 @@ monomialDegree (Monomial ((Sonomial v n) : sT)) = n + (monomialDegree (Monomial 
 -}
 numMonomials :: Int -> Integer
 numMonomials d = sum $ map (\ k -> nchoosek (numVariables + k - 1) k) [1 .. d]
--- TODO: remove the below
---numMonomials d = sum $ map (\k -> div (fac (numVariables + k - 1)) ((fac (numVariables - 1)) * (fac k))) [1 .. d]
-
-
-{-
-  Number of monomials ordered before the sonomial s.
--}
-{-
-numMonomialsBefore :: Sonomial -> Integer
-numMonomialsBefore (Sonomial v n) = b - s
-                                    where k = fromEnum v
-                                          b = nchoosek (numVariables + n - 1) n
-                                          s = nchoosek (numVariables - k + n - 1) n
-                                          -- TODO: remove the below, equivalent to the above.
-                                          --b = div (fac (numVariables + n - 1)) ((fac (numVariables - 1)) * (fac n))
-                                          --s = div (fac (numVariables - k + n - 1)) ((fac (numVariables - k - 1)) * (fac n))
--}
 
 
 {-
@@ -220,6 +203,7 @@ monomialExpand' :: Monomial -> [Variable]
 monomialExpand' (Monomial ((Sonomial v n) : sT)) = if   null sT
                                                    then replicate n v
                                                    else (replicate n v) ++ (monomialExpand' (Monomial sT))
+
 monomialExpand :: Monomial -> [Variable]
 monomialExpand m = Data.List.sort $ monomialExpand' m
 
@@ -242,12 +226,6 @@ monomial2Int' p (cH : cT) = if   (null cT)
 monomial2Int :: Monomial -> Integer
 monomial2Int m = numMonomials ((length m') - 1) + (monomial2Int' (toEnum 0) m')
                  where m' = monomialExpand m
-
-
-
-
-
-
 
 
 {-
@@ -309,9 +287,6 @@ allMonomials' d = concat $ map (\ v -> allMonomials'' v (d - 1)) [0 .. numVariab
 
 allMonomials :: Int -> [Monomial]
 allMonomials d = concat $ map allMonomials' [1 .. d]
-
-
-
 
 
 
@@ -418,6 +393,9 @@ polynomialCoef (Polynomial c p) m' = if   null r
 
 {-
   Remove terms from a polynomial that have coefficient zero.
+
+  In general polynomials shouldn't have lots of zeros hanging around as they're removed in
+  some functions as they occur, but it happens.
 -}
 polynomialStrip :: Polynomial -> Polynomial
 polynomialStrip (Polynomial c p) = Polynomial c $ filter (\ (k, m) -> k /= 0) p

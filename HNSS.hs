@@ -1,25 +1,25 @@
 {-
-  Generate the linear system for Hilbert's Nullstellensatz for the MUB problem
-  in dimension 6, with quadratic multiplying polynomials.
+  Generate the linear system for Hilbert's Nullstellensatz for the MUB problem in dimension 6
+  with quadratic multiplying polynomials.
 
   2009 Nathan Blythe, Dr. Oscar Boykin
 -}
 
 import System(getArgs)
 
-import Data.List
-import Data.Maybe
-
 import Polynomial
 
 
 {-
-  The MUB problem polynomial system.
+  A polynomial of type 1.
 -}
 mubPoly1 i j k = Polynomial (-1) [(1, Monomial [Sonomial (Variable Real i j k) 2]),
                                   (1, Monomial [Sonomial (Variable Imag i j k) 2])] 
 
 
+{-
+  A polynomial of type 2.
+-}
 mubPoly2a' i j1 j2 k1 k2 = Polynomial 0 [(1,  Monomial [Sonomial (Variable Real i j1 k1) 1,
                                                         Sonomial (Variable Real i j2 k2) 1]),
                                          (-1, Monomial [Sonomial (Variable Imag i j1 k1) 1,
@@ -43,6 +43,10 @@ mubPoly2 j1 j2 k1 k2 = if   k1 == k2
                              y2 = polynomialMultiply y y
                              b = polynomialAdd x2 y2
 
+
+{-
+  All polynomials.
+-}
 mubPolys1 = [mubPoly1 i j k | i <- [0 .. 5], j <- [0 .. 5], k <- [0 .. 2]]
 mubPolys2 = concat [[mubPoly2 j1 j2 k1 k2 | j2 <- [j1 .. 5], k2 <- [k1 .. 2]]  |  j1 <- [0 .. 5], k1 <- [0 .. 2]]
 mubPolys = mubPolys1 ++ mubPolys2
@@ -56,6 +60,7 @@ hnssC = allMonomials 2
 nColumns = 1 + (length hnssC)
 nGroups = length mubPolys
 nMonomials = [length $ polynomialMonomials p | p <- mubPolys]
+
 
 {-
   Compute a cell in the linear system table.
@@ -72,26 +77,35 @@ tblCell p m c | c == 0 && m == 0 = (-1, p * nColumns, k)                        
                       monomial' = hnssC !! (c - 1)
                       r = monomial2Int $ monomialMultiply monomial monomial'
 
+
 {-
   Compute the contents of the linear system table for polynomials p1 through p2.
 -}
 tbl :: Int -> Int -> [(Integer, Int, Float)]
-tbl p1 p2 = concat $ Data.List.map tblGrp [p1 .. p2]
-      where tblGrpCol p c = Data.List.map (\ m -> tblCell p m c) [0 .. (nMonomials !! p) - 1]
-            tblGrp p      = concat $ Data.List.map (tblGrpCol p) [0 .. nColumns - 1]
+tbl p1 p2 = concat $ map tblGrp [p1 .. p2]
+      where tblGrpCol p c = map (\ m -> tblCell p m c) [0 .. (nMonomials !! p) - 1]
+            tblGrp p      = concat $ map (tblGrpCol p) [0 .. nColumns - 1]
+
 
 {-
   Prettified output for polynomials p1 through p2.
 -}
 tblPretty :: Int -> Int -> [String]
-tblPretty p1 p2 = Data.List.map (\ (r, c, f) -> (show r) ++ "," ++ (show c) ++ "," ++ (show f)) $ tbl p1 p2
+tblPretty p1 p2 = map (\ (r, c, f) -> (show r) ++ "," ++ (show c) ++ "," ++ (show f)) $ tbl p1 p2
 
 
 {-
   HNSS s j m
+
+  s: offset for job index.
+  j: job index.
+  m: job size.
+
+  Writes all linear system entries for polynomials (s + j) * m through (s + j + 1) * m - 1
+  to the standard output.
 -}
 main = do
-   {-
+  {-
     Command line arguments.
   -}
   sS : (sJ : (sM : argsT)) <- getArgs
@@ -99,11 +113,13 @@ main = do
   let j = read sJ :: Int
   let m = read sM :: Int
 
+
   {-
     Starting and ending polynomials for this job.
   -}
   let p1 = (s + j) * m
   let p2 = (s + j + 1) * m - 1
+
 
   {-
     Write to stdout.
