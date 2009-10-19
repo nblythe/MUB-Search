@@ -1,6 +1,8 @@
 {-
   Polynomials
   2009 Nathan Blythe, Dr. Oscar Boykin
+
+  Functions and types for working with polynomials based on sets of MUBs.
 -}
 
 module Polynomial (RoI(Real, Imag), Variable(Variable), Sonomial(Sonomial), Monomial(Monomial), Polynomial(Polynomial),
@@ -13,11 +15,32 @@ import Data.List
 
 
 {-
-  Some parameters that configure the types.
+  Some parameters that describe the MUB problem and determine the number of variables.
+
+  d: dimension in which we're working.
+  n: number of bases, not including the standard basis.
 -}
-vectorLength = 6;
-basisWidth = 6;
-numBases = 4;
+d = 6;
+n = 3;
+
+
+
+
+{-
+  A handy factorial function.
+-}
+facs = scanl (*) 1 [1..]
+fac :: Int -> Integer
+fac n = facs !! n
+
+
+{-
+  A handy n-choose-k function.
+-}
+nchoosek :: Int -> Int -> Integer
+nchoosek n k = div (fac n) ((fac (n - k)) * (fac k))
+
+
 
 
 {-
@@ -63,16 +86,16 @@ instance Ord Variable where
   Variable instantiates Enum for easy generation of Variables.
 -}
 instance Enum Variable where
-  fromEnum (Variable roi i j k) = nroi + i * 2 + j * 2 * vectorLength + k * 2 * vectorLength * basisWidth
+  fromEnum (Variable roi i j k) = nroi + i * 2 + j * 2 * d + k * 2 * d^2
                                   where nroi | roi == Real = 0
                                              | roi == Imag = 1
 
   toEnum x = Variable roi i j k
              where roi | mod x 2 == 0 = Real
                        | mod x 2 == 1 = Imag
-                   i = mod (div x 2) vectorLength
-                   j = mod (div x (2 * vectorLength)) basisWidth
-                   k = div x (2 * vectorLength * basisWidth)
+                   i = mod (div x 2) d
+                   j = mod (div x (2 * d)) d
+                   k = div x (2 * d^2)
 
 
 {-
@@ -85,8 +108,8 @@ instance Show Variable where
 {-
   All variables.
 -}
-allVariables = [Variable Real 0 0 0 .. Variable Imag (vectorLength - 1) (basisWidth - 1) (numBases - 1)]
-
+allVariables = [Variable Real 0 0 0 .. Variable Imag (d - 1) (d - 1) (n - 1)]
+numVariables = 2 * d^2 * n
 
 
 
@@ -100,11 +123,11 @@ data Sonomial = Sonomial Variable Int deriving (Eq)
   Sonomial instantiates Enum for easy generation.
 -}
 instance Enum Sonomial where
-  fromEnum (Sonomial v n) = (n - 1) * (length allVariables) + (fromEnum v)
+  fromEnum (Sonomial v n) = (n - 1) * numVariables + (fromEnum v)
 
   toEnum x = Sonomial v n
-             where n = 1 + (div x (length allVariables))
-                   v = toEnum $ mod x (length allVariables)
+             where n = 1 + (div x numVariables)
+                   v = toEnum $ mod x numVariables
 
 
 {-
@@ -143,53 +166,10 @@ data Monomial = Monomial [Sonomial]
 
 
 {-
-  Degree of a Monomial.
--}
-monomialDegree (Monomial []) = 0
-monomialDegree (Monomial ((Sonomial v n) : sT)) = n + (monomialDegree (Monomial sT))
-
-
-{-
-  Number of monomials with a degree less than or equal to d.
--}
-facs = scanl (*) 1 [1..]
-
-fac :: Int -> Integer
-fac n = facs !! n
-
-numMonomials :: Int -> Integer
-numMonomials d = sum f
-                 where n = length allVariables
-                       f = Data.List.map (\k -> div (fac (n + k - 1)) ((fac (n - 1)) * (fac k))) [1 .. d]
-
-
-{-
-  Integer <-> Monomial conversion
--}
-monomialExpand' :: Monomial -> [Variable]
-monomialExpand' (Monomial ((Sonomial v n) : sT)) = if   Data.List.null sT
-                                                   then replicate n v
-                                                   else (replicate n v) ++ (monomialExpand' (Monomial sT))
-
-monomialExpand :: Monomial -> [Variable]
-monomialExpand m = reverse $ sort $ monomialExpand' m
-
-
-monomial2Int' :: [Variable] -> Integer
-monomial2Int' (vH : vT) = if   Data.List.null vT
-                          then (toInteger $ fromEnum vH)
-                          else (toInteger $ fromEnum vH) + (toInteger $ length allVariables) * (monomial2Int' vT)
-
-monomial2Int :: Int -> Monomial -> Integer
-monomial2Int d m = s + (monomial2Int' (monomialExpand m))
-                   where s = sum $ Data.List.map numMonomials [1 .. d - 1]
-
-
-{-
   Monomial instantiates Show for pretty-printing.
 -}
 instance Show Monomial where
-  showsPrec v (Monomial (xH : xT)) r = if   Data.List.null xT
+  showsPrec v (Monomial (xH : xT)) r = if   null xT
                                        then (show xH) ++ r
                                        else (show xH) ++ " " ++ (showsPrec v (Monomial xT) r)
 
@@ -200,6 +180,74 @@ instance Show Monomial where
 instance Eq Monomial where
   (Monomial xL) == (Monomial yL) =    (all (\ x -> any (== x) yL) xL)
                                    && (all (\ y -> any (== y) xL) yL)
+
+
+{-
+  Degree of a Monomial.
+-}
+monomialDegree (Monomial []) = 0
+monomialDegree (Monomial ((Sonomial v n) : sT)) = n + (monomialDegree (Monomial sT))
+
+
+{-
+  Number of monomials with a degree less than or equal to d.
+-}
+numMonomials :: Int -> Integer
+numMonomials d = sum $ map (\ k -> nchoosek (numVariables + k - 1) k) [1 .. d]
+-- TODO: remove the below
+--numMonomials d = sum $ map (\k -> div (fac (numVariables + k - 1)) ((fac (numVariables - 1)) * (fac k))) [1 .. d]
+
+
+{-
+  Number of monomials ordered before the sonomial s.
+-}
+{-
+numMonomialsBefore :: Sonomial -> Integer
+numMonomialsBefore (Sonomial v n) = b - s
+                                    where k = fromEnum v
+                                          b = nchoosek (numVariables + n - 1) n
+                                          s = nchoosek (numVariables - k + n - 1) n
+                                          -- TODO: remove the below, equivalent to the above.
+                                          --b = div (fac (numVariables + n - 1)) ((fac (numVariables - 1)) * (fac n))
+                                          --s = div (fac (numVariables - k + n - 1)) ((fac (numVariables - k - 1)) * (fac n))
+-}
+
+
+{-
+  Expand a monomial to a sorted list of Variables.
+-}
+monomialExpand' :: Monomial -> [Variable]
+monomialExpand' (Monomial ((Sonomial v n) : sT)) = if   null sT
+                                                   then replicate n v
+                                                   else (replicate n v) ++ (monomialExpand' (Monomial sT))
+monomialExpand :: Monomial -> [Variable]
+monomialExpand m = Data.List.sort $ monomialExpand' m
+
+
+{-
+  Compute the unique integer that corresponds to a sorted list of Variables (p : cH : cT)
+-}
+monomial2Int' :: Variable -> [Variable] -> Integer
+monomial2Int' p (cH : cT) = if   (null cT)
+                            then x - y
+                            else x - y + (monomial2Int' cH cT)
+                            where n = 1 + (length cT)
+                                  x = nchoosek (numVariables - (fromEnum p) + n - 1) n
+                                  y = nchoosek (numVariables - (fromEnum cH) + n - 1) n
+
+
+{-
+  Compute the unique integer that corresponds to a Monomial.
+-}
+monomial2Int :: Monomial -> Integer
+monomial2Int m = numMonomials ((length m') - 1) + (monomial2Int' (toEnum 0) m')
+                 where m' = monomialExpand m
+
+
+
+
+
+
 
 
 {-
@@ -218,7 +266,7 @@ monomialMultiply' (Monomial ((Sonomial v n) : mT))
   Multiply two Monomials.
 -}
 monomialMultiply :: Monomial -> Monomial -> Monomial
-monomialMultiply m0 (Monomial (m1H : m1T)) = if   Data.List.null m1T
+monomialMultiply m0 (Monomial (m1H : m1T)) = if   null m1T
                                              then monomialMultiply' m0 m1H
                                              else monomialMultiply (monomialMultiply' m0 m1H) (Monomial m1T)
 
@@ -227,17 +275,17 @@ monomialMultiply m0 (Monomial (m1H : m1T)) = if   Data.List.null m1T
   Multiplicative inverse of a Monomial.
 -}
 monomialInverse :: Monomial -> Monomial
-monomialInverse (Monomial m) = Monomial $ Data.List.map sonomialInverse m
+monomialInverse (Monomial m) = Monomial $ map sonomialInverse m
 
 
 {-
   Given a monomial m and a sonomial s, find a sonomial t such that m contains (s t).
 -}
 monomialMatch' :: Monomial -> Sonomial -> Sonomial
-monomialMatch' (Monomial m) (Sonomial v n) = if   Data.List.null r
+monomialMatch' (Monomial m) (Sonomial v n) = if   null r
                                              then sonomialInverse (Sonomial v n)
                                              else Sonomial v (n' - n)
-                                             where r = Data.List.filter (\ (Sonomial w l) -> w == v) m
+                                             where r = filter (\ (Sonomial w l) -> w == v) m
                                                    Sonomial v' n' = head r
 
 
@@ -254,20 +302,15 @@ monomialMatch (Monomial x) (Monomial y) = Monomial [monomialMatch' (Monomial x) 
 allMonomials'' :: Int -> Int -> [Monomial]
 allMonomials'' v 0 = [Monomial [Sonomial (allVariables !! v) 1]]
 allMonomials'' v d = [ monomialMultiply' m (Sonomial (allVariables !! v) 1) | m <- nm ]
-                     where nm = concat [allMonomials'' w (d - 1) | w <- [v .. (length allVariables) - 1]]
+                     where nm = concat [allMonomials'' w (d - 1) | w <- [v .. numVariables - 1]]
 
 allMonomials' :: Int -> [Monomial]
-allMonomials' d = concat $ Data.List.map (\ v -> allMonomials'' v (d - 1)) [0 .. (length allVariables) - 1]
+allMonomials' d = concat $ map (\ v -> allMonomials'' v (d - 1)) [0 .. numVariables - 1]
 
 allMonomials :: Int -> [Monomial]
-allMonomials d = concat $ Data.List.map allMonomials' [1 .. d]
+allMonomials d = concat $ map allMonomials' [1 .. d]
 
 
-{-
-  Convert a Monomial to a unique integer.
--}
---monomial2Int :: Monomial -> Int
---monomial2Int (
 
 
 
@@ -283,7 +326,7 @@ data Polynomial = Polynomial Float [(Float, Monomial)]
   Polynomial instantiates Show for pretty-printing.
 -}
 instance Show Polynomial where
-  showsPrec v (Polynomial c ((k, m) : mT)) r = if   Data.List.null mT
+  showsPrec v (Polynomial c ((k, m) : mT)) r = if   null mT
                                                then (show k) ++ " " ++ (show m) ++ " + " ++ (show c) ++ r
                                                else (show k) ++ " " ++ (show m) ++ " + " ++ (showsPrec v (Polynomial c mT) r)
 
@@ -318,7 +361,7 @@ polynomialAdd' (Polynomial c ((a', m') : mT)) a m = if   m' == m
 -}
 polynomialAdd :: Polynomial -> Polynomial -> Polynomial
 polynomialAdd (Polynomial c0 m0) (Polynomial c1 [])             = Polynomial (c0 + c1) m0
-polynomialAdd (Polynomial c0 m0) (Polynomial c1 ((a, m) : m1T)) = if   Data.List.null m1T
+polynomialAdd (Polynomial c0 m0) (Polynomial c1 ((a, m) : m1T)) = if   null m1T
                                                                   then polynomialAdd' (Polynomial (c0 + c1) m0) a m
                                                                   else polynomialAdd (polynomialAdd' (Polynomial c0 m0) a m) (Polynomial c1 m1T)
 
@@ -327,7 +370,7 @@ polynomialAdd (Polynomial c0 m0) (Polynomial c1 ((a, m) : m1T)) = if   Data.List
   Multiply a Polynomial by a constant.
 -}
 polynomialMultiply''' :: Polynomial -> Float -> Polynomial
-polynomialMultiply''' (Polynomial c p) c' = Polynomial (c * c') $ Data.List.map (\ (k, m) -> (k * c', m)) p
+polynomialMultiply''' (Polynomial c p) c' = Polynomial (c * c') $ map (\ (k, m) -> (k * c', m)) p
 
 
 {-
@@ -351,7 +394,7 @@ polynomialMultiply' (Polynomial c p) (k, m) = if   c * k == 0
   Multiply two polynomials.
 -}
 polynomialMultiply :: Polynomial -> Polynomial -> Polynomial
-polynomialMultiply x (Polynomial c p) = if   Data.List.null p
+polynomialMultiply x (Polynomial c p) = if   null p
                                         then polynomialMultiply''' x c
                                         else polynomialAdd (polynomialMultiply' x (head p)) (polynomialMultiply x (Polynomial c (tail p)))
 
@@ -367,14 +410,15 @@ polynomialMonomials (Polynomial c p) = snd $ unzip p
   Get the coefficient accompanying a particular monomial from a polynomial.
 -}
 polynomialCoef :: Polynomial -> Monomial -> Float
-polynomialCoef (Polynomial c p) m' = if   Data.List.null r
+polynomialCoef (Polynomial c p) m' = if   null r
                                      then 0
                                      else fst (head r)
-                                     where r = Data.List.filter (\ (k, m) -> m == m') p
+                                     where r = filter (\ (k, m) -> m == m') p
+
 
 {-
   Remove terms from a polynomial that have coefficient zero.
 -}
 polynomialStrip :: Polynomial -> Polynomial
-polynomialStrip (Polynomial c p) = Polynomial c $ Data.List.filter (\ (k, m) -> k /= 0) p
+polynomialStrip (Polynomial c p) = Polynomial c $ filter (\ (k, m) -> k /= 0) p
 

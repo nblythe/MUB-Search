@@ -16,7 +16,7 @@ import Polynomial
 {-
   The MUB problem polynomial system.
 -}
-mubPoly1 i j k = Polynomial (-6) [(1, Monomial [Sonomial (Variable Real i j k) 2]),
+mubPoly1 i j k = Polynomial (-1) [(1, Monomial [Sonomial (Variable Real i j k) 2]),
                                   (1, Monomial [Sonomial (Variable Imag i j k) 2])] 
 
 
@@ -34,14 +34,15 @@ mubPoly2b j1 j2 k1 k2 = foldl polynomialAdd (mubPoly2b' 0 j1 j2 k1 k2) [mubPoly2
 
 mubPoly2 j1 j2 k1 k2 = if   k1 == k2
                        then if   j1 == j2
-                            then polynomialAdd b (Polynomial (-1) [])
+                            then polynomialAdd b (Polynomial (-36) [])
                             else polynomialAdd b (Polynomial 0 [])
                        else polynomialAdd b (Polynomial (-6) [])
                        where x = mubPoly2a j1 j2 k1 k2
+                             x2 = polynomialMultiply x x
                              y = mubPoly2b j1 j2 k1 k2
-                             b = polynomialAdd (polynomialMultiply x x) (polynomialMultiply y y)
+                             y2 = polynomialMultiply y y
+                             b = polynomialAdd x2 y2
 
-mubVariables = [Variable Real 0 0 0 .. Variable Imag 5 5 2]
 mubPolys1 = [mubPoly1 i j k | i <- [0 .. 5], j <- [0 .. 5], k <- [0 .. 2]]
 mubPolys2 = concat [[mubPoly2 j1 j2 k1 k2 | j2 <- [j1 .. 5], k2 <- [k1 .. 2]]  |  j1 <- [0 .. 5], k1 <- [0 .. 2]]
 mubPolys = mubPolys1 ++ mubPolys2
@@ -56,25 +57,59 @@ nColumns = 1 + (length hnssC)
 nGroups = length mubPolys
 nMonomials = [length $ polynomialMonomials p | p <- mubPolys]
 
-
+{-
+  Compute a cell in the linear system table.
+-}
 tblCell :: Int -> Int -> Int -> (Integer, Int, Float)
-tblCell p m c | c == 0 && m == 0 = (-1, p * nColumns, k)
-              | c == 0 && m /= 0 = (monomial2Int 6 monomial, p * nColumns, coef)
-              | c /= 0 && m == 0 = (monomial2Int 6 monomial', p * nColumns + c, k)
-              | c /= 0 && m /= 0 = (r, p * nColumns + c, coef)
+tblCell p m c | c == 0 && m == 0 = (-1, p * nColumns, k)                            -- constant term in polynomial, constant column.
+              | c == 0 && m /= 0 = (monomial2Int monomial, p * nColumns, coef)      -- non-constant term in polynomial, constant column.
+              | c /= 0 && m == 0 = (monomial2Int monomial', p * nColumns + c, k)    -- constant term in polynomial, non-constant column.
+              | c /= 0 && m /= 0 = (r, p * nColumns + c, coef)                      -- non-constant term in polynomial, non-constant column.
                 where polynomial = mubPolys !! p
                       (Polynomial k _) = polynomial
                       monomial = polynomialMonomials polynomial !! (m - 1)
                       coef = polynomialCoef polynomial monomial
                       monomial' = hnssC !! (c - 1)
-                      r = monomial2Int 6 $ monomialMultiply monomial monomial'
+                      r = monomial2Int $ monomialMultiply monomial monomial'
 
-tbl = concat $ Data.List.map tblGrp [0 .. nGroups - 1]
+{-
+  Compute the contents of the linear system table for polynomials p1 through p2.
+-}
+tbl :: Int -> Int -> [(Integer, Int, Float)]
+tbl p1 p2 = concat $ Data.List.map tblGrp [p1 .. p2]
       where tblGrpCol p c = Data.List.map (\ m -> tblCell p m c) [0 .. (nMonomials !! p) - 1]
             tblGrp p      = concat $ Data.List.map (tblGrpCol p) [0 .. nColumns - 1]
 
-tblPretty = Data.List.map (\ (r, c, f) -> (show r) ++ "," ++ (show c) ++ "," ++ (show f)) tbl
+{-
+  Prettified output for polynomials p1 through p2.
+-}
+tblPretty :: Int -> Int -> [String]
+tblPretty p1 p2 = Data.List.map (\ (r, c, f) -> (show r) ++ "," ++ (show c) ++ "," ++ (show f)) $ tbl p1 p2
 
+
+{-
+  HNSS s j m
+-}
 main = do
-  sequence $ Data.List.map putStrLn tblPretty
+   {-
+    Command line arguments.
+  -}
+  sS : (sJ : (sM : argsT)) <- getArgs
+  let s = read sS :: Int
+  let j = read sJ :: Int
+  let m = read sM :: Int
+
+  {-
+    Starting and ending polynomials for this job.
+  -}
+  let p1 = (s + j) * m
+  let p2 = (s + j + 1) * m - 1
+
+  {-
+    Write to stdout.
+  -}
+  mapM_ putStrLn $ if   p2 < nGroups
+                   then (tblPretty p1 p2)
+                   else []
+
 
