@@ -7,7 +7,7 @@
 
 module Polynomial (RoI(Real, Imag), Variable(Variable), Sonomial(Sonomial), Monomial(Monomial), Polynomial(Polynomial),
                    sonomialMultiply, sonomialInverse, allSonomials,
-                   monomialDegree, monomialMultiply, monomialInverse, monomialMatch, allMonomials, monomial2Int, numMonomials,
+                   monomialDegree, monomialMultiply, monomialInverse, monomialMatch, allMonomials, monomial2Int, int2Monomial, numMonomials,
                    polynomialAdd, polynomialMultiply, polynomialMonomials, polynomialCoef, polynomialStrip) where
 
 
@@ -197,7 +197,7 @@ numMonomials d = sum $ map (\ k -> nchoosek (numVariables + k - 1) k) [1 .. d]
 
 
 {-
-  Expand a monomial to a sorted list of Variables.
+  Expand a Monomial to a sorted list of Variables.
 -}
 monomialExpand' :: Monomial -> [Variable]
 monomialExpand' (Monomial ((Sonomial v n) : sT)) = if   null sT
@@ -209,23 +209,79 @@ monomialExpand m = Data.List.sort $ monomialExpand' m
 
 
 {-
-  Compute the unique integer that corresponds to a sorted list of Variables (p : cH : cT)
+  Contract a sorted list of Variables to a Monomial.
 -}
-monomial2Int' :: Variable -> [Variable] -> Integer
-monomial2Int' p (cH : cT) = if   (null cT)
-                            then x - y
-                            else x - y + (monomial2Int' cH cT)
-                            where n = 1 + (length cT)
-                                  x = nchoosek (numVariables - (fromEnum p) + n - 1) n
-                                  y = nchoosek (numVariables - (fromEnum cH) + n - 1) n
+monomialContract :: [Variable] -> Monomial
+monomialContract (vH : vT) = if   null vT
+                             then Monomial [Sonomial vH 1]
+                             else monomialMultiply' (monomialContract vT) (Sonomial vH 1)
+
+
+{-
+  Compute the unique integer that corresponds to a sorted list of Variables.
+-}
+monomial2Int' :: [Variable] -> Integer
+monomial2Int' (lH : [])        = 0
+monomial2Int' (lH1 : lH2 : lT) = (f lH1) - (f lH2) + monomial2Int' (lH2 : lT)
+                                 where f v = nchoosek (numVariables - (fromEnum v) + (length lT)) (1 + length lT)
 
 
 {-
   Compute the unique integer that corresponds to a Monomial.
 -}
 monomial2Int :: Monomial -> Integer
-monomial2Int m = numMonomials ((length m') - 1) + (monomial2Int' (toEnum 0) m')
+monomial2Int m = numMonomials ((length m') - 1) + (monomial2Int' ((toEnum 0) : m'))
                  where m' = monomialExpand m
+
+
+{-
+  Compute the degree of a unique Monomial corresponding to an Integer.
+-}
+int2Monomial'' :: Integer -> Int
+int2Monomial'' x = fst $ head $ filter (\ (d, i) -> i > x) dIndices
+                   where dIndices = map (\ d -> (d, nchoosek (numVariables + d - 1) d)) [1 ..]
+
+
+{-
+  Compute the unique ordered list of Variables corresponding to the ith Monomial of
+  degree d whose Variables have corresponding integers greater than or equal to p.
+-}
+int2Monomial' :: Int -> Int -> Integer -> [Variable]
+int2Monomial' _ 1 i = [toEnum (fromInteger i)]
+int2Monomial' p d i = (toEnum j) : int2Monomial' j (d - 1) (i' j)
+                      where i' v = i - ((nchoosek (numVariables + d - 1) d) - (nchoosek (numVariables - v + d - 1) d))
+                                     + ((nchoosek (numVariables + d - 2) (d - 1)) - (nchoosek (numVariables - v + d - 2) (d - 1)))
+                            j = head $ filter (\ v -> ((i' v) >= 0) && (i' v) < (numMonomials (d - 1)) && (v >= p)) [0 .. numVariables - 1]
+                            nNextMonomials v = nchoosek (numVariables - v + d - 2) (d - 1)
+
+
+{-
+  Compute the unique Monomial corresponding to an Integer.
+-}
+int2Monomial :: Integer -> Monomial
+int2Monomial x = monomialContract l
+                 where d = int2Monomial'' x
+                       l = int2Monomial' 0 d $ x - (numMonomials (d - 1))
+
+
+{-
+  Generate all monomials of degree d or less.
+-}
+{-
+allMonomials'' :: Int -> Int -> [Monomial]
+allMonomials'' v 0 = [Monomial [Sonomial (allVariables !! v) 1]]
+allMonomials'' v d = [ monomialMultiply' m (Sonomial (allVariables !! v) 1) | m <- nm ]
+                     where nm = concat [allMonomials'' w (d - 1) | w <- [v .. numVariables - 1]]
+
+allMonomials' :: Int -> [Monomial]
+allMonomials' d = concat $ map (\ v -> allMonomials'' v (d - 1)) [0 .. numVariables - 1]
+
+allMonomials :: Int -> [Monomial]
+allMonomials d = concat $ map allMonomials' [1 .. d]
+-}
+
+allMonomials :: Int -> [Monomial]
+allMonomials d = map int2Monomial [0 .. numMonomials d]
 
 
 {-
@@ -272,23 +328,6 @@ monomialMatch' (Monomial m) (Sonomial v n) = if   null r
 -}
 monomialMatch :: Monomial -> Monomial -> Monomial
 monomialMatch (Monomial x) (Monomial y) = Monomial [monomialMatch' (Monomial x) s | s <- y]
-
-
-{-
-  Generate all monomials of degree d or less.
--}
-allMonomials'' :: Int -> Int -> [Monomial]
-allMonomials'' v 0 = [Monomial [Sonomial (allVariables !! v) 1]]
-allMonomials'' v d = [ monomialMultiply' m (Sonomial (allVariables !! v) 1) | m <- nm ]
-                     where nm = concat [allMonomials'' w (d - 1) | w <- [v .. numVariables - 1]]
-
-allMonomials' :: Int -> [Monomial]
-allMonomials' d = concat $ map (\ v -> allMonomials'' v (d - 1)) [0 .. numVariables - 1]
-
-allMonomials :: Int -> [Monomial]
-allMonomials d = concat $ map allMonomials' [1 .. d]
-
-
 
 
 {-
