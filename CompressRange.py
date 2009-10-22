@@ -4,14 +4,15 @@
 # CSV file.
 #
 # Usage:
-#   cat input.csv | CompressRange mapping.txt > output.csv
+#   cat input.csv | python CompressRange mapping.txt > output.csv
 #
 
 import sys
 
 
 old2new = {}
-new2old = []
+unique = 0
+fp = open(sys.argv[1], "w")
 
 
 for line in sys.stdin:
@@ -27,21 +28,20 @@ for line in sys.stdin:
         d = line[p :]
 
     # If there isn't a mapping in place for this element, establish one and
-    # print out the new line.
+    # write it to the mapping file.
     #
     xNew = old2new.get(x, -1)
     if xNew == -1:
-        xNew = len(new2old)
-        new2old.append(x)
+        xNew = unique
+        unique = unique + 1
         old2new[x] = xNew
 
-        sys.stdout.write("%i%s" % (xNew, d))
+        fp.write("%i\n" % x)
+
+    # Write the line out with the new element.
+    #
+    sys.stdout.write("%i%s" % (xNew, d))
 
 
-# Write the mapping to a file for later use.
-#
-fp = open(sys.argv[1], "w")
-for m in new2old:
-    fp.write("%i\n" % m)
 fp.close()
 
