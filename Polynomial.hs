@@ -239,7 +239,7 @@ monomial2Int m = numMonomials ((length m') - 1) + (monomial2Int' ((toEnum 0) : m
 -}
 int2Monomial'' :: Integer -> Int
 int2Monomial'' x = fst $ head $ filter (\ (d, i) -> i > x) dIndices
-                   where dIndices = map (\ d -> (d, nchoosek (numVariables + d - 1) d)) [1 ..]
+                   where dIndices = map (\ d -> (d, numMonomials d)) [1 ..]
 
 
 {-
@@ -267,7 +267,7 @@ int2Monomial x = monomialContract l
 {-
   Generate all monomials of degree d or less.
 -}
-{-
+
 allMonomials'' :: Int -> Int -> [Monomial]
 allMonomials'' v 0 = [Monomial [Sonomial (allVariables !! v) 1]]
 allMonomials'' v d = [ monomialMultiply' m (Sonomial (allVariables !! v) 1) | m <- nm ]
@@ -278,10 +278,10 @@ allMonomials' d = concat $ map (\ v -> allMonomials'' v (d - 1)) [0 .. numVariab
 
 allMonomials :: Int -> [Monomial]
 allMonomials d = concat $ map allMonomials' [1 .. d]
--}
 
-allMonomials :: Int -> [Monomial]
-allMonomials d = map int2Monomial [0 .. numMonomials d]
+
+--allMonomials :: Int -> [Monomial]
+--allMonomials d = map int2Monomial [0 .. numMonomials d]
 
 
 {-
