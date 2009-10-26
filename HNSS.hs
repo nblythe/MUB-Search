@@ -122,7 +122,7 @@ main = do
     Starting and ending polynomials for this job.
   -}
   let p1 = (s + j) * m
-  let p2 = (s + j + 1) * m - 1
+  let p2 = min ((s + j + 1) * m - 1) (nGroups - 1)
 
 
   {-
@@ -131,5 +131,4 @@ main = do
   mapM_ putStrLn $ if   p2 < nGroups
                    then (tblPretty p1 p2)
                    else []
-
 
