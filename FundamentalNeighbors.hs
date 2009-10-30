@@ -22,9 +22,7 @@ import Perms
   Sum definition without using zero.
 -}
 rsum :: (Num a) => [a] -> a
-rsum (h : t) = if   Prelude.null t
-               then h
-               else h + (rsum t)
+rsum (h : t) = foldl (+) h t
 
 
 {-
@@ -72,6 +70,7 @@ main = do
   -}
   let roots = rootsOfUnity p
 
+
   {-
     All vectors of roots of unity, unique under permutations, that are orthogonal to the unity vector.
   -}
@@ -107,6 +106,7 @@ main = do
   -}
   encodeFile fOrth adjOrth
   encodeFile fBias adjBias
+
 
   putStr ("Found " ++ (show $ size adjOrth) ++ " orthogonality adjacencies.\n")
   putStr ("Found " ++ (show $ size adjBias) ++ " unbiasedness adjacencies.\n")
