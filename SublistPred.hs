@@ -10,25 +10,46 @@
   but the total set of solutions will not contain permutations.
 -}
 
-module SublistPred (sublistPred) where
+module SublistPred (sublists, sublistCount, sublistJobs, sublistPredP, sublistPred) where
+
+import Combinadics
+import Data.List
 
 
 {-
-  All length n ordered sublists of {k, k + 1, ... l}.
+  The number of length m sublists, not allowing permutations, of a list x.
 -}
-osubsets k l 1 = [ [i] | i <- [k .. l] ]
-osubsets k l n = concat $ map q [k .. l]
-                 where q a = [ a : b | b <- osubsets a l (n - 1) ]
+sublistCount m x = numRecombinadics (toInteger $ length x) m
 
 
 {-
-  All length n sublists of the set of elements in a list x, not allowing permutations.
+  All length m sublists of the set of elements in a list x, not allowing permutations, split
+  into lists of j elements each.
 -}
-sublists x n = map (map (x !!)) $ osubsets 0 (length x - 1) n
+sublists x m j = map f [0 .. div c j]
+                 where n    = toInteger $ length x
+                       f  s = map (\ k -> select x (natural2recombinadic n m k)) [(s * j) .. min ((s * j) + j - 1) (c - 1)]
+                       c    = numRecombinadics n m
+
+
+{-
+  The number of jobs into which the set of sublists will be partitioned.
+-}
+sublistJobs m x s = div (numRecombinadics (toInteger $ length x) m) s
+
+
+{-
+  All length m sublists of the set of elements in a list x, not allowing permutations, that satisfy a predicate p.
+
+  This function splits the workload into lists of s sublists.
+-}
+sublistPredP p m x s = map (\ j -> filter p $ genericIndex (sublists x m s) j) [0 .. (sublistJobs m x s) - 1]
 
 
 {-
   All length n sublists of the set of elements in a list x, not allowing permutations, that satisfy a predicate p.
+
+  This function does not allow access to the results of individual workloads.
 -}
-sublistPred p n x = filter p (sublists x n)
+sublistPred p m x = concat $ sublistPredP p m x (toInteger $ length x)
 
