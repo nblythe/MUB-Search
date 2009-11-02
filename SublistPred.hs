@@ -23,13 +23,27 @@ sublistCount m x = numRecombinadics (toInteger $ length x) m
 
 
 {-
+  Increment a sorted sublist x containing integers between 0 and n.
+-}
+sublistInc' n (h : []) = (h == n - 1, (h + 1) : [])
+sublistInc' n (h : t)  = (h' == n, h' : f h' r)
+                         where h' = if   c
+                                    then h + 1
+                                    else h
+                               (c, r) = sublistInc' n t
+                               f v = map (\ e -> if e == n then v else e)
+sublistInc n x = snd $ sublistInc' n x
+
+
+{-
   All length m sublists of the set of elements in a list x, not allowing permutations, split
   into lists of j elements each.
 -}
 sublists x m j = map f [0 .. div c j]
-                 where n    = toInteger $ length x
-                       f  s = map (\ k -> select x (natural2recombinadic n m k)) [(s * j) .. min ((s * j) + j - 1) (c - 1)]
-                       c    = numRecombinadics n m
+                 where n   = toInteger $ length x
+                       f s = map (select x) $ genericTake (l s) $ iterate (sublistInc n) (natural2recombinadic n m (s * j))
+                       c   = numRecombinadics n m
+                       l s = (min ((s * j) + j - 1) (c - 1)) - (s * j) + 1
 
 
 {-

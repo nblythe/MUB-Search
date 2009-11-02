@@ -7,7 +7,7 @@
   fields with n = 2^m (where m is any natural number) are supported.
 -}
 
-module Cyclotomic (Cyclotome, approx, boundMag2, cycloGamma, cycloZero, cycloOne, rootsOfUnity) where
+module Cyclotomic where -- (Cyclotome, approx, boundMag2, cycloGamma, cycloZero, cycloOne, rootsOfUnity) where
 
 import Ratio
 import Complex(Complex)

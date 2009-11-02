@@ -93,9 +93,9 @@ main = do
     Job size of 0 implies entire job.
   -}
   let s' | s == 0 = sublistCount (d - 1) roots
-         | s >= sublistCount (d - 1) roots = error "job size too large"
+         | s >= sublistCount (d - 1) roots = error $ "job size too large (max " ++ (show $ (sublistCount (d - 1) roots) - 1) ++ ")"
          | otherwise = s
-  let j' | j >= sublistJobs (d - 1) roots s' = error "job index too large"
+  let j' | j >= sublistJobs (d - 1) roots s' = error $ "job index too large (max " ++ (show $ (sublistJobs (d - 1) roots s') - 1) ++ ")"
          | otherwise = j
 
 
@@ -104,6 +104,7 @@ main = do
   -}
   let lookup = map (\ x -> fromJust (findIndex (x ==) roots))
 
+  print roots
 
   {-
     All vectors of roots of unity that are orthogonal / unbiased to the unity vector, for
@@ -112,6 +113,7 @@ main = do
   let rootsOrth = genericIndex (sublistPredP (pOrth p e) (d - 1) roots s') j'
   let rootsBias = genericIndex (sublistPredP (pBias p e) (d - 1) roots s') j'
 
+  print rootsOrth
 
   {-
     Select the desired list of vectors, form all permutations, and convert all resulting
@@ -121,6 +123,7 @@ main = do
               then rootsOrth
               else rootsBias
   let vecs = map lookup roots
+  print vecs
   let allVecs = lunions $ map permuteAllL vecs
   let adj = map (vec2magic (fromInteger d, fromInteger n)) allVecs
 
