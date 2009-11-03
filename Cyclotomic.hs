@@ -130,11 +130,11 @@ boundReal k (CycloVal x gamma y) = (min, max)
                                          c  = boundRealOmega k (CycloVal x gamma y)
                                          d  = boundImag k y
                                          e  = boundImagOmega k (CycloVal x gamma y)
-                                         opts = [a, b, c, d, e]
-                                         args = Prelude.map (allArgChoices opts) [0 .. (2^5) - 1]
-                                         vals = Prelude.map (\ x -> (x !! 0)  + (x !! 1) * (x !! 2) - (x !! 3) * (x !! 4)) args
-                                         min = minimum vals
-                                         max = maximum vals
+                                         min = (fst a) + (minimum valsBC) - (maximum valsDE)
+                                         max = (snd a) + (maximum valsBC) - (minimum valsDE)
+                                         valsBC = [(fst b) * (fst c), (fst b) * (snd c), (snd b) * (fst c), (snd b) * (snd c)]
+                                         valsDE = [(fst d) * (fst e), (fst d) * (snd e), (snd d) * (fst e), (snd d) * (snd e)]
+
 
 
 {-
@@ -147,11 +147,10 @@ boundImag k (CycloVal x gamma y) = (min, max)
                                          c  = boundRealOmega k (CycloVal x gamma y)
                                          d  = boundReal k y
                                          e  = boundImagOmega k (CycloVal x gamma y)
-                                         opts = [a, b, c, d, e]
-                                         args = Prelude.map (allArgChoices opts) [0 .. (2^5) - 1]
-                                         vals = Prelude.map (\ x -> (x !! 0)  + (x !! 1) * (x !! 2) + (x !! 3) * (x !! 4)) args
-                                         min = minimum vals
-                                         max = maximum vals
+                                         min = (fst a) + (minimum valsBC) + (minimum valsDE)
+                                         max = (snd a) + (maximum valsBC) + (maximum valsDE)
+                                         valsBC = [(fst b) * (fst c), (fst b) * (snd c), (snd b) * (fst c), (snd b) * (snd c)]
+                                         valsDE = [(fst d) * (fst e), (fst d) * (snd e), (snd d) * (fst e), (snd d) * (snd e)]
 
 
 {-

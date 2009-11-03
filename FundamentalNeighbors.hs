@@ -51,7 +51,7 @@ lunions (h : t)  = Data.List.union (unique h) (lunions t)
 pOrth :: Integer -> Rational -> [Cyclotome] -> Bool
 pOrth p e x = (snd $ head t) <= e
               where s = (cycloOne p) + (rsum x)
-                    a = [boundMag2 (2 * k) s | k <- [1 ..]]
+                    a = [boundMag2 (4 * k) s | k <- [1 ..]]
                     t = filter (\ b -> ((fst b) > e) || ((snd b) <= e)) a
 
 
