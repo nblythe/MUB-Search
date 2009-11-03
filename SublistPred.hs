@@ -19,20 +19,7 @@ import Data.List
 {-
   The number of length m sublists, not allowing permutations, of a list x.
 -}
-sublistCount m x = numRecombinadics (toInteger $ length x) m
-
-
-{-
-  Increment a sorted sublist x containing integers between 0 and n.
--}
-sublistInc' n (h : []) = (h == n - 1, (h + 1) : [])
-sublistInc' n (h : t)  = (h' == n, h' : f h' r)
-                         where h' = if   c
-                                    then h + 1
-                                    else h
-                               (c, r) = sublistInc' n t
-                               f v = map (\ e -> if e == n then v else e)
-sublistInc n x = snd $ sublistInc' n x
+sublistCount m x = numRecombinations (toInteger $ length x) m
 
 
 {-
@@ -41,15 +28,15 @@ sublistInc n x = snd $ sublistInc' n x
 -}
 sublists x m j = map f [0 .. div c j]
                  where n   = toInteger $ length x
-                       f s = map (select x) $ genericTake (l s) $ iterate (sublistInc n) (natural2recombinadic n m (s * j))
-                       c   = numRecombinadics n m
+                       f s = map (select x) $ genericTake (l s) $ iterate (nextRecombination n) (natural2recombination n m (s * j))
+                       c   = numRecombinations n m
                        l s = (min ((s * j) + j - 1) (c - 1)) - (s * j) + 1
 
 
 {-
   The number of jobs into which the set of sublists will be partitioned.
 -}
-sublistJobs m x s = div (numRecombinadics (toInteger $ length x) m) s
+sublistJobs m x s = div (numRecombinations (toInteger $ length x) m) s
 
 
 {-

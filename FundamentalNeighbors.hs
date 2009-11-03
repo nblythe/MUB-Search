@@ -104,7 +104,6 @@ main = do
   -}
   let lookup = map (\ x -> fromJust (findIndex (x ==) roots))
 
-  print roots
 
   {-
     All vectors of roots of unity that are orthogonal / unbiased to the unity vector, for
@@ -113,7 +112,6 @@ main = do
   let rootsOrth = genericIndex (sublistPredP (pOrth p e) (d - 1) roots s') j'
   let rootsBias = genericIndex (sublistPredP (pBias p e) (d - 1) roots s') j'
 
-  print rootsOrth
 
   {-
     Select the desired list of vectors, form all permutations, and convert all resulting
@@ -123,7 +121,6 @@ main = do
               then rootsOrth
               else rootsBias
   let vecs = map lookup roots
-  print vecs
   let allVecs = lunions $ map permuteAllL vecs
   let adj = map (vec2magic (fromInteger d, fromInteger n)) allVecs
 

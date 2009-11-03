@@ -2,13 +2,11 @@
   Combinadics, factoradics, etc.
 
   2009 Nathan Blythe, Dr. Oscar Boykin
-
-  A factoradic is a bijection between a subset of consecutive integers and the permutations of a set.
-  A combinadic is a bijection between a subset of consecutive integers and the combinations of a set.
-  A recombinadic is a combinadic on multisets (i.e. a combinadic with repetition/replacement).
 -}
 
-module Combinadics where
+module Combinadics (numCombinations, combination2natural, natural2combination, nextCombination,
+                    numRecombinations, recombination2natural, natural2recombination, nextRecombination,
+                    select) where
 
 import Data.List
 
@@ -36,65 +34,99 @@ nchoosek n k | k > n = 0
 
 
 {-
-  Number of length m combinadics in n variables.
+  Number of length m combinations in n variables.
 -}
-numCombinadics :: Integer -> Integer -> Integer
-numCombinadics n m = n # m
+numCombinations :: Integer -> Integer -> Integer
+numCombinations n m = n # m
 
 
 {-
-  Natural number corresponding to a combinadic r in n variables.
+  Natural number corresponding to a combination r in n variables.
 -}
-combinadic2natural :: Integer -> [Integer] -> Integer
-combinadic2natural n r = f (m - 1) r
-                         where m                 = toInteger $ length r
-                               f 0 _             = (n # m) - ((n - (head r)) # m)
-                               f j (h1 : h2 : t) = ((n - h1 - 1) # j) - ((n - h2) # j) + f (j - 1) (h2 : t)
+combination2natural :: Integer -> [Integer] -> Integer
+combination2natural n r = f (m - 1) r
+                          where m                 = toInteger $ length r
+                                f 0 _             = (n # m) - ((n - (head r)) # m)
+                                f j (h1 : h2 : t) = ((n - h1 - 1) # j) - ((n - h2) # j) + f (j - 1) (h2 : t)
 
 
 {-
   Length m combinadic in n variables corresponding to a natural number x.
 -}
-natural2combinadic :: Integer -> Integer -> Integer -> [Integer]
-natural2combinadic n m x = f (-1) m x
-                           where f _ 1 i = [i]
-                                 f p d i = j : f j (d - 1) (i' j)
-                                           where i' v = i - (n#d) + ((n-v)#d) + (n#(d-1)) - ((n-v-1)#(d-1))
-                                                 j    = head $ filter (\ v ->    ((i' v) >= 0)
-                                                                              && ((i' v) < ((n)#(d-1)))
-                                                                              && (v > p))
-                                                               [0 .. n - 1]
+natural2combination :: Integer -> Integer -> Integer -> [Integer]
+natural2combination n m x = f (-1) m x
+                            where f _ 1 i = [i]
+                                  f p d i = j : f j (d - 1) (i' j)
+                                            where i' v = i - (n#d) + ((n-v)#d) + (n#(d-1)) - ((n-v-1)#(d-1))
+                                                  j    = head $ filter (\ v ->    ((i' v) >= 0)
+                                                                               && ((i' v) < ((n)#(d-1)))
+                                                                               && (v > p))
+                                                                [0 .. n - 1]
+
+
+{-
+  Next combination in n variables.
+-}
+nextCombination :: Integer -> [Integer] -> [Integer]
+nextCombination n x = snd $ f n x
+                      where f k (h : []) = (h == k - 1, (h + 1) : [])
+                            f k (h : t)  = (h' == k - (toInteger $ length t), h' : g h' r)
+                                           where h' = if   c
+                                                      then h + 1
+                                                      else h
+                                                 (c, r) = f k t
+                                                 g v []        = []
+                                                 g v (lH : lT) = if   lH == k - (toInteger $ length lT)
+                                                                 then (v + 1) : (g (v + 1) lT)
+                                                                 else lH : lT
 
 
 {-
   Number of length m recombinadics in n variables.
 -}
-numRecombinadics :: Integer -> Integer -> Integer
-numRecombinadics n m = n & m
+numRecombinations :: Integer -> Integer -> Integer
+numRecombinations n m = n & m
 
 
 {-
   Natural number corresponding to a recombinadic r in n variables.
 -}
-recombinadic2natural :: Integer -> [Integer] -> Integer
-recombinadic2natural n r = f (m - 1) r
-                           where m                 = toInteger $ length r
-                                 f 0 _             = (n & m) - ((n - (head r)) & m)
-                                 f j (h1 : h2 : t) = ((n - h1) & j) - ((n - h2) & j) + f (j - 1) (h2 : t)
+recombination2natural :: Integer -> [Integer] -> Integer
+recombination2natural n r = f (m - 1) r
+                            where m                 = toInteger $ length r
+                                  f 0 _             = (n & m) - ((n - (head r)) & m)
+                                  f j (h1 : h2 : t) = ((n - h1) & j) - ((n - h2) & j) + f (j - 1) (h2 : t)
 
 
 {-
   Length m recombinadic in n variables corresponding to a natural number x.
 -}
-natural2recombinadic :: Integer -> Integer -> Integer -> [Integer]
-natural2recombinadic n m x = f 0 m x
-                             where f _ 1 i = [i]
-                                   f p d i = j : f j (d - 1) (i' j)
-                                             where i' v = i - (n&d) + ((n-v)&d) + (n&(d-1)) - ((n-v)&(d-1))
-                                                   j    = head $ filter (\ v ->    ((i' v) >= 0)
-                                                                                && ((i' v) < (n&(d-1)))
-                                                                                && (v >= p))
-                                                                 [0 .. n - 1]
+natural2recombination :: Integer -> Integer -> Integer -> [Integer]
+natural2recombination n m x = f 0 m x
+                              where f _ 1 i = [i]
+                                    f p d i = j : f j (d - 1) (i' j)
+                                              where i' v = i - (n&d) + ((n-v)&d) + (n&(d-1)) - ((n-v)&(d-1))
+                                                    j    = head $ filter (\ v ->    ((i' v) >= 0)
+                                                                                 && ((i' v) < (n&(d-1)))
+                                                                                 && (v >= p))
+                                                                  [0 .. n - 1]
+
+
+{-
+  Next recombination in n variables.
+-}
+nextRecombination :: Integer -> [Integer] -> [Integer]
+nextRecombination n x = snd $ f n x
+                        where f k (h : []) = (h == k - 1, (h + 1) : [])
+                              f k (h : t)  = (h' == k, h' : g h' r)
+                                             where h' = if   c
+                                                        then h + 1
+                                                        else h
+                                                   (c, r) = f k t
+                                                   g v []        = []
+                                                   g v (lH : lT) = if   lH == k
+                                                                   then v : (g v lT)
+                                                                   else lH : lT
 
 
 {-
