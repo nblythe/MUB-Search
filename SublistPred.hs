@@ -19,7 +19,7 @@ import Data.List
 {-
   The number of length m sublists, not allowing permutations, of a list x.
 -}
-sublistCount m x = numRecombinations (toInteger $ length x) m
+sublistCount m x = numRecombs (toInteger $ length x) m
 
 
 {-
@@ -28,15 +28,15 @@ sublistCount m x = numRecombinations (toInteger $ length x) m
 -}
 sublists x m j = map f [0 .. div c j]
                  where n   = toInteger $ length x
-                       f s = map (select x) $ genericTake (l s) $ iterate (nextRecombination n) (natural2recombination n m (s * j))
-                       c   = numRecombinations n m
+                       f s = map (select x) $ makeRecombs n m (s * j) (l s)
+                       c   = numRecombs n m
                        l s = (min ((s * j) + j - 1) (c - 1)) - (s * j) + 1
 
 
 {-
   The number of jobs into which the set of sublists will be partitioned.
 -}
-sublistJobs m x s = div (numRecombinations (toInteger $ length x) m) s
+sublistJobs m x s = div (numRecombs (toInteger $ length x) m) s
 
 
 {-

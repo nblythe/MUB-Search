@@ -2,17 +2,26 @@
   Combinadics, factoradics, etc.
 
   2009 Nathan Blythe, Dr. Oscar Boykin
+
+  A combination is a length m subset {0 .. n - 1}
+  A recombination is a length m multisubset of {0 .. n - 1}
+  Here we provide bijective enumerations for combinations and recombinations.
 -}
 
-module Combinadics (numCombinations, combination2natural, natural2combination, nextCombination,
-                    numRecombinations, recombination2natural, natural2recombination, nextRecombination,
+module Combinadics (numCombs, comb2nat, nat2comb, nextComb, makeCombs,
+                    numRecombs, recomb2nat, nat2recomb, nextRecomb, makeRecombs,
                     select) where
-
-import Data.List
 
 
 {-
-  A handy factorial function.
+  Need the "genericIndex" and "genericTake" functions so we can index lists by
+  Integers.
+-}
+import Data.List(genericIndex, genericTake)
+
+
+{-
+  A handy factorial function (memoized).
 -}
 facs :: [Integer]
 facs = scanl (*) 1 [1..]
@@ -27,8 +36,18 @@ nchoosek :: Integer -> Integer -> Integer
 nchoosek n k | k > n = 0
              | k == n = 1
              | otherwise = div (fac n) ((fac (n - k)) * (fac k))
+
+
+{-
+  Infix notation for n-choose-k.
+-}
 (#) :: Integer -> Integer -> Integer
 (#) n k = nchoosek n k
+
+
+{-
+  Infix notation for n-choose-k (with repetition/replacement).
+-}
 (&) :: Integer -> Integer -> Integer
 (&) n k = nchoosek (n + k - 1) k
 
@@ -36,97 +55,131 @@ nchoosek n k | k > n = 0
 {-
   Number of length m combinations in n variables.
 -}
-numCombinations :: Integer -> Integer -> Integer
-numCombinations n m = n # m
+numCombs :: Integer -> Integer -> Integer
+numCombs n m = n # m
 
 
 {-
   Natural number corresponding to a combination r in n variables.
 -}
-combination2natural :: Integer -> [Integer] -> Integer
-combination2natural n r = f (m - 1) r
-                          where m                 = toInteger $ length r
-                                f 0 _             = (n # m) - ((n - (head r)) # m)
-                                f j (h1 : h2 : t) = ((n - h1 - 1) # j) - ((n - h2) # j) + f (j - 1) (h2 : t)
+comb2nat :: Integer -> [Integer] -> Integer
+comb2nat n r = f (m - 1) r
+               where m                 = toInteger $ length r
+                     f 0 _             =   (n # m)
+                                         - ((n - (head r)) # m)
+                     f j (h1 : h2 : t) =   ((n - h1 - 1) # j)
+                                         - ((n - h2) # j)
+                                         + f (j - 1) (h2 : t)
 
 
 {-
   Length m combinadic in n variables corresponding to a natural number x.
 -}
-natural2combination :: Integer -> Integer -> Integer -> [Integer]
-natural2combination n m x = f (-1) m x
-                            where f _ 1 i = [i]
-                                  f p d i = j : f j (d - 1) (i' j)
-                                            where i' v = i - (n#d) + ((n-v)#d) + (n#(d-1)) - ((n-v-1)#(d-1))
-                                                  j    = head $ filter (\ v ->    ((i' v) >= 0)
-                                                                               && ((i' v) < ((n)#(d-1)))
-                                                                               && (v > p))
-                                                                [0 .. n - 1]
+nat2comb :: Integer -> Integer -> Integer -> [Integer]
+nat2comb n m x = f (-1) m x
+                 where f _ 1 i = [i]
+                       f p d i = j : f j (d - 1) (i' j)
+                                 where i' v =   i
+                                              - (n # d)
+                                              + ((n - v) # d)
+                                              + (n # (d - 1))
+                                              - ((n - v - 1) # (d - 1))
+                                       g v  =    ((i' v) >= 0)
+                                              && ((i' v) < (n#(d-1)))
+                                              && (v > p)
+                                       j    = head $ filter g [0 .. n - 1]
 
 
 {-
   Next combination in n variables.
 -}
-nextCombination :: Integer -> [Integer] -> [Integer]
-nextCombination n x = snd $ f n x
-                      where f k (h : []) = (h == k - 1, (h + 1) : [])
-                            f k (h : t)  = (h' == k - (toInteger $ length t), h' : g h' r)
-                                           where h' = if   c
-                                                      then h + 1
-                                                      else h
-                                                 (c, r) = f k t
-                                                 g v []        = []
-                                                 g v (lH : lT) = if   lH == k - (toInteger $ length lT)
-                                                                 then (v + 1) : (g (v + 1) lT)
-                                                                 else lH : lT
+nextComb :: Integer -> [Integer] -> [Integer]
+nextComb n x = snd $ f n x
+               where f k (h : []) =   (h == k - 1, (h + 1)
+                                    :  [] )
+                     f k (h : t)  =   (h' == k - (toInteger $ length t), h'
+                                    :  g h' r)
+                                    where h'            = if   c
+                                                          then h + 1
+                                                          else h
+                                          (c, r)        = f k t
+                                          g v []        = []
+                                          g v (lH : lT) = if   lH == k - (toInteger $ length lT)
+                                                          then (v + 1) : (g (v + 1) lT)
+                                                          else lH : lT
+
+
+{-
+  Length m combinations x through x + c - 1 (c combinations starting with x)
+  in n variables.
+-}
+makeCombs :: Integer -> Integer -> Integer -> Integer -> [[Integer]]
+makeCombs n m x c = genericTake c $ iterate (nextComb n) f
+                    where f = nat2comb n m x
 
 
 {-
   Number of length m recombinadics in n variables.
 -}
-numRecombinations :: Integer -> Integer -> Integer
-numRecombinations n m = n & m
+numRecombs :: Integer -> Integer -> Integer
+numRecombs n m = n & m
 
 
 {-
   Natural number corresponding to a recombinadic r in n variables.
 -}
-recombination2natural :: Integer -> [Integer] -> Integer
-recombination2natural n r = f (m - 1) r
-                            where m                 = toInteger $ length r
-                                  f 0 _             = (n & m) - ((n - (head r)) & m)
-                                  f j (h1 : h2 : t) = ((n - h1) & j) - ((n - h2) & j) + f (j - 1) (h2 : t)
+recomb2nat :: Integer -> [Integer] -> Integer
+recomb2nat n r = f (m - 1) r
+                 where m                 = toInteger $ length r
+                       f 0 _             =   (n & m)
+                                           - ((n - (head r)) & m)
+                       f j (h1 : h2 : t) =   ((n - h1) & j)
+                                           - ((n - h2) & j)
+                                           + f (j - 1) (h2 : t)
 
 
 {-
   Length m recombinadic in n variables corresponding to a natural number x.
 -}
-natural2recombination :: Integer -> Integer -> Integer -> [Integer]
-natural2recombination n m x = f 0 m x
-                              where f _ 1 i = [i]
-                                    f p d i = j : f j (d - 1) (i' j)
-                                              where i' v = i - (n&d) + ((n-v)&d) + (n&(d-1)) - ((n-v)&(d-1))
-                                                    j    = head $ filter (\ v ->    ((i' v) >= 0)
-                                                                                 && ((i' v) < (n&(d-1)))
-                                                                                 && (v >= p))
-                                                                  [0 .. n - 1]
+nat2recomb :: Integer -> Integer -> Integer -> [Integer]
+nat2recomb n m x = f 0 m x
+                   where f _ 1 i = [i]
+                         f p d i = j : f j (d - 1) (i' j)
+                                   where i' v =   i
+                                                - (n & d)
+                                                + ((n - v) & d)
+                                                + (n & (d - 1))
+                                                - ((n - v) & (d - 1))
+                                         g v  =    ((i' v) >= 0)
+                                                && ((i' v) < (n&(d-1)))
+                                                && (v >= p)
+                                         j    = head $ filter g [0 .. n - 1]
 
 
 {-
   Next recombination in n variables.
 -}
-nextRecombination :: Integer -> [Integer] -> [Integer]
-nextRecombination n x = snd $ f n x
-                        where f k (h : []) = (h == k - 1, (h + 1) : [])
-                              f k (h : t)  = (h' == k, h' : g h' r)
-                                             where h' = if   c
-                                                        then h + 1
-                                                        else h
-                                                   (c, r) = f k t
-                                                   g v []        = []
-                                                   g v (lH : lT) = if   lH == k
-                                                                   then v : (g v lT)
-                                                                   else lH : lT
+nextRecomb :: Integer -> [Integer] -> [Integer]
+nextRecomb n x = snd $ f n x
+                 where f k (h : []) = (h == k - 1, (h + 1) : [])
+                       f k (h : t)  = (h' == k, h' : g h' r)
+                                      where h'            = if   c
+                                                            then h + 1
+                                                            else h
+                                            (c, r)        = f k t
+                                            g v []        = []
+                                            g v (lH : lT) = if   lH == k
+                                                            then v : (g v lT)
+                                                            else lH : lT
+
+
+{-
+  Length m recombinations x through x + c - 1 (c recombinations starting with x)
+  in n variables.
+-}
+makeRecombs :: Integer -> Integer -> Integer -> Integer -> [[Integer]]
+makeRecombs n m x c = genericTake c $ iterate (nextRecomb n) f
+                      where f = nat2recomb n m x
 
 
 {-

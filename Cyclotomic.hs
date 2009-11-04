@@ -184,19 +184,6 @@ rootsOfUnity m = take (2^m) $ iterate (* (cycloGamma m)) (cycloGamma m)
 
 
 {-
-  Given a list of tuples, construct a particular list of elements, one from each tuple.
--}
-allArgChoices :: [(Rational, Rational)] -> Integer -> [Rational]
-allArgChoices (h : t) n = if  null t
-                          then [thisChoice]
-                          else thisChoice : restChoices
-                          where thisChoice = if   mod n 2 == 0
-                                             then fst h
-                                             else snd h
-                                restChoices = allArgChoices t (div n 2)
-
-
-{-
   kth iteration of converging upper and lower bounds on the square root of a rational number.
 -}
 boundSqrt :: Integer -> Rational -> (Rational, Rational)
