@@ -66,24 +66,24 @@ uniqueBases (lH : lT) = if   Prelude.null lT
 
 
 {-
-  Bases <d> <n> <m> <j> <s>
+  Bases <d> <n> <m> <s> <j>
 
   Dimension d.
   nth roots of unity.
   Bases contain m orthogonal vectors.
   Process performs jobs j * s through (j + 1) * s - 1.
-  If j == -1, the entire search is performed.
+  If s == 0, the entire search is performed.
 -}
 main = do
   {-
     Command line arguments.
   -}
-  dS : (nS : (mS : (jS : (sS : argsT)))) <- getArgs
+  dS : (nS : (mS : (sS : (jS : argsT)))) <- getArgs
   let d = read dS :: Integer
   let n = read nS :: Integer
   let m = read mS :: Integer
-  let j = read jS :: Integer
   let s = read sS :: Integer
+  let j = read jS :: Integer
 
 
   {-
@@ -92,6 +92,7 @@ main = do
   adj' <- getContents
   let adj = Data.List.map read (lines adj') :: [Integer]
   let numEdges = toInteger $ length adj
+  let numJobs = (div numEdges s) + (if mod numEdges s == 0 then 0 else 1)
 
 
   {-
@@ -99,9 +100,10 @@ main = do
     relations that we will use as candidates for our "first" edge).
   -}
   let jobs = [j * s .. min ((j + 1) * s - 1) (numEdges - 1)]
-  let qs = if   j == -1
-           then [ [0] ]
-           else [ [0, genericIndex adj i] | i <- jobs ]
+  let qs | s <= 0       = [ [0] ]
+         | s > numEdges = error ("Job size greater than number of adjacency relations (" ++ (show numEdges) ++ ")")
+         | j >= numJobs = error ("Job index greater than maximum index for this job size (" ++ (show numJobs) ++ ")")
+         | otherwise    = [ [0, genericIndex adj i] | i <- jobs ]
 
 
   {-
@@ -111,7 +113,8 @@ main = do
 
 
   {-
-    Output the list.
+    Output the list in CSV format.
   -}
-  sequence_ $ Data.List.map (putStrLn . show) qs'
+  let ps = map (\ q -> concat $ intersperse "," $ map show q) qs'
+  sequence_ $ map putStrLn ps
 

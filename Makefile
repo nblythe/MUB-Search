@@ -46,16 +46,13 @@ SublistPred: SublistPred.hs Combinadics
 Magic: Magic.hs
 	$(CC) -c Magic.hs $(FLAGS) $(PACKAGES) $(PROF)
 
-Nub: Nub.hs
-	$(CC) -c Nub.hs $(FLAGS) $(PACKAGES) $(PROF)
-
 Magic2: Magic2.hs
 	$(CC) -c Magic2.hs $(FLAGS) $(PACKAGES) $(PROF)
 
 Graph: Graph.hs
 	$(CC) -c Graph.hs $(FLAGS) $(PACKAGES) $(PROF)
 
-Graph2: Graph2.hs Magic2 Nub
+Graph2: Graph2.hs Magic2
 	$(CC) -c Graph2.hs $(FLAGS) $(PACKAGES) $(PROF)
 
 Polynomial: Polynomial.hs
@@ -70,8 +67,8 @@ FundamentalNeighbors: FundamentalNeighbors.hs Cyclotomic SublistPred Combinadics
 Bases: Bases.hs Graph Magic
 	$(CC) -o Bases Bases.hs Graph.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 
-Bases2: Bases2.hs Graph2 Magic2 Nub
-	$(CC) -o Bases2 Bases2.hs Graph2.o Magic2.o Nub.o $(FLAGS) $(PACKAGES) $(PROF)
+Bases2: Bases2.hs Graph2 Magic2
+	$(CC) -o Bases2 Bases2.hs Graph2.o Magic2.o $(FLAGS) $(PACKAGES) $(PROF)
 
 CombBases: CombBases.hs Magic
 	$(CC) -o CombBases CombBases.hs Magic.o $(FLAGS) $(PACKAGES) $(PROF)

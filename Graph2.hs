@@ -4,11 +4,10 @@
   2009 Nathan Blythe, Dr. Oscar Boykin
 -}
 
-module Graph2 (cliques) where
+module Graph2 (cliques, intersections) where
 
 import Magic2
-import Nub
-import Data.List (genericIndex)
+import Data.List (genericIndex, intersect)
 
 
 {-
@@ -29,10 +28,15 @@ milter f p (h : t) = if   p (f h)
 
 
 {-
-  The intersection of all lists of ordinals in a list.
+  The intersection of all lists in a list.
 -}
-intersections :: (Ord a) => [[a]] -> [a]
-intersections = (nubOrd . concat)
+intersections :: (Eq a) => [[a]] -> [a]
+intersections (h : []) = h
+intersections (h : g : []) = intersect h g
+intersections l = intersections $ f l
+                  where f [] = []
+                        f (h : []) = [h]
+                        f (h : g : t) = (intersect h g) : f t
 
 
 {-
@@ -41,7 +45,7 @@ intersections = (nubOrd . concat)
 -}
 neighbors :: (Integer, Integer) -> [Integer] -> Integer -> [Integer]
 neighbors (d, n) l v = milter (f v) (> v) l
-                       where f v a = vec2magic (d, n) (pointDiff n x y)
+                       where f v a = vec2magic (d, n) (pointDiff n y x)
                                      where x = magic2vec (d, n) v
                                            y = magic2vec (d, n) a
 
