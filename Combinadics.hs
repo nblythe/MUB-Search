@@ -188,3 +188,25 @@ makeRecombs n m x c = genericTake c $ iterate (nextRecomb n) f
 select :: [a] -> [Integer] -> [a]
 select x s = map (genericIndex x) s
 
+
+{-
+  Test functions for combinations, recombinations.  Should return a list of
+  "True"s.  Use "and" to test for failure.
+
+  Note: these functions are not a fair measure of the speed of combination,
+  recombination generation as they use nat2(re)comb and (re)comb2nat for each
+  index, rather than generating blocks of (re)combinations with
+  make(Rec|C)ombs.
+-}
+testCombs :: Integer -> Integer -> [Bool]
+testCombs n m = map (\ (a, b) -> a == b) $ zip xs x's
+                where xs  = [0 .. (numCombs n m) - 1]
+                      cs  = map (nat2comb n m) xs
+                      x's = map (comb2nat n) cs
+
+testRecombs :: Integer -> Integer -> [Bool]
+testRecombs n m = map (\ (a, b) -> a == b) $ zip xs x's
+                  where xs  = [0 .. (numRecombs n m) - 1]
+                        cs  = map (nat2recomb n m) xs
+                        x's = map (recomb2nat n) cs
+

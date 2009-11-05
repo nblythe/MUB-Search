@@ -261,12 +261,6 @@ int2Monomial' p d i = (toEnum j) : int2Monomial' j (d - 1) (i' j)
 {-
   Compute the unique Monomial corresponding to an Integer.
 -}
-{-int2Monomial :: Integer -> Monomial
-int2Monomial x = monomialContract l
-                 where d = int2Monomial'' x
-                       l = int2Monomial' 0 d $ x - (numMonomials (d - 1))
--}
-
 int2Monomial__ :: Integer -> Monomial
 int2Monomial__ x = monomialContract l
                    where d = int2Monomial'' x
@@ -279,24 +273,9 @@ int2Monomial :: Integer -> Monomial
 int2Monomial x = genericIndex int2Monomial_ x
 
 
-
-
 {-
   Generate all monomials of degree d or less.
 -}
-
---allMonomials'' :: Int -> Int -> [Monomial]
---allMonomials'' v 0 = [Monomial [Sonomial (allVariables !! v) 1]]
---allMonomials'' v d = [ monomialMultiply' m (Sonomial (allVariables !! v) 1) | m <- nm ]
---                     where nm = concat [allMonomials'' w (d - 1) | w <- [v .. numVariables - 1]]
-
---allMonomials' :: Int -> [Monomial]
---allMonomials' d = concat $ map (\ v -> allMonomials'' v (d - 1)) [0 .. numVariables - 1]
-
---allMonomials :: Int -> [Monomial]
---allMonomials d = concat $ map allMonomials' [1 .. d]
-
-
 allMonomials :: Int -> [Monomial]
 allMonomials d = map int2Monomial [0 .. numMonomials d]
 
