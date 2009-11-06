@@ -109,9 +109,11 @@ main = do
   putStr ("Searching for bases.\n")
   let g = graph (read d, read n) adjOrth
   let c = growcliques g q (read m)
-  let c' = uniqueBases c
+  --let c' = uniqueBases c
+  let c' = c
   putStr ("Found " ++ (show $ Prelude.length c') ++ ".\n")
 
+  print c'
 
   {-
     Store to disk.

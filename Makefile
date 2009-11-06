@@ -49,7 +49,7 @@ Magic: Magic.hs
 Magic2: Magic2.hs
 	$(CC) -c Magic2.hs $(FLAGS) $(PACKAGES) $(PROF)
 
-Graph: Graph.hs
+Graph: Graph.hs Magic
 	$(CC) -c Graph.hs $(FLAGS) $(PACKAGES) $(PROF)
 
 Graph2: Graph2.hs Magic2
@@ -61,6 +61,9 @@ Polynomial: Polynomial.hs
 
 # Top-level modules that produce executables.
 #
+DumpBinaryAdjacencies: DumpBinaryAdjacencies.hs
+	$(CC) -o DumpBinaryAdjacencies DumpBinaryAdjacencies.hs $(FLAGS) $(PACKAGES) $(PROF)
+
 FundamentalNeighbors: FundamentalNeighbors.hs Cyclotomic SublistPred Combinadics Magic Perms
 	$(CC) -o FundamentalNeighbors FundamentalNeighbors.hs Cyclotomic.o SublistPred.o Combinadics.o Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
 

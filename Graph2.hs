@@ -1,13 +1,13 @@
 {-
-  Butson graphs: construction and clique-finding.
+  Find cliques on a Butson graph
 
-  2009 Nathan Blythe, Dr. Oscar Boykin
+  2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)
 -}
 
-module Graph2 (cliques, intersections) where
+module Graph2 (cliques, isClique) where
 
 import Magic2
-import Data.List (genericIndex, intersect)
+import Data.List
 
 
 {-
@@ -31,8 +31,8 @@ milter f p (h : t) = if   p (f h)
   The intersection of all lists in a list.
 -}
 intersections :: (Eq a) => [[a]] -> [a]
+intersections [] = []
 intersections (h : []) = h
-intersections (h : g : []) = intersect h g
 intersections l = intersections $ f l
                   where f [] = []
                         f (h : []) = [h]
@@ -44,10 +44,10 @@ intersections l = intersections $ f l
   list l of fundamental adjacencies.
 -}
 neighbors :: (Integer, Integer) -> [Integer] -> Integer -> [Integer]
-neighbors (d, n) l v = milter (f v) (> v) l
-                       where f v a = vec2magic (d, n) (pointDiff n y x)
-                                     where x = magic2vec (d, n) v
-                                           y = magic2vec (d, n) a
+neighbors (d, n) l v = milter f (> v) l
+                       where f a = vec2magic (d, n) (pointDiff n x y)
+                                   where x = magic2vec (d, n) v
+                                         y = magic2vec (d, n) a
 
 
 {-
@@ -69,6 +69,14 @@ growClique (d, n) l m q = if   m == k
                           else genericIndex qs (m - k)
                           where k  = toInteger $ length q
                                 qs = iterate (biggerCliques (d, n) l) [q]
+
+
+{-
+  Whether or not a set of vertices forms a clique.
+-}
+isClique :: (Integer, Integer) -> [Integer] -> [Integer] -> Bool
+isClique (d, n) l q = and [(a == b) || (c a b) | a <- q, b <- q]
+                      where c a b = Nothing /= findIndex (== max a b) (neighbors (d, n) l (min a b))
 
 
 {-
