@@ -53,7 +53,7 @@ main = do
     adjacency relations that we will use as candidates for our "first" edge).
   -}
   let jobs = [j * s .. min ((j + 1) * s - 1) (nE - 1)]
-  let qs | s <= 0       = [ [0] ]
+  let qs | s <= 0       = map (\ a -> [0, a]) uadj
          | s > nE = error (   "Job size greater than number of adjacency"
                            ++ " relations (" ++ (show nE) ++ ")")
          | j >= nJ = error (   "Job index greater than maximum index for"
