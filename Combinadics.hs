@@ -10,6 +10,7 @@
 
 module Combinadics (numCombs, comb2nat, nat2comb, nextComb, makeCombs,
                     numRecombs, recomb2nat, nat2recomb, nextRecomb, makeRecombs,
+                    numPerms, perm2nat, nat2perm,
                     select) where
 
 
@@ -17,7 +18,8 @@ module Combinadics (numCombs, comb2nat, nat2comb, nextComb, makeCombs,
   Need the "genericIndex" and "genericTake" functions so we can index lists by
   Integers.
 -}
-import Data.List(genericIndex, genericTake)
+import Data.List
+import Data.Maybe
 
 
 {-
@@ -190,13 +192,56 @@ select x s = map (genericIndex x) s
 
 
 {-
-  Test functions for combinations, recombinations.  Should return a list of
-  "True"s.  Use "and" to test for failure.
+  Number of length m permutations.
+-}
+numPerms :: Integer -> Integer
+numPerms m = fac m
 
-  Note: these functions are not a fair measure of the speed of combination,
-  recombination generation as they use nat2(re)comb and (re)comb2nat for each
-  index, rather than generating blocks of (re)combinations with
-  make(Rec|C)ombs.
+
+{-
+  Natural number corresponding to a factoradic f.
+-}
+fact2nat :: [Integer] -> Integer
+fact2nat []      = 0
+fact2nat (h : t) = h * (fac . toInteger $ length t) + (fact2nat t)
+
+
+{-
+  Length m factoradic corresponding to a natural number x.
+-}
+nat2fact :: Integer -> Integer -> [Integer]
+nat2fact 0 _ = []
+nat2fact m x = (div x (fac (m - 1))) : nat2fact (m - 1) (mod x (fac (m - 1)))
+
+
+{-
+  Natural number corresponding to a permutation p.
+-}
+perm2nat :: [Integer] -> Integer
+perm2nat [] = 0
+perm2nat p = fact2nat $ f' [0 .. (toInteger $ length p) - 1] p
+             where f' _ []      = []
+                   f' l (h : t) = h' : f' l' t
+                                  where h' = (toInteger . fromJust) (findIndex (== h) l)
+                                        l' = delete h l
+
+
+{-
+  Length m permutation corresponding to a natural number x.
+-}
+nat2perm :: Integer -> Integer -> [Integer]
+nat2perm m x = f' [0 .. m - 1] (nat2fact m x)
+               where f' _ []      = []
+                     f' l (h : t) = h' : f' l' t
+                                    where h' = genericIndex l h
+                                          l' = delete h' l
+
+
+{-
+  Test functions for combinations, recombinations, and permutations..  Should
+  return a list of "True"s.  Use "and" to test for failure.
+
+  Note: these functions are not a fair measure of the speed of generation.
 -}
 testCombs :: Integer -> Integer -> [Bool]
 testCombs n m = map (\ (a, b) -> a == b) $ zip xs x's
@@ -207,6 +252,12 @@ testCombs n m = map (\ (a, b) -> a == b) $ zip xs x's
 testRecombs :: Integer -> Integer -> [Bool]
 testRecombs n m = map (\ (a, b) -> a == b) $ zip xs x's
                   where xs  = [0 .. (numRecombs n m) - 1]
-                        cs  = map (nat2recomb n m) xs
-                        x's = map (recomb2nat n) cs
+                        rs  = map (nat2recomb n m) xs
+                        x's = map (recomb2nat n) rs
+
+testPerms :: Integer -> [Bool]
+testPerms m = map (\ (a, b) -> a == b) $ zip xs x's
+              where xs  = [0 .. (numPerms m) - 1]
+                    ps  = map (nat2perm m) xs
+                    x's = map (perm2nat) ps
 
