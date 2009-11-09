@@ -4,7 +4,7 @@
   2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)
 -}
 
-module Graph2 (cliques, isClique) where
+module Graph2 (cliques) where
 
 import Magic2
 import Data.List
@@ -18,7 +18,7 @@ pointDiff n a b = zipWith (\x y -> mod (x - y) n) a b
 
 
 {-
-  A map followed by a filter, but simultaneously.
+  A map followed by a filter, performed simultaneously.
 -}
 milter :: (a -> b) -> (b -> Bool) -> [a] -> [b]
 milter _ _ [] = []
@@ -28,7 +28,8 @@ milter f p (h : t) = if   p (f h)
 
 
 {-
-  The intersection of all lists in a list.
+  The intersection of all lists in a list, performed pairwise repeatedly until
+  finished.
 -}
 intersections :: (Eq a) => [[a]] -> [a]
 intersections [] = []
@@ -51,32 +52,13 @@ neighbors (d, n) l v = milter f (> v) l
 
 
 {-
-  The list of cliques that consist of cliques in a list z and one additional
-  vertex, given a list l of fundamental adjacency relations.
+  All size m super cliques of a clique q, given a list p of potential
+  extending vertices under a list l of fundamental adjacencies.
 -}
-biggerCliques :: (Integer, Integer) -> [Integer] -> [[Integer]] -> [[Integer]]
-biggerCliques (d, n) l z = [x : q | q <- z, x <- f q]
-                           where f = intersections . (map (neighbors (d, n) l))
-
-
-{-
-  The list of cliques of size m that include clique q, given a list l of
-  fundamental adjacency relations.
--}
-growClique :: (Integer, Integer) -> [Integer] -> Integer -> [Integer] -> [[Integer]]
-growClique (d, n) l m q = if   m == k
-                          then [q]
-                          else genericIndex qs (m - k)
-                          where k  = toInteger $ length q
-                                qs = iterate (biggerCliques (d, n) l) [q]
-
-
-{-
-  Whether or not a set of vertices forms a clique.
--}
-isClique :: (Integer, Integer) -> [Integer] -> [Integer] -> Bool
-isClique (d, n) l q = and [(a == b) || (c a b) | a <- q, b <- q]
-                      where c a b = Nothing /= findIndex (== max a b) (neighbors (d, n) l (min a b))
+cliques' :: (Integer, Integer) -> [Integer] -> ([Integer], [Integer]) -> Integer -> [[Integer]]
+cliques' (_, _) _ (q, _) 0 = [q]
+cliques' (d, n) l (q, p) m = concatMap (\ qp' -> cliques' (d, n) l qp' (m - 1) ) qp's
+                          where qp's = map (\ h -> (h : q, intersect p (neighbors (d, n) l h)) ) p
 
 
 {-
@@ -84,5 +66,7 @@ isClique (d, n) l q = and [(a == b) || (c a b) | a <- q, b <- q]
   list l of fundamental adjacency relations.
 -}
 cliques :: (Integer, Integer) -> [Integer] -> Integer -> [[Integer]] -> [[Integer]]
-cliques (d, n) l m qs = concat $ map (growClique (d, n) l m) qs
+cliques (d, n) l m qs = concatMap (\ q -> cliques' (d, n) l (f q) (m' q)) qs
+                        where f q  = (q, intersections $ map (\ v -> neighbors (d, n) l v) q)
+                              m' q = m - (toInteger $ length q)
 
