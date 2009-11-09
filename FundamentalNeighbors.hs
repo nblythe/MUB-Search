@@ -100,7 +100,7 @@ main = do
 
 
   {-
-    Convert a list of roots of unity to a list of indices in the list of roots of unity.
+    Convert a list of roots of unity to a list of indices in the list of all roots of unity.
   -}
   let lookup = map (\ x -> fromJust (findIndex (x ==) roots))
 

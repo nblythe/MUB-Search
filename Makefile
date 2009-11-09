@@ -64,9 +64,6 @@ Polynomial: Polynomial.hs
 DumpBinaryAdjacencies: DumpBinaryAdjacencies.hs
 	$(CC) -o DumpBinaryAdjacencies DumpBinaryAdjacencies.hs $(FLAGS) $(PACKAGES) $(PROF)
 
-Uniquify: Uniquify.hs Magic2 Combinadics
-	$(CC) -o Uniquify Uniquify.hs Magic2.o Combinadics.o $(FLAGS) $(PACKAGES) $(PROF)
-
 FundamentalNeighbors: FundamentalNeighbors.hs Cyclotomic SublistPred Combinadics Magic Perms
 	$(CC) -o FundamentalNeighbors FundamentalNeighbors.hs Cyclotomic.o SublistPred.o Combinadics.o Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
 

@@ -8,19 +8,29 @@
 import System(getArgs)
 
 
-import Data.List (genericIndex, intersperse, map)
+import Data.List
 
 import Graph2
 import Magic2
 
 
 {-
-  Bases <d> <n> <sOrth> <sUOrth> <m> <s> <j>
+  Permutation-free list of vectors.
+-}
+permfree (d, n) l = f [] l
+                    where f _ [] = []
+                          f sl (h : t) = if   all (/= h') sl
+                                         then h : f (h' : sl) t
+                                         else f sl t
+                                         where h' = (sort .magic2vec (d, n)) h
+
+
+{-
+  Bases <d> <n> <sOrth> <m> <s> <j>
 
   Dimension d.
   nth roots of unity.
   Fundamental neighbors read from sOrth
-  Non-permutation adjacencies read from sUOrth
   Bases contain m orthogonal vectors.
   Process performs jobs j * s through (j + 1) * s - 1.
   If s == 0, the entire search is performed.
@@ -29,7 +39,7 @@ main = do
   {-
     Command line arguments.
   -}
-  dS : (nS : (sOrth : (sUOrth : (mS : (sS : (jS : argsT)))))) <- getArgs
+  dS : (nS : (sOrth : (mS : (sS : (jS : argsT))))) <- getArgs
   let d = read dS :: Integer
   let n = read nS :: Integer
   let m = read mS :: Integer
@@ -38,12 +48,11 @@ main = do
 
 
   {-
-    Read adjacency relations from files.
+    Read adjacency relations.
   -}
   adj' <- readFile sOrth
-  uadj' <- readFile sUOrth
   let adj = map read (lines adj') :: [Integer]
-  let uadj = map read (lines uadj') :: [Integer]
+  let uadj = permfree (d, n) adj
   let nE = toInteger $ length uadj
   let nJ = (div nE s) + (if mod nE s == 0 then 0 else 1)
 
