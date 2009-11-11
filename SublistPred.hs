@@ -1,7 +1,7 @@
 {-
   Find solutions to the "sublist-predicate problem".
 
-  2009 Nathan Blythe, Dr. Oscar Boykin
+  2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)
 
   The elements in a list x form a set.  The sublist-predicate problem is to find all
   length n sublists of this set that satisfy a predicate p.

@@ -1,7 +1,7 @@
 {-
   Combinadics, factoradics, etc.
 
-  2009 Nathan Blythe, Dr. Oscar Boykin
+  2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)
 
   A combination is a length m subset {0 .. n - 1}
   A recombination is a length m multisubset of {0 .. n - 1}

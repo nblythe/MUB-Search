@@ -5,7 +5,7 @@
   2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)
 -}
 
-module Magic2 (vec2magic, vecs2magics, magic2vec, magics2vecs) where
+module Magic (vec2magic, vecs2magics, magic2vec, magics2vecs) where
 
 import Data.List (genericTake)
 

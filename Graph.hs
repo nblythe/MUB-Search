@@ -4,9 +4,9 @@
   2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)
 -}
 
-module Graph2 (cliques) where
+module Graph (cliques) where
 
-import Magic2
+import Magic
 import Data.List
 
 

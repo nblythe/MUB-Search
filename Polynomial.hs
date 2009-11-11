@@ -1,6 +1,6 @@
 {-
   Polynomials
-  2009 Nathan Blythe, Dr. Oscar Boykin
+  2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)
 
   Functions and types for working with polynomials based on sets of MUBs.
 -}

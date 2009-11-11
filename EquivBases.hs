@@ -7,7 +7,7 @@
 import System(getArgs)
 import Data.List
 
-import Magic2
+import Magic
 import Perms
 
 eperm a b = any (== b) (permuteAll a)

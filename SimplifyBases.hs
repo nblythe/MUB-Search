@@ -7,7 +7,7 @@
 import System(getArgs)
 import Data.List
 import Perms
-import Magic2
+import Magic
 
 {-
   A string without wrapping square brackets, if present.

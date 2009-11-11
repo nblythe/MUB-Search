@@ -16,7 +16,6 @@ PROF = #-prof -auto-all
 PACKAGES = -package binary
 
 
-
 # Operations.
 #
 all: FundamentalNeighbors Bases CombBases CheckFourierFamily MUBs2LaTeX MUB-Search MakeMagic HNSS
@@ -24,9 +23,11 @@ all: FundamentalNeighbors Bases CombBases CheckFourierFamily MUBs2LaTeX MUB-Sear
 clean:
 	rm -f FundamentalNeighbors Bases CombBases CheckFourierFamily MUBs2LaTeX MUB-Search MakeMagic HNSS *.hi *.o *.prof *.aux *.hp *.ps
 
+commit:
+	git commit -a
+
 push:
 	git push git@github.com:nblythe/MUB-Search.git master
-
 
 
 # Modules that provide specific encapsulated functionalities.
@@ -46,20 +47,14 @@ SublistPred: SublistPred.hs Combinadics
 Magic: Magic.hs
 	$(CC) -c Magic.hs $(FLAGS) $(PACKAGES) $(PROF)
 
-Magic2: Magic2.hs
-	$(CC) -c Magic2.hs $(FLAGS) $(PACKAGES) $(PROF)
-
 Graph: Graph.hs Magic
 	$(CC) -c Graph.hs $(FLAGS) $(PACKAGES) $(PROF)
-
-Graph2: Graph2.hs Magic2
-	$(CC) -c Graph2.hs $(FLAGS) $(PACKAGES) $(PROF)
 
 Polynomial: Polynomial.hs
 	$(CC) -c Polynomial.hs $(FLAGS) $(PACKAGES) $(PROF)
 
 
-# Top-level modules that produce executables.
+# Small utilities.
 #
 DumpBinaryAdjacencies: DumpBinaryAdjacencies.hs
 	$(CC) -o DumpBinaryAdjacencies DumpBinaryAdjacencies.hs $(FLAGS) $(PACKAGES) $(PROF)
@@ -67,8 +62,18 @@ DumpBinaryAdjacencies: DumpBinaryAdjacencies.hs
 DumpBases: DumpBases.hs
 	$(CC) -o DumpBases DumpBases.hs $(FLAGS) $(PACKAGES) $(PROF)
 
-SimplifyBases: SimplifyBases.hs Perms Magic2
-	$(CC) -o SimplifyBases SimplifyBases.hs Perms.o Magic2.o $(FLAGS) $(PACKAGES) $(PROF)
+SimplifyBases: SimplifyBases.hs Perms Magic
+	$(CC) -o SimplifyBases SimplifyBases.hs Perms.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
+
+MUBs2LaTeX: MUBs2LaTeX.hs Magic
+	$(CC) -o MUBs2LaTeX MUBs2LaTeX.hs Magic.o $(FLAGS) $(PACKAGES) $(PROF)
+
+CheckFourierFamily: CheckFourierFamily.hs Magic Perms
+	$(CC) -o CheckFourierFamily CheckFourierFamily.hs Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
+
+
+# The big boys.
+#
 
 FundamentalNeighbors: FundamentalNeighbors.hs Cyclotomic SublistPred Combinadics Magic Perms
 	$(CC) -o FundamentalNeighbors FundamentalNeighbors.hs Cyclotomic.o SublistPred.o Combinadics.o Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
@@ -76,25 +81,9 @@ FundamentalNeighbors: FundamentalNeighbors.hs Cyclotomic SublistPred Combinadics
 Bases: Bases.hs Graph Magic
 	$(CC) -o Bases Bases.hs Graph.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 
-Bases2: Bases2.hs Graph2 Magic2
-	$(CC) -o Bases2 Bases2.hs Graph2.o Magic2.o $(FLAGS) $(PACKAGES) $(PROF)
-
-CombBases: CombBases.hs Magic
-	$(CC) -o CombBases CombBases.hs Magic.o $(FLAGS) $(PACKAGES) $(PROF)
-
-CheckFourierFamily: CheckFourierFamily.hs Magic Perms
-	$(CC) -o CheckFourierFamily CheckFourierFamily.hs Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
-
-MUBs2LaTeX: MUBs2LaTeX.hs Magic
-	$(CC) -o MUBs2LaTeX MUBs2LaTeX.hs Magic.o $(FLAGS) $(PACKAGES) $(PROF)
-
 MUB-Search: MUB-Search.hs Graph Magic
 	$(CC) -o MUB-Search MUB-Search.hs Graph.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 
-MakeMagic: MakeMagic.hs Magic
-	$(CC) -o MakeMagic MakeMagic.hs Magic.o $(FLAGS) $(PACKAGES) $(PROF)
-
 HNSS: HNSS.hs Polynomial
 	$(CC) -o HNSS HNSS.hs Polynomial.o $(FLAGS) $(PACKAGES) $(PROF)
-
 

@@ -10,8 +10,8 @@ import System(getArgs)
 
 import Data.List
 
-import Graph2
-import Magic2
+import Graph
+import Magic
 
 
 {-
