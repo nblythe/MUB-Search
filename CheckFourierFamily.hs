@@ -3,8 +3,11 @@
   This is a lower bound.
 
   2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)
+
+  TODO: needs updating for list-bases bases.
 -}
 
+{-
 import System(getArgs)
 import Data.Binary
 import Data.List
@@ -39,13 +42,13 @@ isFourierFamilyForm b =    ((b !! 0) !! 1 == 4) && ((b !! 0) !! 3 == 8)
 -}
 isntFourierFamily :: [[Int]] -> Bool
 isntFourierFamily b = not $ any isFourierFamilyForm (permuteAll b)
-
+-}
 
 {-
   CheckFourierFamily <n> <d> <bases-file>
 -}
 main = do
-  {-
+{-  {-
     Command line arguments.
   -}
   arg_n : (arg_d : (arg_bases : arg_t)) <- getArgs
@@ -74,4 +77,6 @@ main = do
            then ("Read " ++ (show $ size f) ++ " bases.\n"
                  ++ "At least " ++ (show $ size notFourier) ++ " bases are not in the Fourier family.\n")
            else ("Currently only dimension 6 is supported.\n")
+-}
+  print "Update me!"
 

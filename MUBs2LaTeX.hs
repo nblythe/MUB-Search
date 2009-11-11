@@ -2,8 +2,11 @@
   Print sets of MUBs as LaTeX source.
 
   2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)
+
+  TODO: needs updating for list-bases bases.
 -}
 
+{-
 import Data.Binary
 import Data.Set
 import Data.List
@@ -36,12 +39,13 @@ list2latex' d (lH : lT) = if   Prelude.null lT
                           then (basis2latex d lH) ++ "\n"
                           else (basis2latex d lH) ++ "\n,\n" ++ (list2latex' d lT)
 
+-}
 
 {-
   MUBs2LaTeX <MUBs file>
 -}
 main = do
-  argMUBs : argT <- getArgs
+{-  argMUBs : argT <- getArgs
 
   mubs_d <- decodeFile argMUBs :: IO [(Set (Set Int))]
 
@@ -49,4 +53,6 @@ main = do
 
   let mubs_s = Prelude.map (list2latex 6) mubs_i
   putStr $ foldl (++) "" mubs_s
+-}
+  print "Update me!"
 

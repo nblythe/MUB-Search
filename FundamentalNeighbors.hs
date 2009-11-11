@@ -102,7 +102,7 @@ main = do
   {-
     Convert a list of roots of unity to a list of indices in the list of all roots of unity.
   -}
-  let lookup = map (\ x -> fromJust (findIndex (x ==) roots))
+  let lookup = map (\ x -> toInteger $ fromJust (findIndex (x ==) roots))
 
 
   {-
@@ -122,7 +122,7 @@ main = do
               else rootsBias
   let vecs = map lookup roots
   let allVecs = lunions $ map permuteAllL vecs
-  let adj = map (vec2magic (fromInteger d, fromInteger n)) allVecs
+  let adj = vecs2magics (d, n) allVecs
 
 
   {-

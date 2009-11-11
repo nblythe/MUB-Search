@@ -18,10 +18,18 @@ PACKAGES = -package binary
 
 # Operations.
 #
-all: FundamentalNeighbors Bases CombBases CheckFourierFamily MUBs2LaTeX MUB-Search MakeMagic HNSS
+all: utilities major
 
-clean:
-	rm -f FundamentalNeighbors Bases CombBases CheckFourierFamily MUBs2LaTeX MUB-Search MakeMagic HNSS *.hi *.o *.prof *.aux *.hp *.ps
+utilities: DumpBinaryAdjacencies DumpBases SimplifyBases MUBs2LaTeX CheckFourierFamily EquivBases
+clean_utilities:
+	rm -f DumpBinaryAdjacencies DumpBases SimplifyBases MUBs2LaTeX CheckFourierFamily EquivBases
+
+major: FundamentalNeighbors Bases MUB-Search HNSS
+clean_major:
+	rm -f FundamentalNeighbors Bases MUB-Search HNSS
+
+clean: clean_utilities clean_major
+	rm -f *.hi *.o *.prof *.aux *.hp *.ps
 
 commit:
 	git commit -a
@@ -70,6 +78,9 @@ MUBs2LaTeX: MUBs2LaTeX.hs Magic
 
 CheckFourierFamily: CheckFourierFamily.hs Magic Perms
 	$(CC) -o CheckFourierFamily CheckFourierFamily.hs Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
+
+EquivBases: EquivBases.hs Magic Perms
+	$(CC) -o EquivBases EquivBases.hs Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
 
 
 # The big boys.
