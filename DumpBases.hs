@@ -14,7 +14,5 @@ main = do
   fName : argsT <- getArgs
 
   bases <- decodeFile fName :: IO [Basis]
-  putStr ("Read " ++ (show . length $ bases) ++ " bases.\n")
-  sequence $ Prelude.map print bases
-  putStr ("Done.\n")
+  sequence_ $ Prelude.map (print . elems) bases
 
