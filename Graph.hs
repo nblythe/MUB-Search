@@ -1,121 +1,72 @@
 {-
-  Butson graphs: construction and clique-finding.
+  Find cliques on a Butson graph
 
-  2009 Nathan Blythe, Dr. Oscar Boykin
+  2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)
 -}
 
-module Graph (Vert, Clique, Graph, Vec, AdjF, graph, cliques, rootcliques, growcliques) where
+module Graph2 (cliques) where
 
-import Magic
-import Data.Set
+import Magic2
+import Data.List
 
 
 {-
-  Type definitions.
+  Compute the pointwise difference (mod n) between two vectors a and b.
 -}
-type Vert   = Int
-type Clique = Set Vert
-type Graph  = Int -> Set Vert
-type Vec    = [Int]
-type AdjF   = Set Int
-
-
-{-
-  Compute the pointwise difference (mod n) between two vectors x and y.
--}
-pointDiff :: Int -> Vec -> Vec -> Vec
+pointDiff :: Integer -> [Integer] -> [Integer] -> [Integer]
 pointDiff n a b = zipWith (\x y -> mod (x - y) n) a b
 
 
 {-
-  Given adjacency relation a, find the corresponding vertex adjacent to a vertex v.
+  A map followed by a filter, performed simultaneously.
 -}
-neighbor :: (Int, Int) -> Int -> Vert -> Vert
-neighbor (d, n) a v = vec2magic (d, n) (pointDiff n x y)
-                      where x = magic2vec (d, n) v
-                            y = magic2vec (d, n) a
-
-{-
-  Given adjacency function adjF, find the set of all vertices adjacent to a vertex v.
--}
-neighbors :: (Int, Int) -> AdjF -> Vert -> Set Vert
-neighbors (d, n) f v = Data.Set.map (\u -> neighbor (d, n) u v) f
+milter :: (a -> b) -> (b -> Bool) -> [a] -> [b]
+milter _ _ [] = []
+milter f p (h : t) = if   p (f h)
+                     then f h : milter f p t
+                     else milter f p t
 
 
 {-
-  A list of sets describing adjacency of vertices.
-
-  Index k in the list is a set containing all vertices adjacent to vertex k
-  that are numbered greater than k.
+  The intersection of all lists in a list, performed pairwise repeatedly until
+  finished.
 -}
---graph :: (Int, Int) -> AdjF -> [Set Vert]
---graph (d, n) f = [ Data.Set.filter (> v) (neighbors (d, n) f v) | v <- [0 .. (n^d) - 1] ]
---graph (d, n) f = Prelude.map (\ v -> Data.Set.filter (> v) (neighbors (d, n) f v))  [0 .. (n^d) - 1]
-
-graph :: (Int, Int) -> AdjF -> Int -> Set Vert
-graph (d, n) f v = Data.Set.filter (> v) (neighbors (d, n) f v)
+intersections :: (Eq a) => [[a]] -> [a]
+intersections [] = []
+intersections (h : []) = h
+intersections l = intersections $ f l
+                  where f [] = []
+                        f (h : []) = [h]
+                        f (h : g : t) = (intersect h g) : f t
 
 
 {-
-  Compute the intersection of all sets in a set.
+  The list of all vertices adjacent to and greater than a vertex v under a
+  list l of fundamental adjacencies.
 -}
-intersections s = if   1 == (Data.Set.size s)
-                  then m
-                  else intersection m (intersections t)
-                  where (m, t) = deleteFindMin s
+neighbors :: (Integer, Integer) -> [Integer] -> Integer -> [Integer]
+neighbors (d, n) l v = milter f (> v) l
+                       where f a = vec2magic (d, n) (pointDiff n x y)
+                                   where x = magic2vec (d, n) v
+                                         y = magic2vec (d, n) a
 
 
 {-
-  Given a graph g and clique c, find the set of all vertices that extend c.
-
-  A vertex that extends a clique is a vertex that is adjacent to all
-  vertices in that clique.
+  All size m super cliques of a clique q, given a list p of potential
+  extending vertices under a list l of fundamental adjacencies.
 -}
-extendingVerts :: Graph -> Clique -> Set Vert
---extendingVerts g c = intersections (Data.Set.map (g !!) c)
-extendingVerts g c = intersections (Data.Set.map g c)
+cliques' :: (Integer, Integer) -> [Integer] -> ([Integer], [Integer]) -> Integer -> [[Integer]]
+cliques' (_, _) _ (q, _) 0 = [q]
+cliques' (d, n) l (q, p) m = concatMap (\ qp' -> cliques' (d, n) l qp' (m - 1) ) qp's
+                          where qp's = map (\ h -> (h : q, intersect p (neighbors (d, n) l h)) ) p
 
 
 {-
-  Given a graph g and a list of cliques s, find all cliques in g that
-  contain a clique from s and one additional vertex.
+  The list of cliques of size m that include a clique from list qs, given a
+  list l of fundamental adjacency relations.
 -}
-biggerCliques :: Graph -> [Clique] -> [Clique]
-biggerCliques g s = [insert w y | y <- s, w <- elems (extendingVerts g y)]
-
-
-{-
-  Given a graph g, find all cliques of size n.
--}
-cliques :: Graph -> Int -> [Clique]
-cliques g 0  = [empty]
-cliques g n  = (iterate (biggerCliques g) [empty]) !! n
-
-
-{-
-  Given a graph g, find all cliques of size n that
-  include vertex 0.
--}
-rootcliques :: Graph -> Int -> [Clique]
-rootcliques g 0 = [empty]
-rootcliques g n = (iterate (biggerCliques g) [singleton 0]) !! (n - 1)
-
-
-{-
-  Given a graph g and a clique q, find all cliques of size n
-  that include q.
--}
-growclique :: Graph -> Clique -> Int -> [Clique]
-growclique g q n = if   n == size q
-                   then [q]
-                   else (iterate (biggerCliques g) [q]) !! (n - size q)
-
-
-
-{-
-  Given a graph g and a list of cliques l, find all cliques of size n
-  that include cliques from l.
--}
-growcliques :: Graph -> [Clique] -> Int -> [Clique]
-growcliques g l n = concat $ Prelude.map (\ q -> growclique g q n) l
+cliques :: (Integer, Integer) -> [Integer] -> Integer -> [[Integer]] -> [[Integer]]
+cliques (d, n) l m qs = concatMap (\ q -> cliques' (d, n) l (f q) (m' q)) qs
+                        where f q  = (q, intersections $ map (\ v -> neighbors (d, n) l v) q)
+                              m' q = m - (toInteger $ length q)
 
