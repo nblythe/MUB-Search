@@ -10,19 +10,17 @@ import System(getArgs)
 
 import Data.List
 
-import Graph
+import Cliques
 import Magic
+
+import Voodoo
 
 
 {-
-  Permutation-free list of vectors.
+  Compute the pointwise difference (mod n) between two vectors a and b.
 -}
-permfree (d, n) l = f [] l
-                    where f _ [] = []
-                          f sl (h : t) = if   all (/= h') sl
-                                         then h : f (h' : sl) t
-                                         else f sl t
-                                         where h' = (sort .magic2vec (d, n)) h
+pointDiff :: Integer -> [Integer] -> [Integer] -> [Integer]
+pointDiff n a b = zipWith (\x y -> mod (x - y) n) a b
 
 
 {-
@@ -30,7 +28,7 @@ permfree (d, n) l = f [] l
 
   Dimension d.
   nth roots of unity.
-  Fundamental neighbors read from sOrth
+  Fundamental neighbors read from sOrth.
   Bases contain m orthogonal vectors.
   Process performs jobs j * s through (j + 1) * s - 1.
   If s == 0, the entire search is performed.
@@ -52,7 +50,7 @@ main = do
   -}
   adj' <- readFile sOrth
   let adj = map read (lines adj') :: [Integer]
-  let uadj = permfree (d, n) adj
+  let uadj = permfree (sort . magic2vec (d, n)) adj
   let nE = toInteger $ length uadj
   let nJ = (div nE s) + (if mod nE s == 0 then 0 else 1)
 
@@ -73,9 +71,10 @@ main = do
   {-
     Find cliques that contain one of this job's cliques.
   -}
+  let f = neighbors (magic2vec (d, n)) (pointDiff n) (vec2magic (d, n)) adj
   let qs' = if   m < 2
             then error "Cliques of size < 2 are boring"
-            else cliques (d, n) adj m qs
+            else cliques (==) f m qs
 
 
   {-

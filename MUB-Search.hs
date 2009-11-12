@@ -6,110 +6,78 @@
 
 
 import System(getArgs)
-import Data.Binary
-import Data.Set
 
-import Graph
 import Magic
+import Data.List
+import Perms
+import Cliques
+
+import Voodoo
 
 
 {-
-  Type definitions.
+  Equivalence of bases under column-permutations.
 -}
-type Basis = Set Int
+(*=) :: [Integer] -> [Integer] -> Bool
+(*=) a b = (sort a) == (sort b)
 
 
 {-
-  Add (mod n) a vector to each vector in a basis.
+  Compute the pointwise sum (mod n) of two bases a and b.
 -}
-shiftBasis :: (Int, Int) -> Basis -> Int -> Basis
-shiftBasis (d, n) b v = Data.Set.map (\z -> vec2magic (d, n) $ addVecs vAsVec z) $ Data.Set.map (magic2vec (d, n)) b
-                        where vAsVec = magic2vec (d, n) v
-                              addVecs = Prelude.zipWith (\ x y -> mod (x + y) n)
+pointSum :: Integer -> [[Integer]] -> [[Integer]] -> [[Integer]]
+pointSum n a b = zipWith (\x y -> (zipWith (\ w v -> mod (w - v) n) x y)) a b
 
 
 {-
-  Given a basis b, construct the set of all coset bases to b.
--}
-cosetBases :: (Int, Int) -> Graph -> Basis -> Set Basis
-cosetBases (d, n) g b = Data.Set.map (shiftBasis (d, n) b) (g 0)
+  MUB-Search <d> <n> <sBias> <sBases> <m> s p
 
-
-{-
-  Determine if two bases are unbiased.
--}
-areMUB :: Graph -> Basis -> Basis -> Bool
-areMUB g b c = all areMUB' (elems b)
-               where areMUB' v = all (\ u -> member (max u v) (g (min u v))) $ elems c
-
-
-{-
-  Determine if a basis is unbiased to all bases in a set.
--}
-isMUBtoSet :: Graph -> Set Basis -> Basis -> Bool
-isMUBtoSet g s b = all (areMUB g b) $ elems s
-
-
-{-
-  Extend a set s of mutually unbiased bases by a single basis from a set r to
-  form new sets of bases.
--}
-biggerMUBs :: Graph -> Set Basis -> Set Basis -> Set (Set Basis)
-biggerMUBs g r s = Data.Set.map (\x -> insert x s) $ Data.Set.filter (isMUBtoSet g s) r
-
-
-{-
-  Extend a set x of sets of MUBs by a single basis from a set r.
--}
-biggerMUBsMany :: Graph -> Set Basis -> Set (Set Basis) -> Set (Set Basis)
-biggerMUBsMany g r x = unions $ Prelude.map (biggerMUBs g r) (elems x)
-
-
-{-
-  Given a basis b and set of bases r, construct all sets of n MUBs from r that include b.
--}
-childMUBs :: Graph -> Basis -> Set Basis -> Int -> Set (Set Basis)
-childMUBs g b r 0 = empty
-childMUBs g b r n = iterate (biggerMUBsMany g r) (singleton (singleton b)) !! (n - 1)
-
-
-{-
-  Find all sets of k MUBs from bases in a list l.
--}
-findMUBs :: (Int, Int) -> Graph -> [Basis] -> Int -> Set (Set Basis)
-findMUBs (d, n) g l k = unions $ Prelude.map findMUBs' l
-                        where findMUBs' c = childMUBs g c (allBases c) k
-                              allBases = cosetBases (d, n) g
-                              --allBases = unions $ Prelude.map (cosetBases (d, n) g) l
-
-
-{-
-  MUB-Search <d> <n> <fAdj> <fBases> <m> <fMUBs>
+  Dimension d.
+  nth roots of unity.
+  Fundamental neighbors read from sBias.
+  Bases read from sBases.
+  Sets contain m unbiased bases.
+  Process performs jobs p * s through (p + 1) * s - 1.
+  If s == 0, the entire search is performed.
 -}
 main = do
-  d : (n : (fAdj : (fBases : (m : (fMUBs : argsT))))) <- getArgs
-
   {-
-    Read adjacency function and generate unbiased graph.
+    Command line arguments.
   -}
-  putStr ("Reading unbiasedness relations from " ++ fAdj ++ ".\n")
-  adjBias <- decodeFile fAdj :: IO (Set Int)
-  let g = graph (read d, read n) adjBias
-
-
-  {-
-    Read bases.
-  -}
-  putStr ("Reading bases from " ++ fBases ++ ".\n")
-  bases <- decodeFile fBases :: IO [Basis]
+  dS : (nS : (sBias : (sBases : (mS : (sS : (pS : argsT)))))) <- getArgs
+  let d = read dS :: Integer
+  let n = read nS :: Integer
+  let m = read mS :: Integer
+  let s = read sS :: Integer
+  let p = read pS :: Integer
 
 
   {-
-    Find MUBs and store to disk.
+    Read adjacency relations and bases.
   -}
-  putStr ("Writing sets of " ++ m ++ " MUBs to " ++ fMUBs ++ "...\n")
-  let mubs = elems $ findMUBs (read d, read n) g bases (read m)
-  encodeFile fMUBs mubs
-  putStr ("Done; found " ++ (show $ length mubs) ++ " sets of " ++ m ++ " MUBs.\n")
-  print $ Prelude.map (Data.Set.map (\ x -> magics2vecs (6, 12) x)) mubs
+  adj' <- readFile sBias
+  let adj = map ((replicate (fromInteger d)) . read) (lines adj') :: [[Integer]]
+  bases' <- readFile sBases
+  let bases = map (read . ("[" ++) . (++ "]")) (lines bases') :: [[Integer]]
+  let ubases = permfree (transpose . sort . transpose . magics2vecs (d, n)) bases
+
+
+  {-
+    There is one job per basis and this process will be working on jobs
+    j * s through (j + 1) * s - 1.  Get those bases.
+  -}
+  let nJ = toInteger (length ubases)
+  let nP = (div nJ s) + (if mod nJ s == 0 then 0 else 1)
+  let jobs | s <= 0               = [[x] | x <- bases]
+           | (s < 0) || (s > nJ)  = error ("Job size out of range (" ++ (show nJ) ++ "jobs total)")
+           | (p < 0) || (p >= nP) = error ("Process index out of range (" ++ (show nP) ++ " processes total)")
+           | otherwise            = map (\x -> [genericIndex bases x]) [p * s .. min ((p + 1) * s - 1) (nJ - 1)]
+
+
+  {-
+    Find sets of m mutually unbiased bases, each including one of the bases assigned to
+    this process.
+  -}
+  let f = neighbors (magics2vecs (d, n)) (pointSum n) (vecs2magics (d, n)) adj
+  print $ cliques (*=) f m jobs
 
