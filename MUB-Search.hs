@@ -16,20 +16,6 @@ import Voodoo
 
 
 {-
-  Equivalence of bases under column-permutations.
--}
-(*=) :: [Integer] -> [Integer] -> Bool
-(*=) a b = (sort a) == (sort b)
-
-
-{-
-  Compute the pointwise sum (mod n) of two bases a and b.
--}
-pointSum :: Integer -> [[Integer]] -> [[Integer]] -> [[Integer]]
-pointSum n a b = zipWith (\x y -> (zipWith (\ w v -> mod (w - v) n) x y)) a b
-
-
-{-
   MUB-Search <d> <n> <sBias> <sBases> <m> s p
 
   Dimension d.
@@ -78,6 +64,6 @@ main = do
     Find sets of m mutually unbiased bases, each including one of the bases assigned to
     this process.
   -}
-  let f = neighbors (magics2vecs (d, n)) (pointSum n) (vecs2magics (d, n)) adj
-  print $ cliques (*=) f m jobs
+  let f = neighbors (magics2vecs (d, n)) (zipWith (vecDiff n)) (vecs2magics (d, n)) adj
+  print $ cliques (\ x y -> (sort x) == (sort y)) f m jobs
 

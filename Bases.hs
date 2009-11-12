@@ -17,13 +17,6 @@ import Voodoo
 
 
 {-
-  Compute the pointwise difference (mod n) between two vectors a and b.
--}
-pointDiff :: Integer -> [Integer] -> [Integer] -> [Integer]
-pointDiff n a b = zipWith (\x y -> mod (x - y) n) a b
-
-
-{-
   Bases <d> <n> <sOrth> <m> <s> <j>
 
   Dimension d.
@@ -71,7 +64,7 @@ main = do
   {-
     Find cliques that contain one of this job's cliques.
   -}
-  let f = neighbors (magic2vec (d, n)) (pointDiff n) (vec2magic (d, n)) adj
+  let f = neighbors (magic2vec (d, n)) (vecDiff n) (vec2magic (d, n)) adj
   let qs' = if   m < 2
             then error "Cliques of size < 2 are boring"
             else cliques (==) f m qs

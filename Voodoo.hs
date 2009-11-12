@@ -6,6 +6,11 @@
 
 module Voodoo where
 
+import Data.List
+
+
+data Nest a = Nested [Nest a] | Leaf a
+
 
 {-
   Permutation-free list, given a function to compute a permutation-invariant of
@@ -39,4 +44,11 @@ milter f p (h : t) = if   p (f h)
 neighbors :: Ord a => (a -> [a]) -> ([a] -> [a] -> [a]) -> ([a] -> a) -> [a] -> a -> [a]
 neighbors e x c l v = milter f (> v) l
                       where f a = c (x (e v) (e a))
+
+
+{-
+  Compute the pointwise difference (mod n) between two lists.
+-}
+vecDiff :: (Integral a) => a -> [a] -> [a] -> [a]
+vecDiff n = zipWith (\x y -> mod (x - y) n)
 
