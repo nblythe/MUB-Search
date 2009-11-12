@@ -65,5 +65,5 @@ main = do
     this process.
   -}
   let f = neighbors (magics2vecs (d, n)) (zipWith (vecDiff n)) (vecs2magics (d, n)) adj
-  print $ cliques (\ x y -> (sort x) == (sort y)) f m jobs
+  print $ cliques (\ x y -> (sort x) == (sort  f m jobs
 

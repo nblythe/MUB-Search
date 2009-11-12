@@ -73,6 +73,6 @@ main = do
   {-
     Output the list in CSV format.
   -}
-  let ps = map (\ q -> concat $ intersperse "," $ map show q) qs'
+  let ps = map (\ q -> concat $ "[" ++ (intersperse "," $ map show q) ++ "]") qs'
   sequence_ $ map putStrLn ps
 

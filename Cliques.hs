@@ -1,12 +1,22 @@
 {-
-  Find cliques on a graph
+  Find cliques on a special graph.
+
+  Consider a graph in which vertices are tensors and the neighbors to a
+  particular vertex can be computed by taking the pointwise division
+  of that vertex (tensor) by all vectors adjacent to the 0-vector.
+
+  If the elements in each tensor and vector are nth roots of unity then
+  the pointwise division becomes pointwise subtraction of the root numbers.
+
+  TODO
 
   2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)
 -}
 
-module Cliques (cliques) where
-
+import System(getArgs)
 import Data.List
+
+import Magic
 
 
 type Eqp a = (a -> a -> Bool)
@@ -43,4 +53,112 @@ cliques :: Eqp a -> Ngf a -> Integer -> [[a]] -> [[a]]
 cliques p n k qs = concatMap (\ q -> cliques' p n (k' q) (f q)) qs
                    where f q  = (q, intersectionsBy p (map n q))
                          k' q = k - (toInteger (length q))
+
+
+{-
+  Permutation-free list, given a function to compute a permutation-invariant of
+  an object.
+-}
+permfree :: (Eq b) => (a -> b) -> [a] -> [a]
+permfree f l = g [] l
+               where g _ [] = []
+                     g sl (h : t) = if   all (/= h') sl
+                                    then h : g (h' : sl) t
+                                    else g sl t
+                                    where h' = f h
+
+
+{-
+  A map followed by a filter, performed simultaneously.
+-}
+milter :: (a -> b) -> (b -> Bool) -> [a] -> [b]
+milter _ _ [] = []
+milter f p (h : t) = if   p (f h)
+                     then f h : milter f p t
+                     else milter f p t
+
+
+{-
+  Given a function e to expand an object, a function x to combine two
+  expanded objects, a function c to contract an object, and a list l of
+  objects adjacent to the 0 object, compute the list of objects adjacent
+  to an object v.
+-}
+neighbors :: Ord a => (a -> [a]) -> ([a] -> [a] -> [a]) -> ([a] -> a) -> [a] -> a -> [a]
+neighbors e x c l v = milter f (> v) l
+                      where f a = c (x (e v) (e a))
+
+
+{-
+  Compute the pointwise difference (mod n) between two lists.
+-}
+vecDiff :: (Integral a) => a -> [a] -> [a] -> [a]
+vecDiff n = zipWith (\x y -> mod (x - y) n)
+
+
+specJobs :: Integer -> Integer -> [a] -> [a] -> [[a]]
+specJobs s p z l | s <= 0               = [x : z | x <- l]
+                 | (s < 0) || (s > nJ)  = error ("Job size out of range (" ++ (show nJ) ++ "jobs total)")
+                 | (p < 0) || (p >= nP) = error ("Process index out of range (" ++ (show nP) ++ " processes total)")
+                 | otherwise            = map (\x -> (genericIndex l x) : z) [p * s .. min ((p + 1) * s - 1) (nJ - 1)]
+                   where nJ = toInteger (length l)
+                         nP = (div nJ s) + (if mod nJ s == 0 then 0 else 1)
+
+
+{-
+  Cliques <d> <n> <fAdj> <r> <fTen> <k> <s> <p>
+
+  Dimension d.
+  nth roots of unity.
+  Vectors adjacent to the 0-vector read from fAdj.
+  Vertices are tensors of rank r.
+  Generating set (under permutations) of vertex tensors read from fTen.
+  Search for k-cliques.
+  This process performs jobs p * s through (p + 1) * s - 1.
+  If s == 0, the entire search is performed.
+-}
+main = do
+  {-
+    Command line arguments.
+  -}
+  d' : (n' : (fAdj : (r' : (fTen : (k' : (s' : (p' : argsT))))))) <- getArgs
+  let d = read d' :: Integer
+  let n = read n' :: Integer
+  let r = read r' :: Integer
+  let k = read k' :: Integer
+  let s = read s' :: Integer
+  let p = read p' :: Integer
+
+
+  {-
+    Read 0-neighbors and vertices.
+  -}
+  ns' <- readFile fAdj
+  let ns1 = map read (lines ns') :: [Integer]
+  let ns2 = map ((genericTake d) . repeat . read) (lines ns') :: [[Integer]]
+  vs'' <- readFile fTen
+  let vs' = map (("[" ++) . (++ "]")) (lines vs'')
+  let vs1 = map (head . read) vs' :: [Integer]
+  let vs2 = map read vs' :: [[Integer]]
+
+
+  {-
+    Find k-cliques that include one of the vertices assigned to this process.
+  -}
+  let q1 = cliques (==)
+                   (neighbors (magic2vec (d, n)) (vecDiff n) (vec2magic (d, n)) ns1)
+                   k
+                   (specJobs s p [0] vs1)
+  let q2 = cliques (\ x y -> (sort x) == (sort y))
+                   (neighbors (magics2vecs (d, n)) (zipWith (vecDiff n)) (vecs2magics (d, n)) ns2)
+                   k
+                   (specJobs s p [] vs2)
+
+
+  {-
+    Output the cliques.
+  -}
+  sequence_ $ if   r == 1
+              then map (putStrLn . show) q1
+              else map (putStrLn . show) q2
 

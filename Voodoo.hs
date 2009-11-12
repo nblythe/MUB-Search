@@ -9,9 +9,6 @@ module Voodoo where
 import Data.List
 
 
-data Nest a = Nested [Nest a] | Leaf a
-
-
 {-
   Permutation-free list, given a function to compute a permutation-invariant of
   an object.
