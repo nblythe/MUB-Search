@@ -24,9 +24,9 @@ utilities: DumpBinaryAdjacencies DumpBases SimplifyBases MUBs2LaTeX CheckFourier
 clean_utilities:
 	rm -f DumpBinaryAdjacencies DumpBases SimplifyBases MUBs2LaTeX CheckFourierFamily EquivBases PermBases
 
-major: FundamentalNeighbors Bases MUB-Search HNSS
+major: FundamentalNeighbors Cliques HNSS
 clean_major:
-	rm -f FundamentalNeighbors Bases MUB-Search HNSS
+	rm -f FundamentalNeighbors Cliques HNSS
 
 clean: clean_utilities clean_major
 	rm -f *.hi *.o *.prof *.aux *.hp *.ps
@@ -54,9 +54,6 @@ SublistPred: SublistPred.hs Combinadics
 
 Magic: Magic.hs
 	$(CC) -c Magic.hs $(FLAGS) $(PACKAGES) $(PROF)
-
-Graph: Graph.hs Magic
-	$(CC) -c Graph.hs $(FLAGS) $(PACKAGES) $(PROF)
 
 Polynomial: Polynomial.hs
 	$(CC) -c Polynomial.hs $(FLAGS) $(PACKAGES) $(PROF)
@@ -92,11 +89,8 @@ PermBases: PermBases.hs Magic Perms
 FundamentalNeighbors: FundamentalNeighbors.hs Cyclotomic SublistPred Combinadics Magic Perms
 	$(CC) -o FundamentalNeighbors FundamentalNeighbors.hs Cyclotomic.o SublistPred.o Combinadics.o Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
 
-Bases: Bases.hs Graph Magic
-	$(CC) -o Bases Bases.hs Graph.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
-
-MUB-Search: MUB-Search.hs Graph Magic
-	$(CC) -o MUB-Search MUB-Search.hs Graph.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
+Cliques: Cliques.hs Magic
+	$(CC) -o Cliques Cliques.hs Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 
 HNSS: HNSS.hs Polynomial
 	$(CC) -o HNSS HNSS.hs Polynomial.o $(FLAGS) $(PACKAGES) $(PROF)

@@ -96,9 +96,13 @@ vecDiff :: (Integral a) => a -> [a] -> [a] -> [a]
 vecDiff n = zipWith (\x y -> mod (x - y) n)
 
 
+{-
+  Determine how much work this particular process will do, and form the
+  starts of the cliques that it will extend.
+-}
 specJobs :: Integer -> Integer -> [a] -> [a] -> [[a]]
 specJobs s p z l | s <= 0               = [x : z | x <- l]
-                 | (s < 0) || (s > nJ)  = error ("Job size out of range (" ++ (show nJ) ++ "jobs total)")
+                 | (s < 0) || (s > nJ)  = error ("Job size out of range (" ++ (show nJ) ++ " jobs total)")
                  | (p < 0) || (p >= nP) = error ("Process index out of range (" ++ (show nP) ++ " processes total)")
                  | otherwise            = map (\x -> (genericIndex l x) : z) [p * s .. min ((p + 1) * s - 1) (nJ - 1)]
                    where nJ = toInteger (length l)
@@ -131,34 +135,39 @@ main = do
 
 
   {-
-    Read 0-neighbors and vertices.
+    Common.
   -}
   ns' <- readFile fAdj
-  let ns1 = map read (lines ns') :: [Integer]
-  let ns2 = map ((genericTake d) . repeat . read) (lines ns') :: [[Integer]]
-  vs'' <- readFile fTen
-  let vs' = map (("[" ++) . (++ "]")) (lines vs'')
-  let vs1 = map (head . read) vs' :: [Integer]
-  let vs2 = map read vs' :: [[Integer]]
+  vs' <- readFile fTen
 
 
   {-
-    Find k-cliques that include one of the vertices assigned to this process.
+    r = 1.
   -}
   let q1 = cliques (==)
                    (neighbors (magic2vec (d, n)) (vecDiff n) (vec2magic (d, n)) ns1)
                    k
                    (specJobs s p [0] vs1)
+           where ns1 = map read (lines ns') :: [Integer]
+                 vs1 = permfree (sort . magic2vec (d, n)) $ map read (lines vs') :: [Integer]
+
+
+  {-
+    r = 2.
+  -}
   let q2 = cliques (\ x y -> (sort x) == (sort y))
                    (neighbors (magics2vecs (d, n)) (zipWith (vecDiff n)) (vecs2magics (d, n)) ns2)
                    k
                    (specJobs s p [] vs2)
+           where ns2 = map ((genericTake d) . repeat . read) (lines ns') :: [[Integer]]
+                 vs2 = permfree (transpose . sort . transpose . magics2vecs (d, n)) $ map read (lines vs') :: [[Integer]]
 
 
   {-
-    Output the cliques.
+    Output.
   -}
-  sequence_ $ if   r == 1
-              then map (putStrLn . show) q1
-              else map (putStrLn . show) q2
+  let s | k <= 2 = error ((show k) ++ "-cliques are boring")
+        | r == 1 = map (putStrLn . show) q1
+        | r == 2 = map (putStrLn . show) q2
+  sequence_ $ s
 
