@@ -16,11 +16,12 @@
   Vertex types are defined for Integers (scalars) and lists of Integers
   (vectors).
 
-  Note: the "Flexible Instances" Haskell extensions is required.  In GHC/GHCI
+  Note: the "Flexible Instances" Haskell extension is required.  In GHC/GHCI
   this necessitates the -XFlexibleInstances flag.
 -}
 
-import System(getArgs)
+module Cliques (cliques) where
+
 import Data.List
 
 import Magic
@@ -92,94 +93,11 @@ cliques d n k l qs = concatMap (\ q -> cliques' d n (k' q) l (g q)) qs
 {-
   Neighbors to a vertex.
 -}
-nbrs :: C a => Integer -> Integer -> [a] -> a -> [a]
+nbrs :: V a => Integer -> Integer -> [a] -> a -> [a]
 nbrs d n []      _ = []
 nbrs d n (h : t) v = if    h' > v
                      then  h' : t'
                      else  t'
                      where h' = c d n (x d n (e d n v) (e d n h))
                            t' = nbrs d n t v
-
-
-{-
-  Permutation-free list, given a function to compute a permutation-invariant of
-  an object.
--}
-permfree :: (Eq b) => (a -> b) -> [a] -> [a]
-permfree f l = g [] l
-               where g _ [] = []
-                     g sl (h : t) = if   all (/= h') sl
-                                    then h : g (h' : sl) t
-                                    else g sl t
-                                    where h' = f h
-
-
-{-
-  Determine how much work this particular process will do, and form the
-  starts of the cliques that it will extend.
--}
-specJobs :: Integer -> Integer -> [a] -> [a] -> [[a]]
-specJobs s p z l | s <= 0               = [x : z | x <- l]
-                 | (s < 0) || (s > nJ)  = error ("Job size out of range (" ++ (show nJ) ++ " jobs total)")
-                 | (p < 0) || (p >= nP) = error ("Process index out of range (" ++ (show nP) ++ " processes total)")
-                 | otherwise            = map (\x -> (genericIndex l x) : z) [p * s .. min ((p + 1) * s - 1) (nJ - 1)]
-                   where nJ = toInteger (length l)
-                         nP = (div nJ s) + (if mod nJ s == 0 then 0 else 1)
-
-
-{-
-  Cliques <d> <n> <fAdj> <r> <fTen> <k> <s> <p>
-
-  Dimension d.
-  nth roots of unity.
-  Vectors adjacent to the 0-vector read from fAdj.
-  Vertices are scalers (r = 1) or vectors (r = 2).
-  Generating set (under permutations) of vertices read from fTen.
-  Search for k-cliques.
-  This process performs jobs p * s through (p + 1) * s - 1.
-  If s == 0, the entire search is performed.
--}
-main = do
-  {-
-    Command line arguments.
-  -}
-  d' : (n' : (fAdj : (r' : (fTen : (k' : (s' : (p' : argsT))))))) <- getArgs
-  let d = read d' :: Integer
-  let n = read n' :: Integer
-  let r = read r' :: Integer
-  let k = read k' :: Integer
-  let s = read s' :: Integer
-  let p = read p' :: Integer
-
-
-  {-
-    Common.
-  -}
-  ns' <- readFile fAdj
-  vs' <- readFile fTen
-
-
-  {-
-    r = 1.
-  -}
-  let q1 = cliques d n k ns (specJobs s p [0] vs)
-           where ns = map read (lines ns') :: [Integer]
-                 vs = permfree (sort . magic2vec (d, n)) $ map read (lines vs') :: [Integer]
-
-
-  {-
-    r = 2.
-  -}
-  let q2 = cliques d n k ns (specJobs s p [] vs)
-           where ns = map ((genericTake d) . repeat . read) (lines ns') :: [[Integer]]
-                 vs = permfree (transpose . sort . transpose . magics2vecs (d, n)) $ map read (lines vs') :: [[Integer]]
-
-
-  {-
-    Output.
-  -}
-  let s | k <= 2 = error ((show k) ++ "-cliques are boring")
-        | r == 1 = map (putStrLn . show) q1
-        | r == 2 = map (putStrLn . show) q2
-  sequence_ $ s
 
