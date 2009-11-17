@@ -30,36 +30,36 @@ import Magic
 {-
   Type class for types that can be vertices on a graph.
 
-  int: intersection between two lists of vertices
-  e:   expand a list of vertices
-  x:   pointwise quotient of two lists of vertices
-  c:   contract a list of vertices
+  eq: equivalence predicate
+  e:  expand a list of vertices
+  x:  divide a vertex by another vertex
+  c:  contract a list of vertices
 -}
 class (Eq a, Ord a) => V a where
-  int :: [a] -> [a] -> [a]
-  e   :: Integer -> Integer -> a -> [a]
-  x   :: Integer -> Integer -> [a] -> [a] -> [a]
-  c   :: Integer -> Integer -> [a] -> a
+  eq :: a -> a -> Bool
+  e  :: Integer -> Integer -> a -> [a]
+  x  :: Integer -> Integer -> a -> a -> a
+  c  :: Integer -> Integer -> [a] -> a
 
 
 {-
   Integers are a valid vertex type.
 -}
 instance V Integer where
-  int l1 l2   = intersect l1 l2
-  e d n x     = magic2vec (d, n) x
-  x _ n l1 l2 = zipWith (\x y -> mod (x - y) n) l1 l2
-  c d n l     = vec2magic (d, n) l
+  eq        = (==)
+  e d n x   = magic2vec (d, n) x
+  x _ n x y = mod (x - y) n
+  c d n l   = vec2magic (d, n) l
 
 
 {-
   Lists of Integers are a valid vertex type.
 -}
 instance (V [Integer]) where
-  int l1 l2   = intersect (sort l1) (sort l2)
-  e d n x     = magics2vecs (d, n) x
-  x _ n l1 l2 = zipWith (zipWith (\x y -> mod (x - y) n)) l1 l2
-  c d n l     = vecs2magics (d, n) l
+  eq x y    = (sort x) == (sort y)
+  e d n x   = magics2vecs (d, n) x
+  x _ n x y = zipWith (\ x y -> mod (x - y) n) x y
+  c d n l   = vecs2magics (d, n) l
 
 
 {-
@@ -68,7 +68,7 @@ instance (V [Integer]) where
 ints :: (V a) => [[a]] -> [a]
 ints []          = []
 ints (h : [])    = h
-ints (h : g : t) = ints ((int h g) : t)
+ints (h : g : t) = ints ((intersectBy eq h g) : t)
 
 
 {-
@@ -78,7 +78,7 @@ ints (h : g : t) = ints ((int h g) : t)
 cliques' :: (V a) => Integer -> Integer -> Integer -> [a] -> ([a], [a]) -> [[a]]
 cliques' _ _ 0 l (q, _) = [q]
 cliques' d n k l (q, r) = concatMap (cliques' d n (k - 1) l) s
-                      where s = map (\ v -> (v : q, int r (nbrs d n l v))) r
+                      where s = map (\ v -> (v : q, intersectBy eq r (nbrs d n l v))) r
 
 
 {-
@@ -98,6 +98,6 @@ nbrs d n []      _ = []
 nbrs d n (h : t) v = if    h' > v
                      then  h' : t'
                      else  t'
-                     where h' = c d n (x d n (e d n v) (e d n h))
+                     where h' = c d n (zipWith (x d n) (e d n v) (e d n h))
                            t' = nbrs d n t v
 

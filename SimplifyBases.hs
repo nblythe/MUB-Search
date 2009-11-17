@@ -24,7 +24,7 @@ arePerms a b = any (== b) (permuteAll a)
 
 
 {-
-  SimplifyBases <d> <n> <sIn>
+  SimplifyBases <d> <n> <fIn>
 
   Bases read from fIn.
 -}
@@ -32,7 +32,7 @@ main = do
   {-
     Command line arguments.
   -}
-  sD : (sN : (sIn : argsT)) <- getArgs
+  sD : (sN : (fIn : argsT)) <- getArgs
   let d = read sD :: Integer
   let n = read sN :: Integer
 
@@ -40,8 +40,8 @@ main = do
   {-
     Read bases.
   -}
-  bases' <- readFile sIn
-  let bases = map (read . fixline) (lines bases') :: [[Integer]]
+  bases' <- readFile fIn
+  let bases = map (sort . read . fixline) (lines bases') :: [[Integer]]
 
 
   {-
@@ -54,6 +54,6 @@ main = do
   {-
     Contract to sorted lists (and sort the list of lists too) and output.
   -}
-  let bases' = map ((0 :) . (vecs2magics (d, n))) mats'
-  sequence_ $ map (putStrLn . concat . (intersperse ",") . (map show)) bases'
+  let bases' = sort $ map ((0 :) . (vecs2magics (d, n))) mats'
+  sequence_ $ map (putStrLn . ("[" ++) . (++ "]") . concat . (intersperse ",") . (map show)) bases'
 
