@@ -20,9 +20,9 @@ PACKAGES = -package binary
 #
 all: utilities major
 
-utilities: DumpBinaryAdjacencies DumpBases SimplifyBases SimplifyMUBs MUBs2LaTeX CheckFourierFamily EquivBases PermBases
+utilities: DumpBinaryAdjacencies DumpBases SimplifyVectors SimplifyBases SimplifyMUBs MUBs2LaTeX CheckFourierFamily EquivBases PermBases
 clean_utilities:
-	rm -f DumpBinaryAdjacencies DumpBases SimplifyBases SimplifyMUBs MUBs2LaTeX CheckFourierFamily EquivBases PermBases
+	rm -f DumpBinaryAdjacencies DumpBases SimplifyVectors SimplifyBases SimplifyMUBs MUBs2LaTeX CheckFourierFamily EquivBases PermBases
 
 major: FundamentalNeighbors MUB-Search HNSS
 clean_major:
@@ -69,6 +69,9 @@ DumpBinaryAdjacencies: DumpBinaryAdjacencies.hs
 
 DumpBases: DumpBases.hs
 	$(CC) -o DumpBases DumpBases.hs $(FLAGS) $(PACKAGES) $(PROF)
+
+SimplifyVectors: SimplifyVectors.hs Magic
+	$(CC) -o SimplifyVectors SimplifyVectors.hs Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 
 SimplifyBases: SimplifyBases.hs Perms Magic
 	$(CC) -o SimplifyBases SimplifyBases.hs Perms.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)

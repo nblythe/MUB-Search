@@ -2,6 +2,8 @@
   Convert a file of bases to a permutation-free sorted file of bases.
 
   2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)
+
+  TODO: all permutations? or just row permutations?
 -}
 
 import System(getArgs)
