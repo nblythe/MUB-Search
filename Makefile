@@ -20,9 +20,9 @@ PACKAGES = -package binary
 #
 all: utilities major
 
-utilities: MUBs2LaTeX CheckFourierFamily EquivBases PermBases
+utilities: MUBs2LaTeX CheckFourierFamily EquivBases
 clean_utilities:
-	rm -f MUBs2LaTeX CheckFourierFamily EquivBases PermBases
+	rm -f MUBs2LaTeX CheckFourierFamily EquivBases
 
 major: FundamentalNeighbors Simplify MUB-Search HNSS
 clean_major:
@@ -72,9 +72,6 @@ CheckFourierFamily: CheckFourierFamily.hs Magic Perms
 
 EquivBases: EquivBases.hs Magic Perms
 	$(CC) -o EquivBases EquivBases.hs Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
-
-PermBases: PermBases.hs Magic Perms
-	$(CC) -o PermBases PermBases.hs Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
 
 
 # The big boys.

@@ -44,12 +44,12 @@ main = do
   {-
     Expand bases to full matrices.
   -}
-  let mats1 = map (tail . (magics2vecs (d, n))) bases1
-  let mats2 = map (tail . (magics2vecs (d, n))) bases2
+  let mats1 = map ((magics2vecs (d, n)) . tail . sort) bases1
+  let mats2 = map ((magics2vecs (d, n)) . tail . sort) bases2
 
 
   {-
-    Check that each basis in the first file has a row permutation in the second file.
+    Check that each basis in the first file has a permutation in the second file.
   -}
   print $ map (inperm mats2) mats1
 

@@ -1,16 +1,23 @@
-MUB-Search
+Finding sets of mutually unbiased bases over cyclotomic fields
 
 2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)
 
-CheckFourierFamily: Check if bases in an old binary basis file are in the Fourier family. NEEDS UPDATING / REMOVAL
-DumpBinaryAdjacencies: Convert an old binary adjacency file to an ASCII adjacency file.  REMOVAL PENDING
-DumpBinaryBases: Convert an old binary basis file to an ASCII basis file. REMOVAL PENDING
-EquivBases: Determine if two ASCII basis files are equivalent.
-FundamentalNeighbors: Generate an ASCII adjacency file.
-HNSS: Generate linear system for Hilbert's Nullstellensatz for the MUB problem.
-MUBs2LaTeX: Convert an old binary MUB file to LaTeX source.  NEEDS UPDATING
-MUB-Search: Generate an ASCII basis or MUB file.
-PermBases: Expands an ASCII basis file to include all permutations.  REMOVAL PENDING
-SimplifyBases: Reduces the bases in an ASCII basis file to avoid permutations.  SEE FILE
-SimplifyMUBs: Reduces the sets of MUBs in an ASCII MUB file to avoid permutations.
+
+CheckFourierFamily.hs:    Top-level
+Cliques.hs:               Associated with MUB-Search.hs
+Combinadics.hs:           Associated with FundamentalNeighbors.hs
+CompressRange.py:         Top-level
+Cyclotomic.hs:            Associated with FundamentalNeighbors.hs
+Makefile:                 Meta
+FundamentalNeighbors.hs:  Top-level
+HNSS.hs:                  Top-level
+LICENSE:                  Meta
+Magic.hs:                 Associated with CheckFourierFamily.hs, MUBs2LaTeX.hs, MUB-Search.hs, Simplify.hs
+Polynomial.hs:            Associated with HNSS.hs
+MUBs2LaTeX.hs:            Top-level
+MUB-Search.hs:            Top-level
+Perms.hs:                 Associated with CheckFourierFamily.hs, Simplify.hs
+README:                   Meta
+Simplify.hs:              Top-level
+SublistPred.hs:           Associated with FundamentalNeighbors.hs
 
