@@ -20,9 +20,9 @@ PACKAGES = -package binary
 #
 all: utilities major
 
-utilities: DumpBinaryAdjacencies DumpBases MUBs2LaTeX CheckFourierFamily EquivBases PermBases
+utilities: MUBs2LaTeX CheckFourierFamily EquivBases PermBases
 clean_utilities:
-	rm -f DumpBinaryAdjacencies DumpBases MUBs2LaTeX CheckFourierFamily EquivBases PermBases
+	rm -f MUBs2LaTeX CheckFourierFamily EquivBases PermBases
 
 major: FundamentalNeighbors Simplify MUB-Search HNSS
 clean_major:
@@ -64,12 +64,6 @@ Cliques: Cliques.hs Magic
 
 # Small utilities.
 #
-DumpBinaryAdjacencies: DumpBinaryAdjacencies.hs
-	$(CC) -o DumpBinaryAdjacencies DumpBinaryAdjacencies.hs $(FLAGS) $(PACKAGES) $(PROF)
-
-DumpBases: DumpBases.hs
-	$(CC) -o DumpBases DumpBases.hs $(FLAGS) $(PACKAGES) $(PROF)
-
 MUBs2LaTeX: MUBs2LaTeX.hs Magic
 	$(CC) -o MUBs2LaTeX MUBs2LaTeX.hs Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 
