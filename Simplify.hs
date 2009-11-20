@@ -7,8 +7,8 @@
 import System(getArgs)
 import Data.List
 
-import Perms
 import Magic
+import Perms
 
 
 {-
@@ -21,27 +21,37 @@ eq1 d n a b = (s a) == (s b)
 
 {-
   Predicate indicating if a basis b is a permutation of a basis a.
+
+  May report a false negative if a and b both contain a pair of vectors
+  equivalent under permutations.
 -}
 eq2 :: Integer -> Integer -> [Integer] -> [Integer] -> Bool
 eq2 d n a b = (s a) == (s b)
-              where s = sort . transpose . (magics2vecs (d, n)) . sort
+              where s = sort . transpose . sort . transpose . (sortBy o) . (magics2vecs (d, n))
+                    o u v | u' < v'  = LT
+                          | u' > v'  = GT
+                          | u' == v' = GT
+                            where u' = sort u
+                                  v' = sort v
 
 
 {-
   Predicate indicating if a set of MUBs b is a permutation of a set
   of MUBs a.
+
+  May report a false negative if a and b each contain a basis that contains
+  a pair of vectors equivalent under permutations.
 -}
 eq3 :: Integer -> Integer -> [[Integer]] -> [[Integer]] -> Bool
-eq3 d n a b = (s a) == (s b)
-              where s = sort . (map t)
-                    t = sort . transpose . (magics2vecs (d, n)) . sort
+eq3 d n a b = all t a
+              where t x = any (eq2 d n x) b
 
 
 {-
   Simplify <d> <n> <r> <fIn>
 
   Objects are scalars (r = 1), vectors (r = 2), or matrices (r = 3).
-  Objects read from fIn.
+  Objects read from fIn or standard input if fIn is "-".
 -}
 main = do
   {-
@@ -56,7 +66,9 @@ main = do
   {-
     Read objects, remove permutations, write objects.
   -}
-  ts <- readFile fIn
+  ts <- if   fIn == "-"
+        then getContents
+        else readFile fIn
   let ts' | r == 1 = map show $ nubBy (eq1 d n) $ (map read (lines ts) :: [Integer])
           | r == 2 = map (show . sort) $ nubBy (eq2 d n) $ (map read (lines ts) :: [[Integer]])
           | r == 3 = map (show . sort) $ nubBy (eq3 d n) $ (map read (lines ts) :: [[[Integer]]])

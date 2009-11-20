@@ -20,13 +20,13 @@ PACKAGES = -package binary
 #
 all: utilities major
 
-utilities: DumpBinaryAdjacencies DumpBases SimplifyVectors SimplifyBases SimplifyMUBs MUBs2LaTeX CheckFourierFamily EquivBases PermBases
+utilities: DumpBinaryAdjacencies DumpBases MUBs2LaTeX CheckFourierFamily EquivBases PermBases
 clean_utilities:
-	rm -f DumpBinaryAdjacencies DumpBases SimplifyVectors SimplifyBases SimplifyMUBs MUBs2LaTeX CheckFourierFamily EquivBases PermBases
+	rm -f DumpBinaryAdjacencies DumpBases MUBs2LaTeX CheckFourierFamily EquivBases PermBases
 
-major: FundamentalNeighbors MUB-Search HNSS
+major: FundamentalNeighbors Simplify MUB-Search HNSS
 clean_major:
-	rm -f FundamentalNeighbors MUB-Search HNSS
+	rm -f FundamentalNeighbors Simplify MUB-Search HNSS
 
 clean: clean_utilities clean_major
 	rm -f *.hi *.o *.prof *.aux *.hp *.ps
@@ -70,15 +70,6 @@ DumpBinaryAdjacencies: DumpBinaryAdjacencies.hs
 DumpBases: DumpBases.hs
 	$(CC) -o DumpBases DumpBases.hs $(FLAGS) $(PACKAGES) $(PROF)
 
-SimplifyVectors: SimplifyVectors.hs Magic
-	$(CC) -o SimplifyVectors SimplifyVectors.hs Magic.o $(FLAGS) $(PACKAGES) $(PROF)
-
-SimplifyBases: SimplifyBases.hs Perms Magic
-	$(CC) -o SimplifyBases SimplifyBases.hs Perms.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
-
-SimplifyMUBs: SimplifyMUBs.hs Perms Magic
-	$(CC) -o SimplifyMUBs SimplifyMUBs.hs Perms.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
-
 MUBs2LaTeX: MUBs2LaTeX.hs Magic
 	$(CC) -o MUBs2LaTeX MUBs2LaTeX.hs Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 
@@ -94,9 +85,11 @@ PermBases: PermBases.hs Magic Perms
 
 # The big boys.
 #
-
 FundamentalNeighbors: FundamentalNeighbors.hs Cyclotomic SublistPred Combinadics Magic Perms
 	$(CC) -o FundamentalNeighbors FundamentalNeighbors.hs Cyclotomic.o SublistPred.o Combinadics.o Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
+
+Simplify: Simplify.hs Magic Perms
+	$(CC) -o Simplify Simplify.hs Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
 
 MUB-Search: MUB-Search.hs Cliques Magic
 	$(CC) -o MUB-Search MUB-Search.hs Cliques.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
