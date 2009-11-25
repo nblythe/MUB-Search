@@ -73,31 +73,32 @@ ints (h : g : t) = ints ((intersectBy eq h g) : t)
 
 {-
   All size k super cliques of a clique q, given a list l of potential
-  extending vertices.
+  extending vertices (expanded).
 -}
-cliques' :: (V a) => Integer -> Integer -> Integer -> [a] -> ([a], [a]) -> [[a]]
+cliques' :: (V a) => Integer -> Integer -> Integer -> [[a]] -> ([a], [a]) -> [[a]]
 cliques' _ _ 0 l (q, _) = [q]
 cliques' d n k l (q, r) = concatMap (cliques' d n (k - 1) l) s
-                      where s = map (\ v -> (v : q, intersectBy eq r (nbrs d n l v))) r
+                          where s = map (\ v -> (v : q, intersectBy eq r (nbrs d n l v))) r
 
 
 {-
   All size k cliques that include a clique from list qs.
 -}
 cliques :: (V a) => Integer -> Integer -> Integer -> [a] -> [[a]] -> [[a]]
-cliques d n k l qs = concatMap (\ q -> cliques' d n (k' q) l (g q)) qs
-                     where g  q = (q, ints (map (nbrs d n l) q))
+cliques d n k l qs = concatMap (\ q -> cliques' d n (k' q) l' (g q)) qs
+                     where g  q = (q, ints (map (nbrs d n l') q))
                            k' q = k - (toInteger . length) q
+                           l'   = map (e d n) l
 
 
 {-
   Neighbors to a vertex.
 -}
-nbrs :: V a => Integer -> Integer -> [a] -> a -> [a]
+nbrs :: V a => Integer -> Integer -> [[a]] -> a -> [a]
 nbrs d n []      _ = []
 nbrs d n (h : t) v = if    h' > v
                      then  h' : t'
                      else  t'
-                     where h' = c d n (zipWith (x d n) (e d n v) (e d n h))
+                     where h' = c d n (zipWith (x d n) (e d n v) h)
                            t' = nbrs d n t v
 
