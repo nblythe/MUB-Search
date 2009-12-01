@@ -8,12 +8,10 @@
 # CC is the Haskell compiler to use.
 # FLAGS are any additional command line flags passed to each compilation.
 # PROF is for any profiling information.
-# PACKAGES is for compiling against packages that need explicit reference.
 #
 CC = ghc
 FLAGS = -XFlexibleInstances -static -optl-static -optl-pthread
-PROF = #-prof -auto-all
-PACKAGES = -package binary
+PROF = -prof -auto-all
 
 
 # Operations.

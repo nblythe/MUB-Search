@@ -14,9 +14,11 @@ import Data.List (genericTake)
   Compute a vector's magic number.
 -}
 vec2magic :: (Integer, Integer) -> [Integer] -> Integer
-vec2magic (d, n) []        = 0
+{-vec2magic (d, n) []        = 0
 vec2magic (d, n) (xh : xt) =   xh * n^(d - (toInteger $ length xt) - 2)
-                             + (vec2magic (d, n) xt)
+                             + (vec2magic (d, n) xt)-}
+
+vec2magic (d, n) x = foldl (\ a (h, l) -> a + h * n^l) 0 $ zip x [0 .. (toInteger $ length x) - 1]
 
 
 {-
