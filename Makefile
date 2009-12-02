@@ -10,7 +10,7 @@
 # PROF is for any profiling information.
 #
 CC = ghc
-FLAGS = -XFlexibleInstances -static -optl-static -optl-pthread
+FLAGS = -XFlexibleInstances -XFlexibleContexts -static -optl-static -optl-pthread
 PROF = -prof -auto-all
 
 
@@ -18,9 +18,9 @@ PROF = -prof -auto-all
 #
 all: utilities major
 
-utilities: MUBs2LaTeX CheckFourierFamily EquivBases
+utilities: MUBs2LaTeX CheckFourierFamily EquivBases Promote
 clean_utilities:
-	rm -f MUBs2LaTeX CheckFourierFamily EquivBases
+	rm -f MUBs2LaTeX CheckFourierFamily EquivBases Promote
 
 major: FundamentalNeighbors Simplify MUB-Search HNSS
 clean_major:
@@ -70,6 +70,9 @@ CheckFourierFamily: CheckFourierFamily.hs Magic Perms
 
 EquivBases: EquivBases.hs Magic Perms
 	$(CC) -o EquivBases EquivBases.hs Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
+
+Promote: Promote.hs Magic
+	$(CC) -o Promote Promote.hs Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 
 
 # The big boys.

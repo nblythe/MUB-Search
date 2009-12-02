@@ -57,13 +57,15 @@ main = do
          then getContents
          else readFile fTen
 
-
   {-
     r = 1.
   -}
-  let q1 = cliques d n k ns (specJobs s p [0] vs)
-           where ns = map read (lines ns') :: [Integer]
-                 vs = map read (lines vs') :: [Integer]
+  let q1 = cliques d n k ns (specJobs s p [genericReplicate (d - 1) 0] vs)
+           where ns = map reverse $ map read (lines ns') :: [[Integer]]
+                 vs = map reverse $ map read (lines vs') :: [[Integer]]
+--  let q1 = cliques d n k ns (specJobs s p [0] vs)
+--           where ns = map read (lines ns') :: [Integer]
+--                 vs = map read (lines vs') :: [Integer]
 
 
   {-
@@ -77,7 +79,7 @@ main = do
   {-
     Output.
   -}
-  let s | k <= 2 = error ((show k) ++ "-cliques are boring")
+  let s | k <= 1 = error ((show k) ++ "-cliques are boring")
         | r == 1 = map (putStrLn . show) q1
         | r == 2 = map (putStrLn . show) q2
   sequence_ $ s
