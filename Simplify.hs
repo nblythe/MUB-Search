@@ -69,9 +69,9 @@ main = do
         then getContents
         else readFile f
   let ts' | r == 1 = map  show         $ nubBy eq1 $ (map read (lines ts) :: [Integer])
-          | r == 2 = map (show . sort) $ nubBy eq2 $ (map read (lines ts) :: [[Integer]])
-          | r == 3 = map (show . sort) $ nubBy eq3 $ (map read (lines ts) :: [[[Integer]]])
-          | r == 4 = map (show . sort) $ nubBy eq4 $ (map read (lines ts) :: [[[[Integer]]]])
+          | r == 2 = map (show . reverse . sort) $ nubBy eq2 $ (map read (lines ts) :: [[Integer]])
+          | r == 3 = map (show . reverse . sort) $ nubBy eq3 $ (map read (lines ts) :: [[[Integer]]])
+          | r == 4 = map (show . reverse . sort) $ nubBy eq4 $ (map read (lines ts) :: [[[[Integer]]]])
           | otherwise = error "Invalid rank"
   sequence_ $ map (putStrLn) ts'
 
