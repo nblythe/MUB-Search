@@ -112,7 +112,7 @@ main = do
   {-
     Command line arguments.
   -}
-  sS : (sJ : (sM : argsT)) <- getArgs
+  sS : sJ : sM : _ <- getArgs
   let s = read sS :: Integer
   let j = read sJ :: Integer
   let m = read sM :: Integer

@@ -1,5 +1,5 @@
 {-
-  Find bases that could potentially be in the Fourier family of bases.
+  Count bases that could potentially be in the Fourier family of bases.
   May include false positives.
 
   2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)
@@ -8,7 +8,6 @@
 import System(getArgs)
 import Data.List
 
-import Magic
 import Perms
 
 
@@ -40,35 +39,29 @@ isntFourierFamily b = not $ any isFourierFamilyForm (permuteAll b)
 
 
 {-
-  CheckFourierFamily <d> <n> <fBases>
+  CheckFourierFamily <f>
 
-  Dimension d.
-  nth roots of unity.
-  Bases read from fBases, or standard input if fBases is "-".
+  Bases read from f, or standard input if f is "-".
 -}
 main = do
   {-
     Command line arguments.
   -}
-  sD : (sN : (fBases : _)) <- getArgs
-  let d = read sD :: Integer
-  let n = read sN :: Integer
+  f : _ <- getArgs
 
 
   {-
-    Read a file of standardized bases as lists of lists of magic numbers, and convert to a
-    list of matrices, removing the fundamental vector from each basis.
+    Read a file of bases, removing the all-0 vector.
   -}
   bases <- if   fBases == "-"
            then getContents
            else readFile fBases
-  let bases' = map ((magics2vecs (d, n)) . tail . sort . read) (lines bases) :: [[[Integer]]]
+  let bases' = map (tail . sort . read) (lines bases) :: [[[Integer]]]
 
 
   {-
     Find all bases that could possibly be in the Fourier family.
   -}
   let fourier = filter (not . isntFourierFamily) bases'
-  let fourier' = map ((0 :) . (vecs2magics (d, n))) fourier
-  sequence_ $ map (putStrLn . show) fourier'
+  putStrLn $ show (length fourier)
 

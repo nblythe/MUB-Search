@@ -6,7 +6,6 @@
 import System(getArgs)
 import Data.List
 
-import Magic
 import Cliques
 
 
@@ -24,14 +23,13 @@ specJobs s p z l | s <= 0               = [x : z | x <- l]
 
 
 {-
-  MUB-Search <d> <n> <fAdj> <r> <fTen> <k> <s> <p>
+  MUB-Search <d> <n> <fAdj> <fSca> <r> <k> <s> <p>
 
-  Dimension d.
-  nth roots of unity.
+  Dimension d space.
+  Field of scalars has size n.
   Vectors adjacent to the 0-vector read from fAdj.
-  Vertices are scalars (r = 1) or vectors (r = 2).
-  Generating set (under permutations) of vertices read from fTen or
-  standard input if fTen is "-".
+  Scalars read from fSca or standard input if fSca is "-".
+  Scalars are rank r.
   Search for k-cliques.
   This process performs jobs p * s through (p + 1) * s - 1.
   If s == 0, the entire search is performed.
@@ -40,7 +38,7 @@ main = do
   {-
     Command line arguments.
   -}
-  d' : (n' : (fAdj : (r' : (fTen : (k' : (s' : (p' : argsT))))))) <- getArgs
+  d' : n' : fAdj : fSca : r' : k' : s' : p' : argsT <- getArgs
   let d = read d' :: Integer
   let n = read n' :: Integer
   let r = read r' :: Integer
@@ -53,34 +51,32 @@ main = do
     Common.
   -}
   ns' <- readFile fAdj
-  vs' <- if   fTen == "-"
+  vs' <- if   fSca == "-"
          then getContents
-         else readFile fTen
-
-  {-
-    r = 1.
-  -}
-  let q1 = cliques d n k ns (specJobs s p [genericReplicate (d - 1) 0] vs)
-           where ns = map reverse $ map read (lines ns') :: [[Integer]]
-                 vs = map reverse $ map read (lines vs') :: [[Integer]]
---  let q1 = cliques d n k ns (specJobs s p [0] vs)
---           where ns = map read (lines ns') :: [Integer]
---                 vs = map read (lines vs') :: [Integer]
-
+         else readFile fSca
 
   {-
     r = 2.
   -}
-  let q2 = cliques d n (k - 1) ns (specJobs s p [] vs)
-           where ns = transpose $ map ((genericTake d) . repeat . read) (lines ns') :: [[Integer]]
+  let q2 = cliques n k ns (specJobs s p [genericReplicate (d - 1) 0] vs)
+           where ns = map read (lines ns') :: [[Integer]]
                  vs = map read (lines vs') :: [[Integer]]
+
+
+  {-
+    r = 3.
+  -}
+  let q3 = cliques n (k - 1) ns (specJobs s p [] vs)
+           where ns = transpose $ map ((genericTake d) . repeat . read) (lines ns') :: [[[Integer]]]
+                 vs = map read (lines vs') :: [[[Integer]]]
 
 
   {-
     Output.
   -}
   let s | k <= 1 = error ((show k) ++ "-cliques are boring")
-        | r == 1 = map (putStrLn . show) q1
         | r == 2 = map (putStrLn . show) q2
+        | r == 3 = map (putStrLn . show) q3
+        | otherwise = error "Invalid rank"
   sequence_ $ s
 

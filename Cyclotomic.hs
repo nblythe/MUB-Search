@@ -1,13 +1,13 @@
 {-
   A representation of cyclotomic field elements
-  2009 Nathan Blythe, Dr. Oscar Boykin
+  2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)
 
   This module provides a representation of elements of a cyclotomic field - a field extension of the
   rationals that adjoins a primitive nth root of unity.  In this implementation, only cyclotomic
   fields with n = 2^m (where m is any natural number) are supported.
 -}
 
-module Cyclotomic where -- (Cyclotome, approx, boundMag2, cycloGamma, cycloZero, cycloOne, rootsOfUnity) where
+module Cyclotomic (Cyclotome, approx, boundMag2, cycloGamma, cycloZero, cycloOne, rootsOfUnity) where
 
 import Ratio
 import Complex(Complex)

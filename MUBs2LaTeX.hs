@@ -7,8 +7,6 @@
 import System(getArgs)
 import Data.List
 
-import Magic
-
 
 {-
   Convert a vector to a LaTeX string.
@@ -40,32 +38,32 @@ list2latex' d (lH : lT) = if   Prelude.null lT
 
 
 {-
-  MUBs2LaTeX <d> <n> <fMUBs>
+  MUBs2LaTeX <d> <f>
 
   Dimension d.
-  nth roots of unity.
-  Sets of MUBs read from fMUBs, or standard input if fMUBs is "-".
+  Sets of MUBs read from f, or standard input if f is "-".
 -}
 main = do
   {-
     Command line arguments.
   -}
-  sD : (sN : (fMUBs : _)) <- getArgs
+  sD : f : _ <- getArgs
   let d = read sD :: Integer
-  let n = read sN :: Integer
 
 
   {-
-    Read a file of MUBs and convert all bases to matrices.
+    Read a file of MUBs.
   -}
-  mubs <- if  fMUBs == "-"
+  mubs <- if  f == "-"
          then getContents
-         else readFile fMUBs
-  let mubs' = map (map ((map (0 :)) . (magics2vecs (d, n))) . read) (lines mubs) :: [[[[Integer]]]]
+         else readFile f
+  let mubs' = map read (lines mubs) :: [[[[Integer]]]]
+  let mubs'' = map (map (map (0 :))) mubs'
+
 
   {-
     Output LaTeX.
   -}
-  let mubs'' = map (list2latex d) mubs'
-  sequence_ $ map putStrLn mubs''
+  let mubs''' = map (list2latex d) mubs''
+  sequence_ $ map putStrLn mubs'''
 

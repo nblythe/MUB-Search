@@ -10,7 +10,6 @@ import Ratio
 import Data.List
 import Data.Maybe
 
-import Magic
 import SublistPred
 import Cyclotomic
 import Perms
@@ -68,12 +67,20 @@ pBias p e x = (snd $ head t) <= e
 
 {-
   FundamentalNeighbors d p e m s j
+
+  Dimension d.
+  2^pth roots of unity.
+  Approximation error e.
+  Adjacency is orthogonality if m == 0.
+  Adjacency is unbiasedness if m == 1.
+  This process performs jobs j * s through (j + 1) * s - 1.
+  If s == 0, the entire search is performed.
 -}
 main = do
   {-
     Command line arguments.
   -}
-  sD : (sP : (sE : (sM : (sS : (sJ : argsT))))) <- getArgs
+  sD : sP : sE : sM : sS : sJ : _ <- getArgs
   let d = read sD :: Integer
   let p = read sP :: Integer
   let e = read sE :: Rational
@@ -114,19 +121,17 @@ main = do
 
 
   {-
-    Select the desired list of vectors, form all permutations, and convert all resulting
-    vectors to magic numbers.
+    Select the desired list of vectors and form all permutations.
   -}
   let roots = if   m == 0
               then rootsOrth
               else rootsBias
   let vecs = map lookup roots
   let allVecs = lunions $ map permuteAllL vecs
-  let adj = vecs2magics (d, n) allVecs
 
 
   {-
     Output the list.
   -}
-  sequence_ $ map (putStrLn . show) adj
+  sequence_ $ map (putStrLn . show) allVecs
 

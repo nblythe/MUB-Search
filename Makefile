@@ -56,7 +56,7 @@ Magic: Magic.hs
 Polynomial: Polynomial.hs
 	$(CC) -c Polynomial.hs $(FLAGS) $(PACKAGES) $(PROF)
 
-Cliques: Cliques.hs Magic
+Cliques: Cliques.hs
 	$(CC) -c Cliques.hs $(FLAGS) $(PACKAGES) $(PROF)
 
 
@@ -65,10 +65,10 @@ Cliques: Cliques.hs Magic
 MUBs2LaTeX: MUBs2LaTeX.hs Magic
 	$(CC) -o MUBs2LaTeX MUBs2LaTeX.hs Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 
-CheckFourierFamily: CheckFourierFamily.hs Magic Perms
+CheckFourierFamily: CheckFourierFamily.hs Perms
 	$(CC) -o CheckFourierFamily CheckFourierFamily.hs Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
 
-EquivBases: EquivBases.hs Magic Perms
+EquivBases: EquivBases.hs Perms
 	$(CC) -o EquivBases EquivBases.hs Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
 
 Promote: Promote.hs Magic
@@ -80,10 +80,10 @@ Promote: Promote.hs Magic
 FundamentalNeighbors: FundamentalNeighbors.hs Cyclotomic SublistPred Combinadics Magic Perms
 	$(CC) -o FundamentalNeighbors FundamentalNeighbors.hs Cyclotomic.o SublistPred.o Combinadics.o Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
 
-Simplify: Simplify.hs Magic Perms
-	$(CC) -o Simplify Simplify.hs Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
+Simplify: Simplify.hs
+	$(CC) -o Simplify Simplify.hs $(FLAGS) $(PACKAGES) $(PROF)
 
-MUB-Search: MUB-Search.hs Cliques Magic
+MUB-Search: MUB-Search.hs Cliques
 	$(CC) -o MUB-Search MUB-Search.hs Cliques.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
 
 HNSS: HNSS.hs Polynomial
