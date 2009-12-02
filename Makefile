@@ -18,9 +18,9 @@ PROF = -prof -auto-all
 #
 all: utilities major
 
-utilities: MUBs2LaTeX CheckFourierFamily EquivBases Promote
+utilities: MUBs2LaTeX CheckFourierFamily EquivBases
 clean_utilities:
-	rm -f MUBs2LaTeX CheckFourierFamily EquivBases Promote
+	rm -f MUBs2LaTeX CheckFourierFamily EquivBases
 
 major: FundamentalNeighbors Simplify MUB-Search HNSS
 clean_major:
@@ -50,9 +50,6 @@ Combinadics: Combinadics.hs
 SublistPred: SublistPred.hs Combinadics
 	$(CC) -c SublistPred.hs $(FLAGS) $(PACKAGES) $(PROF)
 
-Magic: Magic.hs
-	$(CC) -c Magic.hs $(FLAGS) $(PACKAGES) $(PROF)
-
 Polynomial: Polynomial.hs
 	$(CC) -c Polynomial.hs $(FLAGS) $(PACKAGES) $(PROF)
 
@@ -62,29 +59,26 @@ Cliques: Cliques.hs
 
 # Small utilities.
 #
-MUBs2LaTeX: MUBs2LaTeX.hs Magic
-	$(CC) -o MUBs2LaTeX MUBs2LaTeX.hs Magic.o $(FLAGS) $(PACKAGES) $(PROF)
+MUBs2LaTeX: MUBs2LaTeX.hs
+	$(CC) -o MUBs2LaTeX MUBs2LaTeX.hs $(FLAGS) $(PACKAGES) $(PROF)
 
 CheckFourierFamily: CheckFourierFamily.hs Perms
-	$(CC) -o CheckFourierFamily CheckFourierFamily.hs Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
+	$(CC) -o CheckFourierFamily CheckFourierFamily.hs Perms.o $(FLAGS) $(PACKAGES) $(PROF)
 
 EquivBases: EquivBases.hs Perms
-	$(CC) -o EquivBases EquivBases.hs Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
-
-Promote: Promote.hs Magic
-	$(CC) -o Promote Promote.hs Magic.o $(FLAGS) $(PACKAGES) $(PROF)
+	$(CC) -o EquivBases EquivBases.hs Perms.o $(FLAGS) $(PACKAGES) $(PROF)
 
 
 # The big boys.
 #
-FundamentalNeighbors: FundamentalNeighbors.hs Cyclotomic SublistPred Combinadics Magic Perms
-	$(CC) -o FundamentalNeighbors FundamentalNeighbors.hs Cyclotomic.o SublistPred.o Combinadics.o Magic.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
+FundamentalNeighbors: FundamentalNeighbors.hs Cyclotomic SublistPred Combinadics Perms
+	$(CC) -o FundamentalNeighbors FundamentalNeighbors.hs Cyclotomic.o SublistPred.o Combinadics.o Perms.o $(FLAGS) $(PACKAGES) $(PROF)
 
 Simplify: Simplify.hs
 	$(CC) -o Simplify Simplify.hs $(FLAGS) $(PACKAGES) $(PROF)
 
 MUB-Search: MUB-Search.hs Cliques
-	$(CC) -o MUB-Search MUB-Search.hs Cliques.o Magic.o $(FLAGS) $(PACKAGES) $(PROF)
+	$(CC) -o MUB-Search MUB-Search.hs Cliques.o $(FLAGS) $(PACKAGES) $(PROF)
 
 HNSS: HNSS.hs Polynomial
 	$(CC) -o HNSS HNSS.hs Polynomial.o $(FLAGS) $(PACKAGES) $(PROF)

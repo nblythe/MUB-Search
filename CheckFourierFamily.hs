@@ -53,9 +53,9 @@ main = do
   {-
     Read a file of bases, removing the all-0 vector.
   -}
-  bases <- if   fBases == "-"
+  bases <- if   f == "-"
            then getContents
-           else readFile fBases
+           else readFile f
   let bases' = map (tail . sort . read) (lines bases) :: [[[Integer]]]
 
 
