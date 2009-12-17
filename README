@@ -2,23 +2,3 @@ Finding sets of mutually unbiased bases over cyclotomic fields
 
 2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)
 
-
-CheckFourierFamily.hs:    Haskell source file (top-level)
-Cliques.hs:               Haskell source file
-Combinadics.hs:           Haskell source file
-CompressRange.py:         Haskell source file (top-level)
-Cyclotomic.hs:            Haskell source file
-EquivBases.hs:            Haskell source file (top-level)
-FundamentalNeighbors.hs:  Haskell source file (top-level)
-HNSS.hs:                  Haskell source file
-LICENSE:                  Meta
-Magic.hs:                 Haskell source file
-Makefile:                 Meta
-MUBs2LaTeX.hs:            Haskell source file (top-level)
-MUB-Search.hs:            Haskell source file (top-level)
-Perms.hs:                 Haskell source file
-Polynomial.hs:            Haskell source file
-README:                   Meta
-Simplify.hs:              Haskell source file (top-level)
-SublistPred.hs:           Haskell source file
-

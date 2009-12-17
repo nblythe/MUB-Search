@@ -16,7 +16,13 @@ import Perms
 
 
 {-
-  Sum definition without using zero.
+  Sum of the elements in a list.
+
+  This function differs from Haskell's sum function in that it does not require
+  that the type of the list elements includes a working fromInteger definition.
+  In general that is a safe assumption, as the Num class requires a fromInteger
+  implementation.  However, the Cyclotomic type does not fully support
+  fromInteger, and so we avoid using it here.
 -}
 rsum :: (Num a) => [a] -> a
 rsum (h : t) = foldl (+) h t
@@ -24,6 +30,9 @@ rsum (h : t) = foldl (+) h t
 
 {-
   Unique elements in a list.
+
+  TODO: is there a reason we're using this instead of nub?  Is it faster or
+  something?
 -}
 unique xs =
  let

@@ -8,8 +8,9 @@
   Vertex types are defined for Integers (scalars) and lists of Integers
   (vectors).
 
-  Note: the "Flexible Instances" Haskell extension is required.  In GHC/GHCI
-  this necessitates the -XFlexibleInstances flag.
+  Note: the "Flexible Instances" and "Flexible Constructs" Haskell extensions
+  are required.  In GHC/GHCI this necessitates the -XFlexibleInstances and
+  -XFlexibleConstructs flags.
 -}
 
 module Cliques (cliques) where
@@ -68,19 +69,19 @@ ints (h : g : t) = ints ((intersectBy e h g) : t)
   All size k super-cliques of a clique c, given a list r of potential
   extending vertices.
 -}
-cliques' :: (Scalar a, Scalar (Vector a)) => Integer -> Integer -> [Vector a] -> ([Vector a], [Vector a]) -> [Clique a]
-cliques' _ 0 l (c, _) = [c]
-cliques' n k l (c, r) = concatMap (cliques' n (k - 1) l) s
-                        where s = map (\ v -> (v : c, intersectBy e r (nbrs n l v))) r
+cliques' :: (Scalar a, Scalar (Vector a)) => Integer -> Integer -> [[Vector a]] -> ([Vector a], [Vector a]) -> [Clique a]
+cliques' _ 0 _ (c, _) = [c]
+cliques' n k (l : ls) (c, r) = concatMap (cliques' n (k - 1) ls) s
+                               where s = map (\ v -> (v : c, intersectBy e r (nbrs n l v))) r
 
 
 {-
   All size k cliques that include a clique from list cs.
 -}
-cliques :: (Scalar a, Scalar (Vector a)) => Integer -> Integer -> [Vector a] -> [Clique a] -> [Clique a]
-cliques n k l cs = concatMap (\ c -> cliques' n (k' c) l (g c)) cs
-                   where g  c = (c, ints (map (nbrs n l) c))
-                         k' c = k - (toInteger . length) c
+cliques :: (Scalar a, Scalar (Vector a)) => Integer -> Integer -> [[Vector a]] -> [Clique a] -> [Clique a]
+cliques n k (l : ls) cs = concatMap (\ c -> cliques' n (k' c) ls (g c)) cs
+                          where g  c = (c, ints (map (nbrs n l) c))
+                                k' c = k - (toInteger . length) c
 
 
 {-
