@@ -2,6 +2,14 @@
   Functions for dealing with permutations of lists and lists of lists.
 
   2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)
+
+  Before using this code, check Combinadics.hs to see if it provides sufficient
+  functionality.  This code is very old and not particularly intelligent.  A
+  useful task would be to use the code here to write nextPerm (see
+  Combinadics.hs).
+
+  Files still using this code:
+    FundamentalNeighbors.hs
 -}
 
 module Perms where

@@ -1,11 +1,31 @@
 {-
-  Combinadics, factoradics, etc.
+  Reasonably fast enumerations for combinations, `recombinations', and
+  permutations.
 
   2009 Nathan Blythe, Dr. Oscar Boykin (see LICENSE for details)
 
-  A combination is a length m subset {0 .. n - 1}
-  A recombination is a length m multisubset of {0 .. n - 1}
-  Here we provide bijective enumerations for combinations and recombinations.
+  A combination is a length m subset of {0 .. n - 1}.
+  A `recombination' is a length m submultiset of {0 .. n - 1}.
+  A permutation is a length m ordered subset of {0 .. n - 1}.
+
+  General notes:
+    - The num* functions determine how many of that particular object can be
+      constructed.
+
+    - The nat2* functions construct the unique * corresponding to the natural
+      number provided.
+
+    - The *2nat functions construct the unique natural number corresponding to
+      the * provided.
+
+    - select constructs a sublist of a provided list using indices from another
+      provided list.
+
+    - nat2* is slow, but next* is fast.  make* uses nat2* and next* to
+      construct sequences of *s.
+
+    - Unfortunately there is no nextPerm or makePerm (yet!).  For the time
+      being, use Perms.hs when a large series of permutations is needed.
 -}
 
 module Combinadics (numCombs, comb2nat, nat2comb, nextComb, makeCombs,
@@ -14,10 +34,6 @@ module Combinadics (numCombs, comb2nat, nat2comb, nextComb, makeCombs,
                     select) where
 
 
-{-
-  Need the "genericIndex" and "genericTake" functions so we can index lists by
-  Integers.
--}
 import Data.List
 import Data.Maybe
 
@@ -75,7 +91,7 @@ comb2nat n r = f (m - 1) r
 
 
 {-
-  Length m combinadic in n variables corresponding to a natural number x.
+  Length m combination in n variables corresponding to a natural number x.
 -}
 nat2comb :: Integer -> Integer -> Integer -> [Integer]
 nat2comb n m x = f (-1) m x
@@ -121,14 +137,14 @@ makeCombs n m x c = genericTake c $ iterate (nextComb n) f
 
 
 {-
-  Number of length m recombinadics in n variables.
+  Number of length m recombinations in n variables.
 -}
 numRecombs :: Integer -> Integer -> Integer
 numRecombs n m = n & m
 
 
 {-
-  Natural number corresponding to a recombinadic r in n variables.
+  Natural number corresponding to a recombination r in n variables.
 -}
 recomb2nat :: Integer -> [Integer] -> Integer
 recomb2nat n r = f (m - 1) r
@@ -141,7 +157,7 @@ recomb2nat n r = f (m - 1) r
 
 
 {-
-  Length m recombinadic in n variables corresponding to a natural number x.
+  Length m recombination in n variables corresponding to a natural number x.
 -}
 nat2recomb :: Integer -> Integer -> Integer -> [Integer]
 nat2recomb n m x = f 0 m x
@@ -182,13 +198,6 @@ nextRecomb n x = snd $ f n x
 makeRecombs :: Integer -> Integer -> Integer -> Integer -> [[Integer]]
 makeRecombs n m x c = genericTake c $ iterate (nextRecomb n) f
                       where f = nat2recomb n m x
-
-
-{-
-  Select elements from a list x based on indices in s.
--}
-select :: [a] -> [Integer] -> [a]
-select x s = map (genericIndex x) s
 
 
 {-
@@ -238,10 +247,18 @@ nat2perm m x = f' [0 .. m - 1] (nat2fact m x)
 
 
 {-
-  Test functions for combinations, recombinations, and permutations..  Should
-  return a list of "True"s.  Use "and" to test for failure.
+  Select elements from a list x based on indices in s.
+-}
+select :: [a] -> [Integer] -> [a]
+select x s = map (genericIndex x) s
 
-  Note: these functions are not a fair measure of the speed of generation.
+
+{-
+  Test functions for combinations, recombinations, and permutations..  Should
+  return a list of `True's.  Use `and' to test for failure.
+
+  Note: these functions are not a good test of the speed of generation and
+  do not test next*.
 -}
 testCombs :: Integer -> Integer -> [Bool]
 testCombs n m = map (\ (a, b) -> a == b) $ zip xs x's
